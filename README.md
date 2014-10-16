@@ -1,7 +1,7 @@
 ssllabs-scan
 ============
 
-This tool is a command-line client for the SSL Laps APIs, designed for
+This tool is a command-line client for the SSL Labs APIs, designed for
 automated and/or bulk testing.
 
 Because SSL Labs APIs are not yet publicly available, this tool is useful only
