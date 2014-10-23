@@ -17,6 +17,7 @@
 
 package main
 
+import "crypto/tls"
 import "encoding/json"
 import "flag"
 import "fmt"
@@ -489,7 +490,12 @@ func (manager *Manager) startAssessment(h string) {
 }
 
 func (manager *Manager) run() {
-	httpClient = &http.Client{}
+	// XXX Allow self-signed certificates for now. Will be removed in the final version.
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config { InsecureSkipVerify: true },
+    }
+	
+    httpClient = &http.Client { Transport: transport }
 
 	// Ping SSL Labs to determine how many concurrent
 	// assessments we're allowed to use. Print the API version
