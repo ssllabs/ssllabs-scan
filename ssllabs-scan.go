@@ -675,9 +675,9 @@ func main() {
 	} else {
 		// Read hostnames from the rest of the args
 		hostnames = flag.Args()
-    }
+	}
     
-    // Validate all hostnames before we attempt to test them. At least
+	// Validate all hostnames before we attempt to test them. At least
 	// one hostname is required.
 	for _, host := range hostnames {
 		if validateHostname(host) == false {
