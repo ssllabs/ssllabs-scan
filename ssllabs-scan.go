@@ -129,11 +129,11 @@ type LabsProtocol struct {
 }
 
 type LabsSimClient struct {
-	Id       int
-	Name     string
-	Platform string
-	Version  string
-	IsModern bool
+	Id          int
+	Name        string
+	Platform    string
+	Version     string
+	IsReference bool
 }
 
 type LabsSimulation struct {
