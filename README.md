@@ -9,5 +9,8 @@ If you'd like to contribute, please have a look at the TODO file. For larger wor
 please get in touch first. For smaller work (there are some TODO comments in the
 source code), feel free to submit pull requests.
 
+To discuss the API and the development of the reference client implementation, please
+join the ssllabs-devel mailing list: https://sourceforge.net/p/ssllabs/mailman/ssllabs-devel/
+
 Before you use this tool please review the terms and conditions, which are included
 with the API documentation.
