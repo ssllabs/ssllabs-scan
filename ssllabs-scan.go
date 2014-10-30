@@ -225,10 +225,12 @@ type LabsReport struct {
 	CacheExpiryTime int
 	Endpoints       []LabsEndpoint
 	CertHostnames   []string
+	rawJSON			string
 }
 
 type LabsResults struct {
 	reports []LabsReport
+	responses	[]string
 }
 
 type LabsInfo struct {
@@ -396,6 +398,9 @@ func invokeAnalyze(host string, clearCache bool) (*LabsReport, error) {
 			return nil, err
 		}
 
+		// Add the JSON body to the response
+		analyzeResponse.rawJSON = string(body)
+		
 		return &analyzeResponse, nil
 	}
 }
@@ -552,7 +557,8 @@ func (manager *Manager) run() {
 				activeAssessments--
 
 				manager.results.reports = append(manager.results.reports, *e.report)
-
+				manager.results.responses   = append(manager.results.responses, e.report.rawJSON)
+				
 				// Are we done?
 				if (activeAssessments == 0) && (moreAssessments == false) {
 					close(manager.FrontendEventChannel)
@@ -604,6 +610,7 @@ func main() {
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, info, debug, or trace.")
 	var conf_json_pretty = flag.Bool("json-pretty", false, "Enable pretty JSON output")
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
+	var conf_rawoutput = flag.Bool("rawoutput", false, "Print RAW JSON response")
 
 	flag.Parse()
 
@@ -631,11 +638,16 @@ func main() {
 			var err error
 
 			if *conf_json_pretty {
+				// Pretty JSON output
 				results, err = json.MarshalIndent(manager.results.reports, "", "    ")
+			} else if *conf_rawoutput {
+				// Raw (non-Go-mangled) JSON output
+				fmt.Println(manager.results.responses)
 			} else {
+				// Regular JSON output
 				results, err = json.Marshal(manager.results.reports)
 			}
-
+			
 			if err != nil {
 				log.Fatalf("[ERROR] Output to JSON failed: %v", err)
 			}

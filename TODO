@@ -2,8 +2,6 @@
 TODO
 ----
 
-- Send the original JSON response to output, not the Go version.
-
 - Make the testing resumable.
 
 - Read hostnames from a file.
