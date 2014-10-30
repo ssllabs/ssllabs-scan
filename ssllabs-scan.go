@@ -494,9 +494,8 @@ func (manager *Manager) startAssessment(h string) {
 }
 
 func (manager *Manager) run() {
-	// XXX Allow self-signed certificates for now. Will be removed in the final version.
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config { InsecureSkipVerify: true },
+		TLSClientConfig: &tls.Config { InsecureSkipVerify: false },
     }
 	
     httpClient = &http.Client { Transport: transport }
