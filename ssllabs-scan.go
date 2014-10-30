@@ -22,9 +22,13 @@ import "encoding/json"
 import "flag"
 import "fmt"
 import "io/ioutil"
+import "bufio"
+import "os"
 import "log"
 import "math/rand"
+import "net"
 import "net/http"
+import "net/url"
 import "strconv"
 import "strings"
 import "sync/atomic"
@@ -599,11 +603,50 @@ func parseLogLevel(level string) int {
 	return -1
 }
 
+func readLines(path *string) ([]string, error) {
+	file, err := os.Open(*path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	return lines, scanner.Err()
+}
+
+func validateURL(URL string) bool {
+	u, err := url.Parse(URL)
+	if err != nil {
+		return false
+	} else if validateHostname(u.Host) == false {
+		return false
+	} else {
+		return true
+	}
+}
+
+func validateHostname(hostname string) bool {
+	addrs, err := net.LookupHost(hostname)
+	
+	// In some cases there is no error
+	// but there are also no addresses
+	if err != nil || len(addrs) < 1 {
+		return false
+	} else {
+		return true
+	}
+}
+
 func main() {
 	var conf_api = flag.String("api", "REQUIRED", "API entry point, for example https://www.example.com/api/")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, info, debug, or trace.")
 	var conf_json_pretty = flag.Bool("json-pretty", false, "Enable pretty JSON output")
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
+	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)") 
 
 	flag.Parse()
 
@@ -613,13 +656,35 @@ func main() {
 		logLevel = LOG_NONE
 	}
 
-	// TODO Verify that the API entry point is a URL.
+	// Verify that the API entry point is a URL.
 	apiLocation = *conf_api
+	if validateURL(apiLocation) == false {
+		log.Fatalf("[ERROR] Invalid API URL: %v", apiLocation)
+	}
 
-	// TODO Validate all hostnames before we attempt to test them. At least
-	//      one hostname is required.
-	hostnames := flag.Args()
+	var hostnames []string
+	
+	if *conf_hostfile != "" {
+		// Open file, and read it
+		var err error
+		hostnames, err = readLines(conf_hostfile)
+		if err != nil {
+		    log.Fatalf("[ERROR] Reading from specified hostfile failed: %v", err)
+		}
 
+	} else {
+		// Read hostnames from the rest of the args
+		hostnames = flag.Args()
+	}
+    
+	// Validate all hostnames before we attempt to test them. At least
+	// one hostname is required.
+	for _, host := range hostnames {
+		if validateHostname(host) == false {
+			log.Fatalf("[ERROR] Invalid hostname: %v", host)
+		}
+	}
+    
 	hp := NewHostProvider(hostnames)
 	manager := NewManager(hp)
 
