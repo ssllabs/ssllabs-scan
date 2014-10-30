@@ -260,6 +260,10 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 
 		resp, err := httpClient.Do(req)
 		if err == nil {
+			if logLevel >= LOG_DEBUG {
+				log.Printf("[DEBUG] Response status code (%v): %v", resp.StatusCode, reqId)
+			}
+
 			// Adjust maximum concurrent requests.
 
 			headerValue := resp.Header.Get("X-ClientMaxAssessments")
