@@ -7,18 +7,19 @@
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
 
+The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload.
+
+### Expected Changes ###
+
 We are fine-tuning this API at the moment; small changes should be expected. The following changes are planned:
 
 * Expose all certificate chains.
 * Don't allow clearCache for a short time (e.g., 30 seconds) after an assessment is complete.
-* Add field `status` to Endpoint.
-* Add a `notice` field to the Info object.
+* Add field `status` to [Endpoint](#endpoint).
+* Add a `notice` field to the [Info object](#info).
 * Can Info also contain the IP address range of the scanning servers?
 
-The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload.
-
 ### Do not hardcode SSL Labs IP addresses ###
-
 We're constantly working to improve SSL Labs, and that often means that the underlying IP addresses change. For best results, do not hardcode SSL Labs IP addresses in your code.
 
 The best way to use SSL Labs is to resolve our hostname once for every test, then continue to use the same IP address for that particular test. This approach will ensure consistent responses even if we use a DNS RR deployment with short TTL times. That said, the next version of SSL Labs operates as a cluster; this generally means that you should get consistent results no matter which node you hit.
@@ -27,7 +28,7 @@ But please do ensure that you have enabled session caching in your client/librar
 
 ### Terms and Conditions ###
 
-Our standard (pre-API) terms and conditions apply: <https://www.ssllabs.com/about/terms.html> As the APIs get stable, we will merge the two documents into one. When in doubt, the terms specified here override the terms currently on the SSL Labs web site.
+Our standard (pre-API) terms and conditions apply: <https://www.ssllabs.com/about/terms.html>.  As the APIs get stable, we will merge the two documents into one. When in doubt, the terms specified here override the terms currently on the SSL Labs web site.
 
 We are making the SSL Labs APIs available to help everyone automate batch testing of their own infrastructure. Our terms and conditions are designed to help us make the best use of our limited resources without impeding our goals.
 
@@ -57,9 +58,9 @@ This section documents the available protocol calls.
 
 #### Check SSL Labs availability ####
 
-This call should be used to check the availability of the SSL Labs servers, retrieve the engine and criteria version, and initialize the maximum number of concurrent assessments. Returns one Info object on success.
+This call should be used to check the availability of the SSL Labs servers, retrieve the engine and criteria version, and initialize the maximum number of concurrent assessments. Returns one [Info object](#info) on success.
 
-**URL:** `info`
+**API Call:** `info`
 
 Parameters:
 
@@ -67,7 +68,7 @@ Parameters:
 
 #### Invoke assessment and check progress ####
 
-This call is used to initiate an assessment, or to retrieve the status of an assessment in progress or in the cache. It will return a single Host object on success. The Endpoint object embedded in the Host object will provide partial endpoint results.
+This call is used to initiate an assessment, or to retrieve the status of an assessment in progress or in the cache. It will return a single [Host object](#host) on success. The Endpoint object embedded in the Host object will provide partial endpoint results.
 
 **API Call:** `analyze`
 
@@ -76,7 +77,7 @@ Parameters:
 * **host** - hostname; required.
 * **publish** - set to "on" if assessment results should be published on the public results boards; optional, defaults to "off".
 * **clearCache** - if set to "on" then cached assessment results are ignored and a new assessment is started. However, if there's already an assessment in progress, its status is delivered instead. This parameter should be used only once to initiate a new assessment; further invocations should omit it to avoid causing an assessment loop.
-* **fromCache** - always deliver  cached assessment reports if available; optional, defaults to "off". This parameter is intended for API consumers that don't want to wait for assessment results. Can't be used at the same time as the clearCache parameter.
+* **fromCache** - always deliver cached assessment reports if available; optional, defaults to "off". This parameter is intended for API consumers that don't want to wait for assessment results. Can't be used at the same time as the clearCache parameter.
 * **all** - by default this call results only summaries of individual endpoints. If this parameter is set to "on", full information will be returned. If set to "done", full information will be returned only if the assessment is complete (status is READY or ERROR).
 
 Examples:
@@ -86,7 +87,7 @@ Examples:
 
 #### Retrieve detailed endpoint information ####
 
-This call is used to retrieve detailed endpoint information. It will return a single Endpoint object on success. The object will contain complete assessment information.
+This call is used to retrieve detailed endpoint information. It will return a single [Endpoint object](#endpoint) on success. The object will contain complete assessment information.
 
 **API Call:** `getEndpointData`
 
@@ -102,9 +103,9 @@ Example:
 
 #### Retrieve known status codes ####
 
-This call will return one StatusCodes instance.
+This call will return one [StatusCodes instance](#statuscodes).
 
-**API Call:** `/getStatusCodes`
+**API Call:** `getStatusCodes`
 
 Parameters:
 
@@ -164,7 +165,7 @@ All successful API calls contain the response header `X-ClientMaxAssessments`, w
 
 The API is versioned. New versions of the API will be introduced whenever incompatible changes need to be made to the protocol. When a new version becomes available, existing applications can continue to use the previous version for as long as it is supported.
 
-To reduce version number inflation, new fields may added to the results without a change in protocol version number.
+To reduce version number inflation, new fields may be added to the results without a change in protocol version number.
 
 ## Response Objects ##
 
@@ -187,7 +188,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **engineVersion** - assessment engine version (e.g., "1.0.120")
 * **criteriaVersion** - grading criteria version (e.g., "2009")
 * **cacheExpiryTime** - when will the assessment results expire from the cache (typically set only for assessment with errors; otherwise the results stay in the cache for as long as there's sufficient room)
-* **endpoints[]** - list of Endpoint objects
+* **endpoints[]** - list of [Endpoint objects](#endpoint)
 * **certHostnames[]** - the list of certificate hostnames collected from the certificates seen during assessment. The hostnames may not be valid.
 
 ### Endpoint ###
@@ -210,11 +211,11 @@ The remainder of the document explains the structure of the returned objects. Th
 ### EndpointDetails ###
 
 * **hostStartTime** = endpoint assessment starting time, in milliseconds since 1970. This field is useful when test results are retrieved in several HTTP invocations. Then, you should check that the hostStartTime value matches the startTime value of the host.
-* **key{}** - key information
-* **cert{}** - certificate information
-* **chain{}** - chain information
-* **protocols[]** - supported protocols
-* **suites{}** - supported cipher suites
+* **key{}** - [key information](#key)
+* **cert{}** - [certificate information](#cert)
+* **chain{}** - [chain information](#chain)
+* **protocols[]** - supported [protocols](#protocol)
+* **suites{}** - supported [cipher suites](#suites)
 * **serverSignature** - Contents of the HTTP Server response header when known. This fiel could be absent for one of two reasons: 1) the HTTP request failed (check httpStatusCode) or 2) there was no Server response header returned.
 * **prefixDelegation** - true if this endpoint is reachable via a hostname with the www prefix
 * **nonPrefixDelegation** (moved here from the summary) - true if this endpoint is reachable via a hostname without the www prefix
@@ -250,7 +251,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 1 - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
    * bit 2 - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
 * **rc4WithModern** - true if RC4 is used with modern clients.
-* **sims** - instance of SimDetails.
+* **sims** - instance of [SimDetails](#simdetails).
 * **heartbleed** - true if the server is vulnerable to the Heartbleed attack.
 * **heartbeat** - true if the server supports the Heartbeat extension.
 * **openSslCcs** - results of the CVE-2014-0224 test:
@@ -310,7 +311,7 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ### Chain ###
 
-* **certs[]** - a list of ChainCert objects, representing the chain certificates in the order in which they were retrieved from the server
+* **certs[]** - a list of [ChainCert objects](#chaincert), representing the chain certificates in the order in which they were retrieved from the server
 * **issues** - a number of flags that describe the chain and the problems it has:
    * bit 0 (1) - unused
    * bit 1 (2) - incomplete chain (set only when we were able to build a chain by adding missing intermediate certificates from external sources)
@@ -351,11 +352,11 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ### SimDetails ###
 
-* **results[]** - instances of Simulation.
+* **results[]** - instances of [Simulation](#simulation).
 
 ### Simulation ###
 
-* **client** - instance of SimClient.
+* **client** - instance of [SimClient](#simclient).
 * **errorCode** - zero if handshake was successful, 1 if it was not.
 * **attempts** - always 1 with the current implementation.
 * **protocolId** - Negotiated protocol ID.
@@ -363,7 +364,7 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ### Suites ###
 
-* **list[]** - list of Suite objects, see below
+* **list[]** - list of [Suite objects](#suite)
 * **preference** - true if the server actively selects cipher suites; if null, we were not able to determine if the server has a preference
 
 ### Suite ###
