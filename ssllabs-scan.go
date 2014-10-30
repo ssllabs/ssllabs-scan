@@ -57,7 +57,7 @@ var maxAssessments = 1
 
 var requestCounter uint64 = 0
 
-var apiLocation = ""
+var apiLocation = "https://api.dev.ssllabs.com/api/fa78d5a4/"
 
 var httpClient *http.Client
 
@@ -642,7 +642,7 @@ func validateHostname(hostname string) bool {
 }
 
 func main() {
-	var conf_api = flag.String("api", "REQUIRED", "API entry point, for example https://www.example.com/api/")
+	var conf_api = flag.String("api", "BUILTIN", "API entry point, for example https://www.example.com/api/")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, info, debug, or trace.")
 	var conf_json_pretty = flag.Bool("json-pretty", false, "Enable pretty JSON output")
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
@@ -657,7 +657,10 @@ func main() {
 	}
 
 	// Verify that the API entry point is a URL.
-	apiLocation = *conf_api
+	if *conf_api != "BUILTIN" {
+		apiLocation = *conf_api
+	}
+	
 	if validateURL(apiLocation) == false {
 		log.Fatalf("[ERROR] Invalid API URL: %v", apiLocation)
 	}
