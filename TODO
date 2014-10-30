@@ -2,8 +2,6 @@
 TODO
 ----
 
-- Send the original JSON response to output, not the Go version.
-
 - Make the testing resumable.
 
 - Output assessment results in SSL Pulse CSV format, which is designed for
