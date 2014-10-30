@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 
 package main
 
@@ -72,7 +72,7 @@ type LabsErrorResponse struct {
 
 func (e LabsErrorResponse) Error() string {
 	msg, err := json.Marshal(e)
-	if (err != nil) {
+	if err != nil {
 		return err.Error()
 	} else {
 		return string(msg)
@@ -252,36 +252,36 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 		}
 
 		req, err := http.NewRequest("GET", url, nil)
-		if (err != nil) {
+		if err != nil {
 			return nil, nil, err
 		}
 
 		req.Header.Add("User-Agent", USER_AGENT)
 
 		resp, err := httpClient.Do(req)
-		if (err == nil) {
+		if err == nil {
 			// Adjust maximum concurrent requests.
-			
+
 			headerValue := resp.Header.Get("X-ClientMaxAssessments")
-			if (headerValue != "") {
+			if headerValue != "" {
 				i, err := strconv.Atoi(headerValue)
-				if (err == nil) {
-					if (maxAssessments != i) {
+				if err == nil {
+					if maxAssessments != i {
 						maxAssessments = i
-					
-						if (logLevel >= LOG_INFO) {
+
+						if logLevel >= LOG_INFO {
 							log.Printf("[INFO] Server set max concurrent assessments to %v", headerValue)
 						}
 					}
 				} else {
-					if (logLevel >= LOG_WARNING) {
+					if logLevel >= LOG_WARNING {
 						log.Printf("[WARNING] Ignoring invalid X-ClientMaxAssessments value (%v): %v", headerValue, err)
 					}
 				}
 			}
-			
+
 			// Retrieve the response body.
-			
+
 			defer resp.Body.Close()
 
 			body, err := ioutil.ReadAll(resp.Body)
@@ -303,10 +303,10 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 					log.Fatalf("[ERROR] Too many HTTP requests failed with EOF")
 				}
 			} else {
-				if (retryCount > 5) {
+				if retryCount > 5 {
 					log.Fatalf("[ERROR] Too many failed HTTP requests")
 				}
-				
+
 				time.Sleep(30 * time.Second)
 			}
 
@@ -317,31 +317,31 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 
 func invokeApi(command string) (*http.Response, []byte, error) {
 	var url = apiLocation + "/" + command
-	
+
 	for {
 		resp, body, err := invokeGetRepeatedly(url)
 		if err != nil {
 			return nil, nil, err
 		}
-		
+
 		// Status codes 429, 503, and 529 essentially mean try later. Thus,
 		// if we encounter them, we sleep for a while and try again.
-		if (resp.StatusCode == 429)||(resp.StatusCode == 503) {
-			if (logLevel >= LOG_NOTICE) {
+		if (resp.StatusCode == 429) || (resp.StatusCode == 503) {
+			if logLevel >= LOG_NOTICE {
 				log.Printf("[NOTICE] Sleeping for 5 minutes after a %v response", resp.StatusCode)
 			}
-			
-			time.Sleep(5 * time.Minute)	
+
+			time.Sleep(5 * time.Minute)
 		} else if resp.StatusCode == 529 {
 			// In case of the overloaded server, randomize the sleep time so
 			// that some clients reconnect earlier and some later.
-			
+
 			sleepTime := 15 + rand.Int31n(15)
-			
-			if (logLevel >= LOG_NOTICE) {
+
+			if logLevel >= LOG_NOTICE {
 				log.Printf("[NOTICE] Sleeping for %v minutes after a 529 response", sleepTime)
 			}
-			
+
 			time.Sleep(time.Duration(sleepTime) * time.Minute)
 		} else if (resp.StatusCode != 200) && (resp.StatusCode != 400) {
 			log.Fatalf("[ERROR] Unexpected response status code %v", resp.StatusCode)
@@ -381,19 +381,19 @@ func invokeAnalyze(host string, clearCache bool) (*LabsReport, error) {
 	}
 
 	// Use the status code to determine if the response is an error.
-	if (resp.StatusCode == 400) {
+	if resp.StatusCode == 400 {
 		// Parameter validation error.
-		
+
 		var apiError LabsErrorResponse
 		err = json.Unmarshal(body, &apiError)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		return nil, apiError
 	} else {
 		// We should have a proper response.
-		
+
 		var analyzeResponse LabsReport
 		err = json.Unmarshal(body, &analyzeResponse)
 		if err != nil {
@@ -416,7 +416,7 @@ const (
 )
 
 func NewAssessment(host string, eventChannel chan Event) {
-	eventChannel <- Event { host, ASSESSMENT_STARTING, nil }
+	eventChannel <- Event{host, ASSESSMENT_STARTING, nil}
 
 	var report *LabsReport
 	var clearCache = true
@@ -445,7 +445,7 @@ func NewAssessment(host string, eventChannel chan Event) {
 		time.Sleep(5 * time.Second)
 	}
 
-	eventChannel <- Event { host, ASSESSMENT_COMPLETE, report }
+	eventChannel <- Event{host, ASSESSMENT_COMPLETE, report}
 }
 
 type HostProvider struct {
@@ -495,10 +495,10 @@ func (manager *Manager) startAssessment(h string) {
 
 func (manager *Manager) run() {
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config { InsecureSkipVerify: false },
-    }
-	
-    httpClient = &http.Client { Transport: transport }
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: false},
+	}
+
+	httpClient = &http.Client{Transport: transport}
 
 	// Ping SSL Labs to determine how many concurrent
 	// assessments we're allowed to use. Print the API version
@@ -542,7 +542,7 @@ func (manager *Manager) run() {
 					}
 
 					for _, endpoint := range e.report.Endpoints {
-						if (endpoint.Grade != "") {
+						if endpoint.Grade != "" {
 							msg = msg + "\n    " + endpoint.IpAddress + ": " + endpoint.Grade
 						} else {
 							msg = msg + "\n    " + endpoint.IpAddress + ": Err: " + endpoint.StatusMessage
@@ -630,7 +630,7 @@ func validateURL(URL string) bool {
 
 func validateHostname(hostname string) bool {
 	addrs, err := net.LookupHost(hostname)
-	
+
 	// In some cases there is no error
 	// but there are also no addresses
 	if err != nil || len(addrs) < 1 {
@@ -645,13 +645,13 @@ func main() {
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, info, debug, or trace.")
 	var conf_json_pretty = flag.Bool("json-pretty", false, "Enable pretty JSON output")
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
-	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)") 
+	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
 
 	flag.Parse()
 
 	logLevel = parseLogLevel(strings.ToLower(*conf_verbosity))
-	
-	if (*conf_quiet) {
+
+	if *conf_quiet {
 		logLevel = LOG_NONE
 	}
 
@@ -659,26 +659,26 @@ func main() {
 	if *conf_api != "BUILTIN" {
 		apiLocation = *conf_api
 	}
-	
+
 	if validateURL(apiLocation) == false {
 		log.Fatalf("[ERROR] Invalid API URL: %v", apiLocation)
 	}
 
 	var hostnames []string
-	
+
 	if *conf_hostfile != "" {
 		// Open file, and read it
 		var err error
 		hostnames, err = readLines(conf_hostfile)
 		if err != nil {
-		    log.Fatalf("[ERROR] Reading from specified hostfile failed: %v", err)
+			log.Fatalf("[ERROR] Reading from specified hostfile failed: %v", err)
 		}
 
 	} else {
 		// Read hostnames from the rest of the args
 		hostnames = flag.Args()
 	}
-    
+
 	// Validate all hostnames before we attempt to test them. At least
 	// one hostname is required.
 	for _, host := range hostnames {
@@ -686,7 +686,7 @@ func main() {
 			log.Fatalf("[ERROR] Invalid hostname: %v", host)
 		}
 	}
-    
+
 	hp := NewHostProvider(hostnames)
 	manager := NewManager(hp)
 
