@@ -618,10 +618,8 @@ func readLines(path *string) ([]string, error) {
 }
 
 func validateURL(URL string) bool {
-	u, err := url.Parse(URL)
+	_, err := url.Parse(URL)
 	if err != nil {
-		return false
-	} else if validateHostname(u.Host) == false {
 		return false
 	} else {
 		return true
