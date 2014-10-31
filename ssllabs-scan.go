@@ -59,6 +59,10 @@ var requestCounter uint64 = 0
 
 var apiLocation = "https://api.dev.ssllabs.com/api/fa78d5a4/"
 
+var clearCache = true
+
+var fromCache = false
+
 var httpClient *http.Client
 
 type LabsError struct {
@@ -374,10 +378,12 @@ func invokeInfo() (*LabsInfo, error) {
 	return &labsInfo, nil
 }
 
-func invokeAnalyze(host string, clearCache bool) (*LabsReport, error) {
+func invokeAnalyze(host string, clearCache bool, fromCache bool) (*LabsReport, error) {
 	var command = "analyze?host=" + host + "&all=done"
 
-	if clearCache {
+	if fromCache {
+		command = command + "&fromCache=on"
+	} else if clearCache {
 		command = command + "&clearCache=on"
 	}
 
@@ -428,22 +434,23 @@ func NewAssessment(host string, eventChannel chan Event) {
 	eventChannel <- Event{host, ASSESSMENT_STARTING, nil}
 
 	var report *LabsReport
-	var clearCache = true
-	var startTime = -1
+	//var startTime = -1
 
 	for {
-		myResponse, err := invokeAnalyze(host, clearCache)
+		myResponse, err := invokeAnalyze(host, clearCache, fromCache)
 		if err != nil {
 			log.Fatalf("[ERROR] Assessment failed: %v", err)
 		}
 
 		if clearCache == true {
 			clearCache = false
-			startTime = myResponse.StartTime
+			//startTime = myResponse.StartTime
 		} else {
+			/* ? This will always fail when clearCache == false, as the cached result has a starttime.
 			if myResponse.StartTime != startTime {
 				log.Fatalf("[ERROR] Inconsistent startTime. Expected %v, got %v.", startTime, myResponse.StartTime)
 			}
+			*/
 		}
 
 		if (myResponse.Status == "READY") || (myResponse.Status == "ERROR") {
@@ -504,7 +511,7 @@ func (manager *Manager) startAssessment(h string) {
 
 func (manager *Manager) run() {
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: false},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
 	httpClient = &http.Client{Transport: transport}
@@ -655,6 +662,7 @@ func main() {
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
 	var conf_rawoutput = flag.Bool("rawoutput", false, "Print RAW JSON response")
 	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
+	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
 
 	flag.Parse()
 
@@ -664,6 +672,11 @@ func main() {
 		logLevel = LOG_NONE
 	}
 
+	if *conf_usecache {
+		fromCache = true
+		clearCache = false
+	}
+	
 	// Verify that the API entry point is a URL.
 	if *conf_api != "BUILTIN" {
 		apiLocation = *conf_api
