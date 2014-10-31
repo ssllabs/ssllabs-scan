@@ -167,37 +167,37 @@ type LabsSuites struct {
 }
 
 type LabsEndpointDetails struct {
-	HostStartTime      int
-	Key                LabsKey
-	Cert               LabsCert
-	Chain              LabsChain
-	Protocols          LabsProtocol
-	Suites             LabsSuites
-	ServerSignature    string
-	PrefixDelegation   bool
-	NonPrefixDelegtion bool
-	VulnBeast          bool
-	RenegSupport       int
-	StsResponseHeader  string
-	StsMaxAge          int
-	StsSubdomains      bool
-	PkpResponseHeader  string
-	SessionResumption  int
-	CompressionMethods int
-	SupportsNpn        bool
-	NpnProtocols       string
-	SessionTickets     int
-	OcspStapling       bool
-	SniRequired        bool
-	HttpStatusCode     int
-	HttpForwarding     string
-	SupportsRc4        bool
-	ForwardSecrecy     int
-	Rc4WithModern      bool
-	Sims               LabsSimDetails
-	Heartbleed         bool
-	Heartbeat          bool
-	OpenSslCcs         int
+	HostStartTime       int
+	Key                 LabsKey
+	Cert                LabsCert
+	Chain               LabsChain
+	Protocols           LabsProtocol
+	Suites              LabsSuites
+	ServerSignature     string
+	PrefixDelegation    bool
+	NonPrefixDelegation bool
+	VulnBeast           bool
+	RenegSupport        int
+	StsResponseHeader   string
+	StsMaxAge           int
+	StsSubdomains       bool
+	PkpResponseHeader   string
+	SessionResumption   int
+	CompressionMethods  int
+	SupportsNpn         bool
+	NpnProtocols        string
+	SessionTickets      int
+	OcspStapling        bool
+	SniRequired         bool
+	HttpStatusCode      int
+	HttpForwarding      string
+	SupportsRc4         bool
+	ForwardSecrecy      int
+	Rc4WithModern       bool
+	Sims                LabsSimDetails
+	Heartbleed          bool
+	Heartbeat           bool
+	OpenSslCcs          int
 }
 
 type LabsEndpoint struct {
