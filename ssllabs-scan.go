@@ -511,7 +511,7 @@ func (manager *Manager) startAssessment(h string) {
 
 func (manager *Manager) run() {
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: false},
 	}
 
 	httpClient = &http.Client{Transport: transport}
