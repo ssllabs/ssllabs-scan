@@ -662,15 +662,15 @@ func flattenAndFormatJSON(inputJSON []byte) (*[]string) {
 	
 	// Make a sorted index, so we can print keys in order
 	kIndex := make([]string, len(flattened))
-    ki := 0
-    for key, _ := range flattened {
-        kIndex[ki] = key
-        ki++
-    }
-    sort.Strings(kIndex)
-    
-    // Ordered flattened data
-    var flatStrings []string
+	ki := 0
+	for key, _ := range flattened {
+		kIndex[ki] = key
+		ki++
+	}
+	sort.Strings(kIndex)
+	
+	// Ordered flattened data
+	var flatStrings []string
 	for _, value := range kIndex {
 		flatStrings = append(flatStrings,fmt.Sprintf("\"%v\": %v\n", value, flattened[value]))
 	}
@@ -786,8 +786,8 @@ func main() {
 					}
 				
 					flattened := flattenAndFormatJSON(results)
-				    
-				    // Print the flattened data
+					
+					// Print the flattened data
 					fmt.Println(*flattened)
 				}
 			} else if *conf_json_flat && *conf_rawoutput {
