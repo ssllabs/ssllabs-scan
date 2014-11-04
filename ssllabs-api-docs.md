@@ -296,7 +296,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - certificate revoked
    * 2 - certificate not revoked
    * 3 - revocation check error
-* **scg** - Server Gated Cryptography support
+* **sgc** - Server Gated Cryptography support; true or false
 * **validationType** - E for Extended Validation certificates; may be null if unable to determine
 * **issues** - list of certificate issues, one bit per issue:
    * bit 0 (1) - no chain of trust
