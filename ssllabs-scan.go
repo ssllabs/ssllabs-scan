@@ -447,6 +447,7 @@ func NewAssessment(host string, eventChannel chan Event) {
 
 		if startTime == -1 {
 			startTime = myResponse.StartTime
+			clearCache = false
 		} else {
 			if myResponse.StartTime != startTime {
 				log.Fatalf("[ERROR] Inconsistent startTime. Expected %v, got %v.", startTime, myResponse.StartTime)
