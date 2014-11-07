@@ -437,7 +437,8 @@ func NewAssessment(host string, eventChannel chan Event) {
 	eventChannel <- Event{host, ASSESSMENT_STARTING, nil}
 
 	var report *LabsReport
-	var startTime = -1
+	var startTime uint64
+	startTime = 0
 
 	for {
 		myResponse, err := invokeAnalyze(host, clearCache, fromCache)
@@ -445,7 +446,7 @@ func NewAssessment(host string, eventChannel chan Event) {
 			log.Fatalf("[ERROR] Assessment failed: %v", err)
 		}
 
-		if startTime == -1 {
+		if startTime == 0 {
 			startTime = myResponse.StartTime
 			clearCache = false
 		} else {
