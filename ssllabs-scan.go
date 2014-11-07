@@ -98,8 +98,8 @@ type LabsCert struct {
 	Subject          string
 	CommonNames      []string
 	AltNames         []string
-	NotBefore        uint64
-	NotAfter         uint64
+	NotBefore        int64
+	NotAfter         int64
 	IssuerSubject    string
 	SigAlg           string
 	IssuerLabel      string
@@ -174,7 +174,7 @@ type LabsSuites struct {
 }
 
 type LabsEndpointDetails struct {
-	HostStartTime       uint64
+	HostStartTime       int64
 	Key                 LabsKey
 	Cert                LabsCert
 	Chain               LabsChain
@@ -186,7 +186,7 @@ type LabsEndpointDetails struct {
 	VulnBeast           bool
 	RenegSupport        int
 	StsResponseHeader   string
-	StsMaxAge           uint64
+	StsMaxAge           int64
 	StsSubdomains       bool
 	PkpResponseHeader   string
 	SessionResumption   int
@@ -229,8 +229,8 @@ type LabsReport struct {
 	IsPublic        bool
 	Status          string
 	StatusMessage   string
-	StartTime       uint64
-	TestTime        uint64
+	StartTime       int64
+	TestTime        int64
 	EngineVersion   string
 	CriteriaVersion string
 	CacheExpiryTime int64
@@ -437,7 +437,7 @@ func NewAssessment(host string, eventChannel chan Event) {
 	eventChannel <- Event{host, ASSESSMENT_STARTING, nil}
 
 	var report *LabsReport
-	var startTime = -1
+	var startTime int64 = -1
 
 	for {
 		myResponse, err := invokeAnalyze(host, clearCache, fromCache)
