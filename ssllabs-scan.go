@@ -62,6 +62,10 @@ var requestCounter uint64 = 0
 
 var apiLocation = "https://api.dev.ssllabs.com/api/fa78d5a4/"
 
+var clearCache = true
+
+var fromCache = false
+
 var httpClient *http.Client
 
 type LabsError struct {
@@ -377,10 +381,12 @@ func invokeInfo() (*LabsInfo, error) {
 	return &labsInfo, nil
 }
 
-func invokeAnalyze(host string, clearCache bool) (*LabsReport, error) {
+func invokeAnalyze(host string, clearCache bool, fromCache bool) (*LabsReport, error) {
 	var command = "analyze?host=" + host + "&all=done"
 
-	if clearCache {
+	if fromCache {
+		command = command + "&fromCache=on"
+	} else if clearCache {
 		command = command + "&clearCache=on"
 	}
 
@@ -431,18 +437,17 @@ func NewAssessment(host string, eventChannel chan Event) {
 	eventChannel <- Event{host, ASSESSMENT_STARTING, nil}
 
 	var report *LabsReport
-	var clearCache = true
 	var startTime = -1
 
 	for {
-		myResponse, err := invokeAnalyze(host, clearCache)
+		myResponse, err := invokeAnalyze(host, clearCache, fromCache)
 		if err != nil {
 			log.Fatalf("[ERROR] Assessment failed: %v", err)
 		}
 
-		if clearCache == true {
-			clearCache = false
+		if startTime == -1 {
 			startTime = myResponse.StartTime
+			clearCache = false
 		} else {
 			if myResponse.StartTime != startTime {
 				log.Fatalf("[ERROR] Inconsistent startTime. Expected %v, got %v.", startTime, myResponse.StartTime)
@@ -722,6 +727,7 @@ func main() {
 	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
 	var conf_rawoutput = flag.Bool("rawoutput", false, "Print RAW JSON response")
 	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
+	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
 
 	flag.Parse()
 
@@ -731,6 +737,12 @@ func main() {
 		logLevel = LOG_NONE
 	}
 
+	// We prefer cached results
+	if *conf_usecache {
+		fromCache = true
+		clearCache = false
+	}
+	
 	// Verify that the API entry point is a URL.
 	if *conf_api != "BUILTIN" {
 		apiLocation = *conf_api
