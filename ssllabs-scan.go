@@ -98,8 +98,8 @@ type LabsCert struct {
 	Subject          string
 	CommonNames      []string
 	AltNames         []string
-	NotBefore        int
-	NotAfter         int
+	NotBefore        uint64
+	NotAfter         uint64
 	IssuerSubject    string
 	SigAlg           string
 	IssuerLabel      string
@@ -174,7 +174,7 @@ type LabsSuites struct {
 }
 
 type LabsEndpointDetails struct {
-	HostStartTime       int
+	HostStartTime       uint64
 	Key                 LabsKey
 	Cert                LabsCert
 	Chain               LabsChain
@@ -186,7 +186,7 @@ type LabsEndpointDetails struct {
 	VulnBeast           bool
 	RenegSupport        int
 	StsResponseHeader   string
-	StsMaxAge           int
+	StsMaxAge           uint64
 	StsSubdomains       bool
 	PkpResponseHeader   string
 	SessionResumption   int
@@ -229,11 +229,11 @@ type LabsReport struct {
 	IsPublic        bool
 	Status          string
 	StatusMessage   string
-	StartTime       int
-	TestTime        int
+	StartTime       uint64
+	TestTime        uint64
 	EngineVersion   string
 	CriteriaVersion string
-	CacheExpiryTime int
+	CacheExpiryTime int64
 	Endpoints       []LabsEndpoint
 	CertHostnames   []string
 	rawJSON			string
