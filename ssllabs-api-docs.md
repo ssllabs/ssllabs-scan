@@ -198,7 +198,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **statusMessage** - assessment status message
 * **statusDetails** - code of the operation currently in progress
 * **statusDetailsMessage** - description of the operation currently in progress
-* **grade** - possible values: A+, A-F, and T (no trust) and M (certificate name mismatch)
+* **grade** - possible values: A+, A-, A-F, T (no trust) and M (certificate name mismatch)
 * **hasWarnings** - if this endpoint has warnings that might affect the score (e.g., get A- instead of A).
 * **isExceptional** - this flag will be raised when an exceptional configuration is encountered. The SSL Labs test will give such sites an A+.
 * **progress** - assessment progress, which is a value from 0 to 100, and -1 if the assessment has not yet started
