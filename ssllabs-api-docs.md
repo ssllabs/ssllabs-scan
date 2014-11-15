@@ -157,7 +157,7 @@ Please note the following:
 
 We may limit your usage of the API, by enforcing a limit on concurrent assessments, and the overall number of assessments performed in a time period. If that happens, we will respond with 429 (Too Many Requests) to API calls that wish to initiate new assessments. Your ability to follow previously initiated assessments, or retrieve assessment results from the cache, will not be impacted. If you receive a 429 response, reduce the number of concurrent assessments.
 
-If the server is overloaded (a condition that is not a result of the client's behaviour), the 529 status code will be used instead. This is not a situation we wish to be in. If you encounter it, take a break and come after at least 30 minutes of sleep.
+If the server is overloaded (a condition that is not a result of the client's behaviour), the 529 status code will be used instead. This is not a situation we wish to be in. If you encounter it, take a break and come back after at least 30 minutes of sleep.
 
 All successful API calls contain the response header `X-ClientMaxAssessments`, which contains the maximum allowed number of active assessments for the invoking client. It is recommended that, every time you receive a response, you also update your internal limit.
 
@@ -180,7 +180,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **host** - assessment host, which can be a hostname or an IP address
 * **port** - assessment port (e.g., 443)
 * **protocol** - protocol (e.g., HTTP)
-* **isPublic** - true, is this assessment publicly available (listed on the SSL Labs assessment boards)
+* **isPublic** - true if this assessment publicly available (listed on the SSL Labs assessment boards)
 * **status** - assessment status; possible values: DNS, ERROR, IN_PROGRESS, and READY.
 * **statusMessage** - status message in English. When status is ERROR, this field will contain an error message.
 * **startTime** - assessment starting time, in milliseconds since 1970
@@ -216,7 +216,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **chain{}** - [chain information](#chain)
 * **protocols[]** - supported [protocols](#protocol)
 * **suites{}** - supported [cipher suites](#suites)
-* **serverSignature** - Contents of the HTTP Server response header when known. This fiel could be absent for one of two reasons: 1) the HTTP request failed (check httpStatusCode) or 2) there was no Server response header returned.
+* **serverSignature** - Contents of the HTTP Server response header when known. This field could be absent for one of two reasons: 1) the HTTP request failed (check httpStatusCode) or 2) there was no Server response header returned.
 * **prefixDelegation** - true if this endpoint is reachable via a hostname with the www prefix
 * **nonPrefixDelegation** (moved here from the summary) - true if this endpoint is reachable via a hostname without the www prefix
 * **vulnBeast** - true if the endpoint is vulnerable to the BEAST attack
@@ -318,7 +318,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 2 (4) - chain contains unrelated or duplicate certificates (i.e., certificates that are not part of the same chain)
    * bit 3 (8) - the certificates form a chain (trusted or not), but the order is incorrect
    * bit 4 (16) - contains a self-signed root certificate (not set for self-signed leafs)
-   * bit 5 (32) - the certificates form a chain (if we added external certificates, but 1 will be set), but we could not validate it. If the leaf was trusted, that means that we built a different chain we trusted.
+   * bit 5 (32) - the certificates form a chain (if we added external certificates, bit 1 will be set), but we could not validate it. If the leaf was trusted, that means that we built a different chain we trusted.
 
 ### ChainCert ###
 
@@ -348,7 +348,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **name** - text.
 * **platform** - text.
 * **version** - text.
-* **isReference** - true if the browser is considered representative of modern browsers, false otherwise. This flag does not correlate to client's capabilities, but is used by SSL Labs to determine if particular configuration is effective. For example, to track Forward Secrecy support, we mark several representative browsers as "modern" and then test to see if they succeed in negotiating a FS suite. Just as an illustration, modern browsers are currently Chrome, Firefox (not ESR versions), IE/Win7, and Safari.
+* **isReference** - true if the browser is considered representative of modern browsers, false otherwise. This flag does not correlate to client's capabilities, but is used by SSL Labs to determine if a particular configuration is effective. For example, to track Forward Secrecy support, we mark several representative browsers as "modern" and then test to see if they succeed in negotiating a FS suite. Just as an illustration, modern browsers are currently Chrome, Firefox (not ESR versions), IE/Win7, and Safari.
 
 ### SimDetails ###
 
