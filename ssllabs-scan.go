@@ -722,13 +722,11 @@ func validateHostname(hostname string) bool {
 func main() {
 	var conf_api = flag.String("api", "BUILTIN", "API entry point, for example https://www.example.com/api/")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, info, debug, or trace.")
-	var conf_json_pretty = flag.Bool("json-pretty", false, "Enable pretty JSON output")
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
 	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
-	var conf_rawoutput = flag.Bool("rawoutput", false, "Print RAW JSON response")
 	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
 	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
-	var conf_hostcheck = flag.bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
+	var conf_hostcheck = flag.Bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
 
 	flag.Parse()
 
@@ -788,24 +786,7 @@ func main() {
 			var results []byte
 			var err error
 
-			if *conf_json_pretty {
-				// Pretty JSON output
-				results, err = json.MarshalIndent(manager.results.reports, "", "    ")
-			} else if *conf_json_flat && !*conf_rawoutput {
-				// Flat JSON, but not RAW
-
-				for i := range manager.results.reports {
-					results, err := json.Marshal(manager.results.reports[i])
-					if err != nil {
-						log.Fatalf("[ERROR] Output to JSON failed: %v", err)
-					}
-
-					flattened := flattenAndFormatJSON(results)
-
-					// Print the flattened data
-					fmt.Println(*flattened)
-				}
-			} else if *conf_json_flat && *conf_rawoutput {
+			if *conf_json_flat {
 				// Flat JSON and RAW
 
 				for i := range manager.results.responses {
@@ -816,8 +797,7 @@ func main() {
 					// Print the flattened data
 					fmt.Println(*flattened)
 				}
-
-			} else if *conf_rawoutput {
+			} else {
 				// Raw (non-Go-mangled) JSON output
 
 				fmt.Println("[")
@@ -830,9 +810,6 @@ func main() {
 					fmt.Println(results)
 				}
 				fmt.Println("]")
-			} else {
-				// Regular JSON output
-				results, err = json.Marshal(manager.results.reports)
 			}
 
 			if err != nil {
