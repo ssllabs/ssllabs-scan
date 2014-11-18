@@ -726,6 +726,7 @@ func main() {
 	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
 	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
 	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
+	var conf_grade = flag.Bool("grade", false, "Output only the hostname: grade")
 	var conf_hostcheck = flag.Bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
 
 	flag.Parse()
@@ -786,7 +787,42 @@ func main() {
 			var results []byte
 			var err error
 
-			if *conf_json_flat {
+			if *conf_grade {
+				// Just the grade(s). We use flatten and RAW
+				/*
+					"endpoints.0.grade": "A"
+					"host": "testing.spatialkey.com"	
+				*/
+				for i := range manager.results.responses {
+					results := []byte(manager.results.responses[i])
+					
+					name := ""
+					grade := ""
+					
+					flattened := flattenAndFormatJSON(results)
+					
+					for _, fval := range *flattened {
+						if strings.HasPrefix(fval, "\"host\"") {
+							// hostname
+							parts := strings.Split(fval,": ")
+							name = strings.TrimSuffix(parts[1], "\n")
+							if grade != "" {
+								break
+							}
+						} else if strings.HasPrefix(fval, "\"endpoints.0.grade\"") {
+							// grade
+							parts := strings.Split(fval,": ")
+							grade = strings.TrimSuffix(parts[1], "\n")
+							if name != "" {
+								break
+							}
+						}
+					}
+					if grade != "" && name != "" {
+						fmt.Println(name + ": " + grade)
+					}
+				}
+			} else if *conf_json_flat {
 				// Flat JSON and RAW
 
 				for i := range manager.results.responses {
