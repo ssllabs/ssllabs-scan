@@ -62,9 +62,9 @@ var requestCounter uint64 = 0
 
 var apiLocation = "https://api.dev.ssllabs.com/api/fa78d5a4/"
 
-var clearCache = true
+var globalClearCache = true
 
-var fromCache = false
+var globalFromCache = false
 
 var httpClient *http.Client
 
@@ -438,9 +438,10 @@ func NewAssessment(host string, eventChannel chan Event) {
 
 	var report *LabsReport
 	var startTime int64 = -1
+	var clearCache = globalClearCache
 
 	for {
-		myResponse, err := invokeAnalyze(host, clearCache, fromCache)
+		myResponse, err := invokeAnalyze(host, clearCache, globalFromCache)
 		if err != nil {
 			log.Fatalf("[ERROR] Assessment failed: %v", err)
 		}
@@ -739,8 +740,8 @@ func main() {
 
 	// We prefer cached results
 	if *conf_usecache {
-		fromCache = true
-		clearCache = false
+		globalFromCache = true
+		globalClearCache = false
 	}
 	
 	// Verify that the API entry point is a URL.
