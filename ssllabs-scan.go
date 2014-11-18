@@ -443,7 +443,7 @@ func NewAssessment(host string, eventChannel chan Event) {
 	for {
 		myResponse, err := invokeAnalyze(host, clearCache, globalFromCache)
 		if err != nil {
-			log.Fatalf("[ERROR] Assessment failed: %v", err)
+			log.Fatalf("[ERROR] API invocation failed: %v", err)
 		}
 
 		if startTime == -1 {
@@ -550,7 +550,7 @@ func (manager *Manager) run() {
 
 					// Missing C's ternary operator here.
 					if len(e.report.Endpoints) == 0 {
-						msg = fmt.Sprintf("[INFO] Assessment failed: %v (%v)", e.host, e.report.StatusMessage)
+						msg = fmt.Sprintf("[WARN] Assessment failed: %v (%v)", e.host, e.report.StatusMessage)
 					} else if len(e.report.Endpoints) > 1 {
 						msg = fmt.Sprintf("[INFO] Assessment complete: %v (%v hosts in %v seconds)",
 							e.host, len(e.report.Endpoints), (e.report.TestTime-e.report.StartTime)/1000)
