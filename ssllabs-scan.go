@@ -236,12 +236,12 @@ type LabsReport struct {
 	CacheExpiryTime int64
 	Endpoints       []LabsEndpoint
 	CertHostnames   []string
-	rawJSON			string
+	rawJSON         string
 }
 
 type LabsResults struct {
-	reports []LabsReport
-	responses	[]string
+	reports   []LabsReport
+	responses []string
 }
 
 type LabsInfo struct {
@@ -417,7 +417,7 @@ func invokeAnalyze(host string, clearCache bool, fromCache bool) (*LabsReport, e
 
 		// Add the JSON body to the response
 		analyzeResponse.rawJSON = string(body)
-		
+
 		return &analyzeResponse, nil
 	}
 }
@@ -573,8 +573,8 @@ func (manager *Manager) run() {
 				activeAssessments--
 
 				manager.results.reports = append(manager.results.reports, *e.report)
-				manager.results.responses   = append(manager.results.responses, e.report.rawJSON)
-				
+				manager.results.responses = append(manager.results.responses, e.report.rawJSON)
+
 				// Are we done?
 				if (activeAssessments == 0) && (moreAssessments == false) {
 					close(manager.FrontendEventChannel)
@@ -622,25 +622,25 @@ func parseLogLevel(level string) int {
 }
 
 func flattenJSON(inputJSON map[string]interface{}, rootKey string, flattened *map[string]interface{}) {
-	var keysep = "." 	// Char to separate keys
-	var Q = "\""		// Char to envelope strings
-	
+	var keysep = "." // Char to separate keys
+	var Q = "\""     // Char to envelope strings
+
 	for rkey, value := range inputJSON {
 		key := rootKey + rkey
 		if _, ok := value.(string); ok {
-			(*flattened)[key] = Q+value.(string)+Q
+			(*flattened)[key] = Q + value.(string) + Q
 		} else if _, ok := value.(float64); ok {
 			(*flattened)[key] = value.(float64)
 		} else if _, ok := value.(bool); ok {
 			(*flattened)[key] = value.(bool)
 		} else if _, ok := value.([]interface{}); ok {
 			for i := 0; i < len(value.([]interface{})); i++ {
-				aKey := key+keysep+strconv.Itoa(i)
-				if _, ok := value.([]interface{})[i].(string); ok {	
-					(*flattened)[aKey] = Q+value.([]interface{})[i].(string)+Q
-				} else if _, ok := value.([]interface{})[i].(float64); ok {	
+				aKey := key + keysep + strconv.Itoa(i)
+				if _, ok := value.([]interface{})[i].(string); ok {
+					(*flattened)[aKey] = Q + value.([]interface{})[i].(string) + Q
+				} else if _, ok := value.([]interface{})[i].(float64); ok {
 					(*flattened)[aKey] = value.([]interface{})[i].(float64)
-				} else if _, ok := value.([]interface{})[i].(bool); ok {	
+				} else if _, ok := value.([]interface{})[i].(bool); ok {
 					(*flattened)[aKey] = value.([]interface{})[i].(bool)
 				} else {
 					flattenJSON(value.([]interface{})[i].(map[string]interface{}), key+keysep+strconv.Itoa(i)+keysep, flattened)
@@ -654,9 +654,9 @@ func flattenJSON(inputJSON map[string]interface{}, rootKey string, flattened *ma
 	}
 }
 
-func flattenAndFormatJSON(inputJSON []byte) (*[]string) {
+func flattenAndFormatJSON(inputJSON []byte) *[]string {
 	var flattened = make(map[string]interface{})
-	
+
 	mappedJSON := map[string]interface{}{}
 	err := json.Unmarshal(inputJSON, &mappedJSON)
 	if err != nil {
@@ -665,7 +665,7 @@ func flattenAndFormatJSON(inputJSON []byte) (*[]string) {
 
 	// Flatten the JSON structure, recursively
 	flattenJSON(mappedJSON, "", &flattened)
-	
+
 	// Make a sorted index, so we can print keys in order
 	kIndex := make([]string, len(flattened))
 	ki := 0
@@ -674,15 +674,14 @@ func flattenAndFormatJSON(inputJSON []byte) (*[]string) {
 		ki++
 	}
 	sort.Strings(kIndex)
-	
+
 	// Ordered flattened data
 	var flatStrings []string
 	for _, value := range kIndex {
-		flatStrings = append(flatStrings,fmt.Sprintf("\"%v\": %v\n", value, flattened[value]))
+		flatStrings = append(flatStrings, fmt.Sprintf("\"%v\": %v\n", value, flattened[value]))
 	}
 	return &flatStrings
 }
-
 
 func readLines(path *string) ([]string, error) {
 	file, err := os.Open(*path)
@@ -743,7 +742,7 @@ func main() {
 		globalFromCache = true
 		globalClearCache = false
 	}
-	
+
 	// Verify that the API entry point is a URL.
 	if *conf_api != "BUILTIN" {
 		apiLocation = *conf_api
@@ -797,9 +796,9 @@ func main() {
 					if err != nil {
 						log.Fatalf("[ERROR] Output to JSON failed: %v", err)
 					}
-				
+
 					flattened := flattenAndFormatJSON(results)
-					
+
 					// Print the flattened data
 					fmt.Println(*flattened)
 				}
@@ -808,21 +807,21 @@ func main() {
 
 				for i := range manager.results.responses {
 					results := []byte(manager.results.responses[i])
-					
+
 					flattened := flattenAndFormatJSON(results)
-				    
-				    // Print the flattened data
+
+					// Print the flattened data
 					fmt.Println(*flattened)
 				}
-				
+
 			} else if *conf_rawoutput {
 				// Raw (non-Go-mangled) JSON output
-				
+
 				fmt.Println("[")
 				for i := range manager.results.responses {
 					results := manager.results.responses[i]
 
-					if i>0 {
+					if i > 0 {
 						fmt.Println(",")
 					}
 					fmt.Println(results)
@@ -832,7 +831,7 @@ func main() {
 				// Regular JSON output
 				results, err = json.Marshal(manager.results.reports)
 			}
-			
+
 			if err != nil {
 				log.Fatalf("[ERROR] Output to JSON failed: %v", err)
 			}
