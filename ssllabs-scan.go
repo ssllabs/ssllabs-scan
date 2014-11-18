@@ -817,7 +817,17 @@ func main() {
 				
 			} else if *conf_rawoutput {
 				// Raw (non-Go-mangled) JSON output
-				fmt.Println(manager.results.responses)
+				
+				fmt.Println("[")
+				for i := range manager.results.responses {
+					results := manager.results.responses[i]
+
+					if i>0 {
+						fmt.Println(",")
+					}
+					fmt.Println(results)
+				}
+				fmt.Println("]")
 			} else {
 				// Regular JSON output
 				results, err = json.Marshal(manager.results.reports)
