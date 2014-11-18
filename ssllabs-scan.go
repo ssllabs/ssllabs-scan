@@ -728,6 +728,7 @@ func main() {
 	var conf_rawoutput = flag.Bool("rawoutput", false, "Print RAW JSON response")
 	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
 	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
+	var conf_hostcheck = flag.bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
 
 	flag.Parse()
 
@@ -767,11 +768,13 @@ func main() {
 		hostnames = flag.Args()
 	}
 
-	// Validate all hostnames before we attempt to test them. At least
-	// one hostname is required.
-	for _, host := range hostnames {
-		if validateHostname(host) == false {
-			log.Fatalf("[ERROR] Invalid hostname: %v", host)
+	if *conf_hostcheck {
+		// Validate all hostnames before we attempt to test them. At least
+		// one hostname is required.
+		for _, host := range hostnames {
+			if validateHostname(host) == false {
+				log.Fatalf("[ERROR] Invalid hostname: %v", host)
+			}
 		}
 	}
 
