@@ -62,9 +62,9 @@ var requestCounter uint64 = 0
 
 var apiLocation = "https://api.dev.ssllabs.com/api/fa78d5a4/"
 
-var clearCache = true
+var globalClearCache = true
 
-var fromCache = false
+var globalFromCache = false
 
 var httpClient *http.Client
 
@@ -236,12 +236,12 @@ type LabsReport struct {
 	CacheExpiryTime int64
 	Endpoints       []LabsEndpoint
 	CertHostnames   []string
-	rawJSON			string
+	rawJSON         string
 }
 
 type LabsResults struct {
-	reports []LabsReport
-	responses	[]string
+	reports   []LabsReport
+	responses []string
 }
 
 type LabsInfo struct {
@@ -417,7 +417,7 @@ func invokeAnalyze(host string, clearCache bool, fromCache bool) (*LabsReport, e
 
 		// Add the JSON body to the response
 		analyzeResponse.rawJSON = string(body)
-		
+
 		return &analyzeResponse, nil
 	}
 }
@@ -438,11 +438,12 @@ func NewAssessment(host string, eventChannel chan Event) {
 
 	var report *LabsReport
 	var startTime int64 = -1
+	var clearCache = globalClearCache
 
 	for {
-		myResponse, err := invokeAnalyze(host, clearCache, fromCache)
+		myResponse, err := invokeAnalyze(host, clearCache, globalFromCache)
 		if err != nil {
-			log.Fatalf("[ERROR] Assessment failed: %v", err)
+			log.Fatalf("[ERROR] API invocation failed: %v", err)
 		}
 
 		if startTime == -1 {
@@ -549,7 +550,7 @@ func (manager *Manager) run() {
 
 					// Missing C's ternary operator here.
 					if len(e.report.Endpoints) == 0 {
-						msg = fmt.Sprintf("[INFO] Assessment failed: %v (%v)", e.host, e.report.StatusMessage)
+						msg = fmt.Sprintf("[WARN] Assessment failed: %v (%v)", e.host, e.report.StatusMessage)
 					} else if len(e.report.Endpoints) > 1 {
 						msg = fmt.Sprintf("[INFO] Assessment complete: %v (%v hosts in %v seconds)",
 							e.host, len(e.report.Endpoints), (e.report.TestTime-e.report.StartTime)/1000)
@@ -572,8 +573,8 @@ func (manager *Manager) run() {
 				activeAssessments--
 
 				manager.results.reports = append(manager.results.reports, *e.report)
-				manager.results.responses   = append(manager.results.responses, e.report.rawJSON)
-				
+				manager.results.responses = append(manager.results.responses, e.report.rawJSON)
+
 				// Are we done?
 				if (activeAssessments == 0) && (moreAssessments == false) {
 					close(manager.FrontendEventChannel)
@@ -621,25 +622,25 @@ func parseLogLevel(level string) int {
 }
 
 func flattenJSON(inputJSON map[string]interface{}, rootKey string, flattened *map[string]interface{}) {
-	var keysep = "." 	// Char to separate keys
-	var Q = "\""		// Char to envelope strings
-	
+	var keysep = "." // Char to separate keys
+	var Q = "\""     // Char to envelope strings
+
 	for rkey, value := range inputJSON {
 		key := rootKey + rkey
 		if _, ok := value.(string); ok {
-			(*flattened)[key] = Q+value.(string)+Q
+			(*flattened)[key] = Q + value.(string) + Q
 		} else if _, ok := value.(float64); ok {
 			(*flattened)[key] = value.(float64)
 		} else if _, ok := value.(bool); ok {
 			(*flattened)[key] = value.(bool)
 		} else if _, ok := value.([]interface{}); ok {
 			for i := 0; i < len(value.([]interface{})); i++ {
-				aKey := key+keysep+strconv.Itoa(i)
-				if _, ok := value.([]interface{})[i].(string); ok {	
-					(*flattened)[aKey] = Q+value.([]interface{})[i].(string)+Q
-				} else if _, ok := value.([]interface{})[i].(float64); ok {	
+				aKey := key + keysep + strconv.Itoa(i)
+				if _, ok := value.([]interface{})[i].(string); ok {
+					(*flattened)[aKey] = Q + value.([]interface{})[i].(string) + Q
+				} else if _, ok := value.([]interface{})[i].(float64); ok {
 					(*flattened)[aKey] = value.([]interface{})[i].(float64)
-				} else if _, ok := value.([]interface{})[i].(bool); ok {	
+				} else if _, ok := value.([]interface{})[i].(bool); ok {
 					(*flattened)[aKey] = value.([]interface{})[i].(bool)
 				} else {
 					flattenJSON(value.([]interface{})[i].(map[string]interface{}), key+keysep+strconv.Itoa(i)+keysep, flattened)
@@ -653,9 +654,9 @@ func flattenJSON(inputJSON map[string]interface{}, rootKey string, flattened *ma
 	}
 }
 
-func flattenAndFormatJSON(inputJSON []byte) (*[]string) {
+func flattenAndFormatJSON(inputJSON []byte) *[]string {
 	var flattened = make(map[string]interface{})
-	
+
 	mappedJSON := map[string]interface{}{}
 	err := json.Unmarshal(inputJSON, &mappedJSON)
 	if err != nil {
@@ -664,7 +665,7 @@ func flattenAndFormatJSON(inputJSON []byte) (*[]string) {
 
 	// Flatten the JSON structure, recursively
 	flattenJSON(mappedJSON, "", &flattened)
-	
+
 	// Make a sorted index, so we can print keys in order
 	kIndex := make([]string, len(flattened))
 	ki := 0
@@ -673,15 +674,14 @@ func flattenAndFormatJSON(inputJSON []byte) (*[]string) {
 		ki++
 	}
 	sort.Strings(kIndex)
-	
+
 	// Ordered flattened data
 	var flatStrings []string
 	for _, value := range kIndex {
-		flatStrings = append(flatStrings,fmt.Sprintf("\"%v\": %v\n", value, flattened[value]))
+		flatStrings = append(flatStrings, fmt.Sprintf("\"%v\": %v\n", value, flattened[value]))
 	}
 	return &flatStrings
 }
-
 
 func readLines(path *string) ([]string, error) {
 	file, err := os.Open(*path)
@@ -722,13 +722,12 @@ func validateHostname(hostname string) bool {
 func main() {
 	var conf_api = flag.String("api", "BUILTIN", "API entry point, for example https://www.example.com/api/")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, info, debug, or trace.")
-	var conf_json_pretty = flag.Bool("json-pretty", false, "Enable pretty JSON output")
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
 	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
-	var conf_rawoutput = flag.Bool("rawoutput", false, "Print RAW JSON response")
 	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
 	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
 	var conf_grade = flag.Bool("grade", false, "Output only the hostname: grade")
+	var conf_hostcheck = flag.Bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
 
 	flag.Parse()
 
@@ -740,10 +739,10 @@ func main() {
 
 	// We prefer cached results
 	if *conf_usecache {
-		fromCache = true
-		clearCache = false
+		globalFromCache = true
+		globalClearCache = false
 	}
-	
+
 	// Verify that the API entry point is a URL.
 	if *conf_api != "BUILTIN" {
 		apiLocation = *conf_api
@@ -768,11 +767,13 @@ func main() {
 		hostnames = flag.Args()
 	}
 
-	// Validate all hostnames before we attempt to test them. At least
-	// one hostname is required.
-	for _, host := range hostnames {
-		if validateHostname(host) == false {
-			log.Fatalf("[ERROR] Invalid hostname: %v", host)
+	if *conf_hostcheck {
+		// Validate all hostnames before we attempt to test them. At least
+		// one hostname is required.
+		for _, host := range hostnames {
+			if validateHostname(host) == false {
+				log.Fatalf("[ERROR] Invalid hostname: %v", host)
+			}
 		}
 	}
 
@@ -786,10 +787,7 @@ func main() {
 			var results []byte
 			var err error
 
-			if *conf_json_pretty {
-				// Pretty JSON output
-				results, err = json.MarshalIndent(manager.results.reports, "", "    ")
-			} else if *conf_grade {
+			if *conf_grade {
 				// Just the grade(s). We use flatten and RAW
 				/*
 					"endpoints.0.grade": "A"
@@ -824,40 +822,32 @@ func main() {
 						fmt.Println(name + ": " + grade)
 					}
 				}
-			} else if *conf_json_flat && !*conf_rawoutput {
-				// Flat JSON, but not RAW
-
-				for i := range manager.results.reports {
-					results, err := json.Marshal(manager.results.reports[i])
-					if err != nil {
-						log.Fatalf("[ERROR] Output to JSON failed: %v", err)
-					}
-				
-					flattened := flattenAndFormatJSON(results)
-					
-					// Print the flattened data
-					fmt.Println(*flattened)
-				}
-			} else if *conf_json_flat && *conf_rawoutput {
+			} else if *conf_json_flat {
 				// Flat JSON and RAW
 
 				for i := range manager.results.responses {
 					results := []byte(manager.results.responses[i])
-					
+
 					flattened := flattenAndFormatJSON(results)
-				    
-				    // Print the flattened data
+
+					// Print the flattened data
 					fmt.Println(*flattened)
 				}
-				
-			} else if *conf_rawoutput {
-				// Raw (non-Go-mangled) JSON output
-				fmt.Println(manager.results.responses)
 			} else {
-				// Regular JSON output
-				results, err = json.Marshal(manager.results.reports)
+				// Raw (non-Go-mangled) JSON output
+
+				fmt.Println("[")
+				for i := range manager.results.responses {
+					results := manager.results.responses[i]
+
+					if i > 0 {
+						fmt.Println(",")
+					}
+					fmt.Println(results)
+				}
+				fmt.Println("]")
 			}
-			
+
 			if err != nil {
 				log.Fatalf("[ERROR] Output to JSON failed: %v", err)
 			}
