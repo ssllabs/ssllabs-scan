@@ -791,27 +791,27 @@ func main() {
 				// Just the grade(s). We use flatten and RAW
 				/*
 					"endpoints.0.grade": "A"
-					"host": "testing.spatialkey.com"	
+					"host": "testing.spatialkey.com"
 				*/
 				for i := range manager.results.responses {
 					results := []byte(manager.results.responses[i])
-					
+
 					name := ""
 					grade := ""
-					
+
 					flattened := flattenAndFormatJSON(results)
-					
+
 					for _, fval := range *flattened {
 						if strings.HasPrefix(fval, "\"host\"") {
 							// hostname
-							parts := strings.Split(fval,": ")
+							parts := strings.Split(fval, ": ")
 							name = strings.TrimSuffix(parts[1], "\n")
 							if grade != "" {
 								break
 							}
 						} else if strings.HasPrefix(fval, "\"endpoints.0.grade\"") {
 							// grade
-							parts := strings.Split(fval,": ")
+							parts := strings.Split(fval, ": ")
 							grade = strings.TrimSuffix(parts[1], "\n")
 							if name != "" {
 								break
