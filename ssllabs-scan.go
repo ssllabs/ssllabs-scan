@@ -597,6 +597,11 @@ func (manager *Manager) run() {
 						// We've run out of hostnames and now just need
 						// to wait for all the assessments to complete.
 						moreAssessments = false
+
+						if activeAssessments == 0 {
+							close(manager.FrontendEventChannel)
+							return
+						}
 					}
 				}
 			}
