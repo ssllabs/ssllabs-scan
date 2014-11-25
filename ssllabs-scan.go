@@ -107,7 +107,7 @@ type LabsCert struct {
 	CrlURIs          []string
 	OcspURIs         []string
 	RevocationStatus int
-	Sgc              bool
+	Sgc              int
 	ValidationType   string
 	Issues           int
 }
