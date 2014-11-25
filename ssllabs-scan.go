@@ -178,7 +178,7 @@ type LabsEndpointDetails struct {
 	Key                 LabsKey
 	Cert                LabsCert
 	Chain               LabsChain
-	Protocols           LabsProtocol
+	Protocols           []LabsProtocol
 	Suites              LabsSuites
 	ServerSignature     string
 	PrefixDelegation    bool
