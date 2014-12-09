@@ -1,6 +1,6 @@
-# SSL Labs API Documentation: v1.11.8 #
+# SSL Labs API Documentation: v1.11.3 #
 
-**Last update:** 30 October 2014<br>
+**Last update:** 9 December 2014<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 ## Protocol Overview ##
@@ -260,6 +260,11 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - not vulnerable
    * 2 - possibly vulnerable, but not exploitable
    * 3 - vulnerable and exploitable
+* **poodleTls** - results of the POODLE TLS test:
+   * -1 - test failed
+   * 0 - unknown
+   * 1 - not vulnerable
+   * 2 - vulnerable
 
 ### Info ###
 
@@ -390,6 +395,7 @@ The remainder of the document explains the structure of the returned objects. Th
 
 * First release, for internal use. The changelog for the 1.x version of the APIs has been removed as it's of no interest to the 2.x users.
 
-### 2.0 (30 October 2014) ###
+### 1.11.x (work in progress) ###
 
 * First public release (alpha).
+* [1.11.3] Exposed poodleTLS.
