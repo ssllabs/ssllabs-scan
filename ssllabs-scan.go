@@ -205,6 +205,7 @@ type LabsEndpointDetails struct {
 	Heartbleed          bool
 	Heartbeat           bool
 	OpenSslCcs          int
+	PoodleTls			int
 }
 
 type LabsEndpoint struct {
