@@ -1,6 +1,6 @@
 # SSL Labs API Documentation: v1.11.3 #
 
-**Last update:** 9 December 2014<br>
+**Last update:** 19 January 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 ## Protocol Overview ##
@@ -13,11 +13,7 @@ The protocol is based on HTTP and JSON. All invocations of the API should use th
 
 We are fine-tuning this API at the moment; small changes should be expected. The following changes are planned:
 
-* Expose all certificate chains.
 * Don't allow clearCache for a short time (e.g., 30 seconds) after an assessment is complete.
-* Add field `status` to [Endpoint](#endpoint).
-* Add a `notice` field to the [Info object](#info).
-* Can Info also contain the IP address range of the scanning servers?
 
 ### Do not hardcode SSL Labs IP addresses ###
 We're constantly working to improve SSL Labs, and that often means that the underlying IP addresses change. For best results, do not hardcode SSL Labs IP addresses in your code.
