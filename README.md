@@ -18,6 +18,11 @@ join the ssllabs-devel mailing list: https://sourceforge.net/p/ssllabs/mailman/s
 Before you use this tool please review the terms and conditions, which are included
 with the API documentation.
 
+
+##Requirements
+
+* Go > 1.3
+
 ##Usage 
 
 SYNOPSIS
