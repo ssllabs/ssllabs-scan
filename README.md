@@ -17,3 +17,24 @@ join the ssllabs-devel mailing list: https://sourceforge.net/p/ssllabs/mailman/s
 
 Before you use this tool please review the terms and conditions, which are included
 with the API documentation.
+
+##Usage 
+
+SYNOPSIS
+```
+    ssllabs-scan [options] hostname
+    ssllabs-scan [options] --hostfile file
+```
+
+OPTIONS
+
+| Option      | Default value | Description |
+| ----------- | ------------- | ----------- |
+| --api       | BUILTIN       | API entry point, for example https://www.example.com/api/ |
+| --verbosity | info          | Configure log verbosity: error, info, debug, or trace. |
+| --quiet     | false         | Disable status messages (logging) |
+| --json-flat | false         | Output results in flattened JSON format |
+| --hostfile  | none          | File containing hosts to scan (one per line) |
+| --usecache  | false         | If true, accept cached results (if available), else force live scan. |
+| --grade     | false         | Output only the hostname: grade |
+| --hostcheck | false         | If true, host resolution failure will result in a fatal error. |
