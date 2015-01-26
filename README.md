@@ -21,7 +21,7 @@ with the API documentation.
 
 ##Requirements
 
-* Go > 1.3
+* Go >= 1.3
 
 ##Usage 
 
