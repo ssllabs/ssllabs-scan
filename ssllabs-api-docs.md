@@ -157,6 +157,8 @@ If the server is overloaded (a condition that is not a result of the client's be
 
 All successful API calls contain the response header `X-ClientMaxAssessments`, which contains the maximum allowed number of active assessments for the invoking client. It is recommended that, every time you receive a response, you also update your internal limit.
 
+Server may send zero, one or more global and client-specific messages using the `X-Message` response header. Such messages should always be propagated to the user, or logged when executing in non-interactive mode. The appropriate log level for server messages is NOTICE.
+
 ### Protocol Evolution ###
 
 The API is versioned. New versions of the API will be introduced whenever incompatible changes need to be made to the protocol. When a new version becomes available, existing applications can continue to use the previous version for as long as it is supported.
