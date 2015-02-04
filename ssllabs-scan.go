@@ -66,6 +66,8 @@ var globalClearCache = true
 
 var globalFromCache = false
 
+var globalInsecure = false
+
 var httpClient *http.Client
 
 type LabsError struct {
@@ -510,7 +512,7 @@ func (manager *Manager) startAssessment(h string) {
 
 func (manager *Manager) run() {
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: false},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: globalInsecure},
 	}
 
 	httpClient = &http.Client{Transport: transport}
@@ -726,6 +728,7 @@ func main() {
 	var conf_grade = flag.Bool("grade", false, "Output only the hostname: grade")
 	var conf_hostcheck = flag.Bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
 	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
+	var conf_insecure = flag.Bool("insecure", false, "Skip certificate validation. For use in development only. Do not use.")
 	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
 	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
@@ -777,6 +780,10 @@ func main() {
 				log.Fatalf("[ERROR] Invalid hostname: %v", host)
 			}
 		}
+	}
+	
+	if *conf_insecure {
+		globalInsecure = *conf_insecure
 	}
 
 	hp := NewHostProvider(hostnames)
