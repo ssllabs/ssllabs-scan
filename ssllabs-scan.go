@@ -283,6 +283,16 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 					}
 				}
 			}
+			
+			if logLevel >= LOG_NOTICE {
+				for key, values := range resp.Header {
+					if strings.ToLower(key) == "x-message" {
+						for _, value := range values {
+							log.Printf("[NOTICE] Server message: %v\n", value)
+						}
+					}
+				}
+			}
 
 			// Adjust maximum concurrent requests.
 
