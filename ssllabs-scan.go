@@ -317,11 +317,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 					log.Fatalf("[ERROR] Too many HTTP requests failed with EOF")
 				}
 			} else {
-				if retryCount > 5 {
-					log.Fatalf("[ERROR] Too many failed HTTP requests")
-				}
-
-				time.Sleep(30 * time.Second)
+				log.Fatalf("[ERROR] HTTP request failed: %v", err)
 			}
 
 			retryCount++
