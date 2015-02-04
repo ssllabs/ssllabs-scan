@@ -723,13 +723,13 @@ func validateHostname(hostname string) bool {
 
 func main() {
 	var conf_api = flag.String("api", "BUILTIN", "API entry point, for example https://www.example.com/api/")
-	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, info, debug, or trace.")
-	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
-	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
-	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
-	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
 	var conf_grade = flag.Bool("grade", false, "Output only the hostname: grade")
 	var conf_hostcheck = flag.Bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
+	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
+	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
+	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
+	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
+	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, info, debug, or trace.")
 
 	flag.Parse()
 
