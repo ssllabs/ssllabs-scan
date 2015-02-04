@@ -52,7 +52,7 @@ const (
 
 var USER_AGENT = "ssllabs-scan v0.1"
 
-var logLevel = LOG_INFO
+var logLevel = LOG_NOTICE
 
 var activeAssessments = 0
 
@@ -631,6 +631,8 @@ func parseLogLevel(level string) int {
 	switch {
 	case level == "error":
 		return LOG_ERROR
+	case level == "notice":
+		return LOG_NOTICE
 	case level == "info":
 		return LOG_INFO
 	case level == "debug":
@@ -750,7 +752,7 @@ func main() {
 	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
 	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
-	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, info, debug, or trace.")
+	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
 
 	flag.Parse()
 
