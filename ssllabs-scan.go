@@ -260,7 +260,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 		var reqId = atomic.AddUint64(&requestCounter, 1)
 
 		if logLevel >= LOG_DEBUG {
-			log.Printf("[DEBUG] Request (%v): %v", reqId, url)
+			log.Printf("[DEBUG] Request #%v: %v", reqId, url)
 		}
 
 		req, err := http.NewRequest("GET", url, nil)
@@ -273,7 +273,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 		resp, err := httpClient.Do(req)
 		if err == nil {
 			if logLevel >= LOG_DEBUG {
-				log.Printf("[DEBUG] Response status (%v): %v %v", reqId, resp.Proto, resp.Status)
+				log.Printf("[DEBUG] Response #%v status: %v %v", reqId, resp.Proto, resp.Status)
 			}
 			
 			if logLevel >= LOG_TRACE {	
@@ -314,7 +314,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 			}
 
 			if logLevel >= LOG_TRACE {
-				log.Printf("[TRACE] Response (%v):\n%v", reqId, string(body))
+				log.Printf("[TRACE] Response #%v body:\n%v", reqId, string(body))
 			}
 
 			return resp, body, nil
