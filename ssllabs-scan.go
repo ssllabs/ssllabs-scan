@@ -275,6 +275,14 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 			if logLevel >= LOG_DEBUG {
 				log.Printf("[DEBUG] Response status code (%v): %v", reqId, resp.StatusCode)
 			}
+			
+			if logLevel >= LOG_TRACE {	
+				for key, values := range resp.Header {
+					for _, value := range values {
+						log.Printf("[TRACE] %v: %v\n", key, value)
+					}
+				}
+			}
 
 			// Adjust maximum concurrent requests.
 
