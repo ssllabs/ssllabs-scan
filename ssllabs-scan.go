@@ -207,7 +207,7 @@ type LabsEndpointDetails struct {
 	Heartbleed          bool
 	Heartbeat           bool
 	OpenSslCcs          int
-	PoodleTls			int
+	PoodleTls           int
 }
 
 type LabsEndpoint struct {
@@ -251,7 +251,7 @@ type LabsInfo struct {
 	EngineVersion        string
 	CriteriaVersion      string
 	ClientMaxAssessments int
-	Messages			 []string
+	Messages             []string
 }
 
 func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
@@ -276,15 +276,15 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 			if logLevel >= LOG_DEBUG {
 				log.Printf("[DEBUG] Response #%v status: %v %v", reqId, resp.Proto, resp.Status)
 			}
-			
-			if logLevel >= LOG_TRACE {	
+
+			if logLevel >= LOG_TRACE {
 				for key, values := range resp.Header {
 					for _, value := range values {
 						log.Printf("[TRACE] %v: %v\n", key, value)
 					}
 				}
 			}
-			
+
 			if logLevel >= LOG_NOTICE {
 				for key, values := range resp.Header {
 					if strings.ToLower(key) == "x-message" {
@@ -545,19 +545,19 @@ func (manager *Manager) run() {
 		// TODO Signal error so that we return the correct exit code
 		close(manager.FrontendEventChannel)
 	}
-	
+
 	if logLevel >= LOG_INFO {
 		log.Printf("[INFO] SSL Labs v%v (criteria version %v)", labsInfo.EngineVersion, labsInfo.CriteriaVersion)
 	}
-	
+
 	if logLevel >= LOG_NOTICE {
-		for _, message := range (labsInfo.Messages) {
+		for _, message := range labsInfo.Messages {
 			log.Printf("[NOTICE] Server message: %v", message)
 		}
 	}
-	
+
 	maxAssessments = labsInfo.ClientMaxAssessments
-	
+
 	if maxAssessments <= 0 {
 		if logLevel >= LOG_WARNING {
 			log.Printf("[WARNING] You're not allowed to request new assessments")
@@ -816,7 +816,7 @@ func main() {
 			}
 		}
 	}
-	
+
 	if *conf_insecure {
 		globalInsecure = *conf_insecure
 	}
