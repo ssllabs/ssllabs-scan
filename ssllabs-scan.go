@@ -251,6 +251,7 @@ type LabsInfo struct {
 	EngineVersion        string
 	CriteriaVersion      string
 	ClientMaxAssessments int
+	Messages			 []string
 }
 
 func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
@@ -547,6 +548,12 @@ func (manager *Manager) run() {
 	
 	if logLevel >= LOG_INFO {
 		log.Printf("[INFO] SSL Labs v%v (criteria version %v)", labsInfo.EngineVersion, labsInfo.CriteriaVersion)
+	}
+	
+	if logLevel >= LOG_NOTICE {
+		for _, message := range (labsInfo.Messages) {
+			log.Printf("[NOTICE] Server message: %v", message)
+		}
 	}
 	
 	maxAssessments = labsInfo.ClientMaxAssessments
