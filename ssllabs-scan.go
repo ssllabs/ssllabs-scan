@@ -56,7 +56,7 @@ var logLevel = LOG_NOTICE
 
 var activeAssessments = 0
 
-var maxAssessments = 1
+var maxAssessments = -1
 
 var requestCounter uint64 = 0
 
@@ -544,9 +544,17 @@ func (manager *Manager) run() {
 		// TODO Signal error so that we return the correct exit code
 		close(manager.FrontendEventChannel)
 	}
-
+	
 	if logLevel >= LOG_INFO {
 		log.Printf("[INFO] SSL Labs v%v (criteria version %v)", labsInfo.EngineVersion, labsInfo.CriteriaVersion)
+	}
+	
+	maxAssessments = labsInfo.ClientMaxAssessments
+	
+	if maxAssessments <= 0 {
+		if logLevel >= LOG_WARNING {
+			log.Printf("[WARNING] You're not allowed to request new assessments")
+		}
 	}
 
 	moreAssessments := true
