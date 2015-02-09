@@ -375,7 +375,7 @@ func invokeApi(command string) (*http.Response, []byte, error) {
 			sleepTime := 15 + rand.Int31n(15)
 
 			if logLevel >= LOG_NOTICE {
-				log.Printf("[NOTICE] Sleeping for %v minutes after a 529 response", sleepTime)
+				log.Printf("[NOTICE] Sleeping for %v minutes after a %v response", sleepTime, resp.StatusCode)
 			}
 
 			time.Sleep(time.Duration(sleepTime) * time.Minute)
