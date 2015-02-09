@@ -248,11 +248,11 @@ type LabsResults struct {
 }
 
 type LabsInfo struct {
-	EngineVersion        string
-	CriteriaVersion      string
-	MaxAssessments		 int
-	CurrentAssessments   int
-	Messages             []string
+	EngineVersion      string
+	CriteriaVersion    string
+	MaxAssessments     int
+	CurrentAssessments int
+	Messages           []string
 }
 
 func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
@@ -338,7 +338,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 				if retryCount > 1 {
 					log.Fatalf("[ERROR] Too many HTTP requests failed with EOF")
 				}
-				
+
 				if logLevel >= LOG_DEBUG {
 					log.Printf("[DEBUG] HTTP request failed with EOF")
 				}
@@ -611,7 +611,7 @@ func (manager *Manager) run() {
 
 				manager.results.reports = append(manager.results.reports, *e.report)
 				manager.results.responses = append(manager.results.responses, e.report.rawJSON)
-				
+
 				if logLevel >= LOG_DEBUG {
 					log.Printf("[DEBUG] Active assessments: %v (more: %v)", activeAssessments, moreAssessments)
 				}
