@@ -250,7 +250,8 @@ type LabsResults struct {
 type LabsInfo struct {
 	EngineVersion        string
 	CriteriaVersion      string
-	ClientMaxAssessments int
+	MaxAssessments		 int
+	CurrentAssessments   int
 	Messages             []string
 }
 
@@ -297,7 +298,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 
 			// Adjust maximum concurrent requests.
 
-			headerValue := resp.Header.Get("X-ClientMaxAssessments")
+			headerValue := resp.Header.Get("X-Max-Assessments")
 			if headerValue != "" {
 				i, err := strconv.Atoi(headerValue)
 				if err == nil {
@@ -310,7 +311,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 					}
 				} else {
 					if logLevel >= LOG_WARNING {
-						log.Printf("[WARNING] Ignoring invalid X-ClientMaxAssessments value (%v): %v", headerValue, err)
+						log.Printf("[WARNING] Ignoring invalid X-Max-Assessments value (%v): %v", headerValue, err)
 					}
 				}
 			}
@@ -337,6 +338,10 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 				if retryCount > 1 {
 					log.Fatalf("[ERROR] Too many HTTP requests failed with EOF")
 				}
+				
+				if logLevel >= LOG_DEBUG {
+					log.Printf("[DEBUG] HTTP request failed with EOF")
+				}
 			} else {
 				log.Fatalf("[ERROR] HTTP request failed: %v", err)
 			}
@@ -357,13 +362,13 @@ func invokeApi(command string) (*http.Response, []byte, error) {
 
 		// Status codes 429, 503, and 529 essentially mean try later. Thus,
 		// if we encounter them, we sleep for a while and try again.
-		if (resp.StatusCode == 429) || (resp.StatusCode == 503) {
+		if resp.StatusCode == 429 {
 			if logLevel >= LOG_NOTICE {
-				log.Printf("[NOTICE] Sleeping for 5 minutes after a %v response", resp.StatusCode)
+				log.Printf("[NOTICE] Sleeping for 30 seconds after a %v response", resp.StatusCode)
 			}
 
-			time.Sleep(5 * time.Minute)
-		} else if resp.StatusCode == 529 {
+			time.Sleep(30 * time.Second)
+		} else if (resp.StatusCode == 503) || (resp.StatusCode == 529) {
 			// In case of the overloaded server, randomize the sleep time so
 			// that some clients reconnect earlier and some later.
 
@@ -556,7 +561,7 @@ func (manager *Manager) run() {
 		}
 	}
 
-	maxAssessments = labsInfo.ClientMaxAssessments
+	maxAssessments = labsInfo.MaxAssessments
 
 	if maxAssessments <= 0 {
 		if logLevel >= LOG_WARNING {
@@ -606,6 +611,10 @@ func (manager *Manager) run() {
 
 				manager.results.reports = append(manager.results.reports, *e.report)
 				manager.results.responses = append(manager.results.responses, e.report.rawJSON)
+				
+				if logLevel >= LOG_DEBUG {
+					log.Printf("[DEBUG] Active assessments: %v (more: %v)", activeAssessments, moreAssessments)
+				}
 
 				// Are we done?
 				if (activeAssessments == 0) && (moreAssessments == false) {
