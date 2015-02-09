@@ -1,6 +1,6 @@
-# SSL Labs API Documentation: v1.11.3 #
+# SSL Labs API Documentation: v2.0 Beta #
 
-**Last update:** 19 January 2015<br>
+**Last update:** 9 February 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 ## Protocol Overview ##
@@ -155,9 +155,8 @@ We may limit your usage of the API, by enforcing a limit on concurrent assessmen
 
 If the server is overloaded (a condition that is not a result of the client's behaviour), the 529 status code will be used instead. This is not a situation we wish to be in. If you encounter it, take a break and come back after at least 30 minutes of sleep.
 
-All successful API calls contain the response header `X-ClientMaxAssessments`, which contains the maximum allowed number of active assessments for the invoking client. It is recommended that, every time you receive a response, you also update your internal limit.
-
-Server may send zero, one or more global and client-specific messages using the `X-Message` response header. Such messages should always be propagated to the user, or logged when executing in non-interactive mode. The appropriate log level for server messages is NOTICE.
+All successful API calls contain response headers `X-Max-Assessments` and `X-Current-Assessments`. They can be used to calculate how many new
+assessments can be submitted. It is recommended that clients update their internal state after each complete response.
 
 ### Protocol Evolution ###
 
@@ -268,8 +267,10 @@ The remainder of the document explains the structure of the returned objects. Th
 
 * **version** - SSL Labs software version as a string (e.g., "1.11.14")
 * **criteriaVersion** - rating criteria version as a string (e.g., "2009f")
-* **clientMaxAssessments** - the maximum number of concurrent assessments the client is allowed to initiate.
-* **notice** - TODO
+* **maxAssessments** - the maximum number of concurrent assessments the client is allowed to initiate.
+* **currentAssessments** - the number of ongoing assessments submitted by this client.
+* **messages** - a list of messages (strings). Messages can be public (sent to everyone) and private (sent only to the invoking client).
+                 Private messages are prefixed with "[Private]".
 
 ### Key ###
 
