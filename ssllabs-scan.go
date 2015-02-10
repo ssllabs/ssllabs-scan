@@ -62,9 +62,11 @@ var requestCounter uint64 = 0
 
 var apiLocation = "https://api.dev.ssllabs.com/api/fa78d5a4/"
 
-var globalClearCache = true
+var globalStartNew = true
 
 var globalFromCache = false
+
+var globalMaxAge = 0
 
 var globalInsecure = false
 
@@ -404,13 +406,17 @@ func invokeInfo() (*LabsInfo, error) {
 	return &labsInfo, nil
 }
 
-func invokeAnalyze(host string, clearCache bool, fromCache bool) (*LabsReport, error) {
+func invokeAnalyze(host string, startNew bool, fromCache bool) (*LabsReport, error) {
 	var command = "analyze?host=" + host + "&all=done"
 
 	if fromCache {
 		command = command + "&fromCache=on"
-	} else if clearCache {
-		command = command + "&clearCache=on"
+		
+		if globalMaxAge != 0 {
+			command = command + "&maxAge=" + strconv.Itoa(globalMaxAge)
+		}
+	} else if startNew {
+		command = command + "&startNew=on"
 	}
 
 	resp, body, err := invokeApi(command)
@@ -461,17 +467,17 @@ func NewAssessment(host string, eventChannel chan Event) {
 
 	var report *LabsReport
 	var startTime int64 = -1
-	var clearCache = globalClearCache
+	var startNew = globalStartNew
 
 	for {
-		myResponse, err := invokeAnalyze(host, clearCache, globalFromCache)
+		myResponse, err := invokeAnalyze(host, startNew, globalFromCache)
 		if err != nil {
 			log.Fatalf("[ERROR] API invocation failed: %v", err)
 		}
 
 		if startTime == -1 {
 			startTime = myResponse.StartTime
-			clearCache = false
+			startNew = false
 		} else {
 			if myResponse.StartTime != startTime {
 				log.Fatalf("[ERROR] Inconsistent startTime. Expected %v, got %v.", startTime, myResponse.StartTime)
@@ -776,6 +782,7 @@ func main() {
 	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
 	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
+	var conf_maxage = flag.Int("maxage", 0, "Maximum acceptable age of cached results, in hours. A zero value is ignored.")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
 
 	flag.Parse()
@@ -789,7 +796,11 @@ func main() {
 	// We prefer cached results
 	if *conf_usecache {
 		globalFromCache = true
-		globalClearCache = false
+		globalStartNew = false
+	}
+	
+	if *conf_maxage != 0 {
+		globalMaxAge = *conf_maxage
 	}
 
 	// Verify that the API entry point is a URL.
