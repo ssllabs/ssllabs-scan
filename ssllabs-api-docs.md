@@ -1,6 +1,6 @@
 # SSL Labs API Documentation: v2.0 Beta #
 
-**Last update:** 9 February 2015<br>
+**Last update:** 12 February 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 ## Protocol Overview ##
@@ -8,19 +8,6 @@
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
 
 The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload.
-
-### Expected Changes ###
-
-We are fine-tuning this API at the moment; small changes should be expected. The following changes are planned:
-
-* Don't allow clearCache for a short time (e.g., 30 seconds) after an assessment is complete.
-
-### Do not hardcode SSL Labs IP addresses ###
-We're constantly working to improve SSL Labs, and that often means that the underlying IP addresses change. For best results, do not hardcode SSL Labs IP addresses in your code.
-
-The best way to use SSL Labs is to resolve our hostname once for every test, then continue to use the same IP address for that particular test. This approach will ensure consistent responses even if we use a DNS RR deployment with short TTL times. That said, the next version of SSL Labs operates as a cluster; this generally means that you should get consistent results no matter which node you hit.
-
-But please do ensure that you have enabled session caching in your client/library. Our load balancer will always send the same SSL session to the same node.
 
 ### Terms and Conditions ###
 
@@ -72,8 +59,9 @@ Parameters:
 
 * **host** - hostname; required.
 * **publish** - set to "on" if assessment results should be published on the public results boards; optional, defaults to "off".
-* **clearCache** - if set to "on" then cached assessment results are ignored and a new assessment is started. However, if there's already an assessment in progress, its status is delivered instead. This parameter should be used only once to initiate a new assessment; further invocations should omit it to avoid causing an assessment loop.
-* **fromCache** - always deliver cached assessment reports if available; optional, defaults to "off". This parameter is intended for API consumers that don't want to wait for assessment results. Can't be used at the same time as the clearCache parameter.
+* **startNew** - if set to "on" then cached assessment results are ignored and a new assessment is started. However, if there's already an assessment in progress, its status is delivered instead. This parameter should be used only once to initiate a new assessment; further invocations should omit it to avoid causing an assessment loop.
+* **fromCache** - always deliver cached assessment reports if available; optional, defaults to "off". This parameter is intended for API consumers that don't want to wait for assessment results. Can't be used at the same time as the startNew parameter.
+* **maxAge** - maximum report age, in hours, if retrieving from cache (fromCache parameter set).
 * **all** - by default this call results only summaries of individual endpoints. If this parameter is set to "on", full information will be returned. If set to "done", full information will be returned only if the assessment is complete (status is READY or ERROR).
 
 Examples:
@@ -83,7 +71,7 @@ Examples:
 
 #### Retrieve detailed endpoint information ####
 
-This call is used to retrieve detailed endpoint information. It will return a single [Endpoint object](#endpoint) on success. The object will contain complete assessment information.
+This call is used to retrieve detailed endpoint information. It will return a single [Endpoint object](#endpoint) on success. The object will contain complete assessment information. This API call does not initiate new assessments, even when a cached report is not found.
 
 **API Call:** `getEndpointData`
 
@@ -111,18 +99,19 @@ Parameters:
 
 When you want to obtain fresh test results for a particular host:
 
-1. Invoke `analyze` with the `clearCache` parameter to `on`. Set `all` to `done`.
-2. The assessment is now in progress. Call `analyze` periodically (without the `clearCache` parameter!) until the assessment is finished. You can tell by observing the `Host.status` field for either READY or ERROR values.
+1. Invoke `analyze` with the `startNew` parameter to `on`. Set `all` to `done`.
+2. The assessment is now in progress. Call `analyze` periodically (without the `startNew` parameter!) until the assessment is finished. You can tell by observing the `Host.status` field for either READY or ERROR values.
 3. When there are multiple servers behind one hostname, they will be tested one at a time.
 4. During the assessment, interim responses will contain only endpoint status, but not full information.
 5. At the end of the assessment, the response will contain all available information; no further API calls will need to be made for that host.
 
 When you're happy to receive cached information (e.g., in a browser add-on):
 
-1. Invoke `analyze` with `fromCache` set to `on` and all set to `done`.
-2. If the information you requested is available in the cache, it will be returned straight away.
-3. Otherwise, a new assessment will be started.
-4. You can continue to call `analyze` periodically until the assessment is complete.
+1. Invoke `analyze` with `fromCache` set to `on` and `all` set to `done`.
+2. Set `maxAge` to control the maximum age of the cached report. If you don't set this parameter, your IP address will not be forwarded to the tested server.
+3. If the information you requested is available in the cache, it will be returned straight away.
+4. Otherwise, a new assessment will be started.
+5. You can continue to call `analyze` periodically until the assessment is complete.
 
 ### Error Reporting ###
 
