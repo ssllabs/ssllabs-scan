@@ -210,6 +210,7 @@ type LabsEndpointDetails struct {
 	Heartbeat           bool
 	OpenSslCcs          int
 	PoodleTls           int
+	FallbackScsv		bool
 }
 
 type LabsEndpoint struct {

@@ -1,6 +1,6 @@
 # SSL Labs API Documentation: v2.0 Beta #
 
-**Last update:** 12 February 2015<br>
+**Last update:** 22 February 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 ## Protocol Overview ##
@@ -251,6 +251,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * 0 - unknown
    * 1 - not vulnerable
    * 2 - vulnerable
+* fallbackScsv - true if the server supports TLS_FALLBACK_SCSV, false if it doesn't. This field will not be available if the the server's support for TLS_FALLBACK_SCSV can't be tested because it supports only one protocol version (e.g., only TLS 1.2).
 
 ### Info ###
 
