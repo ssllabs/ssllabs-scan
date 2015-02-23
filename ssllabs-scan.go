@@ -210,7 +210,7 @@ type LabsEndpointDetails struct {
 	Heartbeat           bool
 	OpenSslCcs          int
 	PoodleTls           int
-	FallbackScsv		bool
+	FallbackScsv        bool
 }
 
 type LabsEndpoint struct {
@@ -412,7 +412,7 @@ func invokeAnalyze(host string, startNew bool, fromCache bool) (*LabsReport, err
 
 	if fromCache {
 		command = command + "&fromCache=on"
-		
+
 		if globalMaxAge != 0 {
 			command = command + "&maxAge=" + strconv.Itoa(globalMaxAge)
 		}
@@ -799,7 +799,7 @@ func main() {
 		globalFromCache = true
 		globalStartNew = false
 	}
-	
+
 	if *conf_maxage != 0 {
 		globalMaxAge = *conf_maxage
 	}
