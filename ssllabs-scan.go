@@ -338,7 +338,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 				// Server closed a persistent connection on us, which
 				// Go doesn't seem to be handling well. So we'll try one
 				// more time.
-				if retryCount > 1 {
+				if retryCount > 5 {
 					log.Fatalf("[ERROR] Too many HTTP requests failed with EOF")
 				}
 
