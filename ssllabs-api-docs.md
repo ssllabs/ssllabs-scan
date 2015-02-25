@@ -251,7 +251,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * 0 - unknown
    * 1 - not vulnerable
    * 2 - vulnerable
-* fallbackScsv - true if the server supports TLS_FALLBACK_SCSV, false if it doesn't. This field will not be available if the server's support for TLS_FALLBACK_SCSV can't be tested because it supports only one protocol version (e.g., only TLS 1.2).
+* **fallbackScsv** - true if the server supports TLS_FALLBACK_SCSV, false if it doesn't. This field will not be available if the server's support for TLS_FALLBACK_SCSV can't be tested because it supports only one protocol version (e.g., only TLS 1.2).
 
 ### Info ###
 
