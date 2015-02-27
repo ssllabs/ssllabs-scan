@@ -1,6 +1,6 @@
-# SSL Labs API Documentation: v2.0 Beta #
+# SSL Labs API Documentation: v2.0 #
 
-**Last update:** 22 February 2015<br>
+**Last update:** 27 February 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 ## Protocol Overview ##
@@ -384,11 +384,6 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ## Changes ##
 
-### 1.0 (June 2012) ###
+### 2.0 (3 March 2015) ###
 
-* First release, for internal use. The changelog for the 1.x version of the APIs has been removed as it's of no interest to the 2.x users.
-
-### 1.11.x (work in progress) ###
-
-* First public release (alpha).
-* [1.11.3] Exposed poodleTLS.
+* First public release.
