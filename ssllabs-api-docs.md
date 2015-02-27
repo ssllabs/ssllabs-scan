@@ -261,6 +261,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **currentAssessments** - the number of ongoing assessments submitted by this client.
 * **messages** - a list of messages (strings). Messages can be public (sent to everyone) and private (sent only to the invoking client).
                  Private messages are prefixed with "[Private]".
+* **clientMaxAssessments** - deprecated and scheduled for removal in the next release.
 
 ### Key ###
 
