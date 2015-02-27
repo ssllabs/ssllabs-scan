@@ -193,6 +193,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **delegation** - indicates domain name delegation with and without the www prefix
    * bit 0 (1) is set for non-prefixed access
    * bit 1 (2) is set for prefixed access
+* **details** - this field contains an EndpointDetails object. It's not present by default, but can be enabled by using the "all" paramerer to the `analyze` API call.
 
 ### EndpointDetails ###
 
