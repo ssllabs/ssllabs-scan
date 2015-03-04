@@ -11,7 +11,9 @@ The protocol is based on HTTP and JSON. All invocations of the API should use th
 
 ### Terms and Conditions ###
 
-SSL Labs APIs are provided free of charge, subject to our terms and conditions: <https://www.ssllabs.com/about/terms.html>. The spirit of the license is that the APIs are made available so that system operators can test their own infrastructure. Please read the actual terms and conditions, which are more involved and cover things such as integrating with open source projects, and so on. For example, it's important (for reasons of privacy, compliance, etc) for end users to understand that assessments are carried out by Qualys's servers, not locally. Commercial use is generally not allowed, except with an explicit permission from Qualys. That said, we're usually happy to support good causes, even use by commercial companies that help improve the security of their customers. If you're a CA, CDN, hosting company, domain name registrar, we're happy for you to give you access to our APIs, but you have to get in touch with us first.
+SSL Labs APIs are provided free of charge, subject to our terms and conditions: <https://www.ssllabs.com/about/terms.html>. The spirit of the license is that the APIs are made available so that system operators can test their own infrastructure. Please read the actual terms and conditions, which are more involved and cover things such as integrating with open source projects, and so on. For example, it's important (for reasons of privacy, compliance, etc) for end users to understand that assessments are carried out by Qualys's servers, not locally.
+
+Commercial use is generally not allowed, except with an explicit permission from Qualys. That said, we're usually happy to support good causes, even use by commercial companies that help improve the security of their customers. If you're a CA, CDN, hosting company, domain name registrar, we're happy for you to give you access to our APIs, but you have to get in touch with us first.
 
 ### Protocol Calls ###
 
