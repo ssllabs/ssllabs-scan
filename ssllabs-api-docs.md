@@ -1,39 +1,17 @@
 # SSL Labs API Documentation: v2.0 #
 
-**Last update:** 27 February 2015<br>
+**Last update:** 4 March 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
-
-## Protocol Overview ##
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
 
-The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload.
+## Protocol Overview ##
+
+The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload. In essence, the client submits an assessment requests to the servers. If an acceptable report is already available, it's received straight away. Otherwise, the server will start a new assessment and the client should periodically check to see if the job is complete.
 
 ### Terms and Conditions ###
 
-Our standard (pre-API) terms and conditions apply: <https://www.ssllabs.com/about/terms.html>.  As the APIs get stable, we will merge the two documents into one. When in doubt, the terms specified here override the terms currently on the SSL Labs web site.
-
-We are making the SSL Labs APIs available to help everyone automate batch testing of their own infrastructure. Our terms and conditions are designed to help us make the best use of our limited resources without impeding our goals.
-
-Allowed uses:
-
-* Testing of your own infrastructure
-* Integration with non-commercial open source tools
-* Non-commercial security research, provided that the results are made freely available online and don't disclose information on individual web sites
-
-We are also interested in collaborating with infrastructure providers, such as hosting companies, certification authorities, and content delivery networks. We are happy to give you limited permission to use our APIs to check the security of your customers' networks. We generally expect that only report summaries will be shown to your customers and that they will be sent to the SSL Labs web site for the full results.
-
-We regret that other uses are not allowed. In particular, but not limited to, the following uses are not allowed:
-
-* Use of the APIs on a web site
-* Commercial use (either direct or indirect commercialization, either as part of a product or a service)
-
-Notes:
-
-* The names Qualys and SSL Labs must not be part of the tool name, or otherwise used to promote the tool
-* The tool documentation should include a notice to inform the user about the use of the SSL Labs API. It is particularly important for the users to understand that the assessments will be performed by the SSL Labs servers and the reports stored (cached) for a period of time. SSL Labs logs submitted hostnames but only as part as normal activity logging. The hostnames are not used otherwise.
-* Each tool invocation should output the notice returned by the SSL Labs `info` API call (documented later in this text).
-* Individual site reports should provide links to the report on the SSL Labs web site.
+SSL Labs APIs are provided free of charge, subject to our terms and conditions: <https://www.ssllabs.com/about/terms.html>. The spirit of the license is that the APIs are made available so that system operators can test their own infrastructure. Please read the actual terms and conditions, which are more involved and cover things such as integrating with open source projects, and so on. For example, it's important (for reasons of privacy, compliance, etc) for end users to understand that assessments are carried out by Qualys's servers, not locally. Commercial use is generally not allowed, except with an explicit permission from Qualys. That said, we're usually happy to support good causes, even use by commercial companies that help improve the security of their customers. If you're a CA, CDN, hosting company, domain name registrar, we're happy for you to give you access to our APIs, but you have to get in touch with us first.
 
 ### Protocol Calls ###
 
