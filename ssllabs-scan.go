@@ -62,6 +62,8 @@ var requestCounter uint64 = 0
 
 var apiLocation = "https://api.ssllabs.com/api/v2"
 
+var globalIgnoreMismatch = false
+
 var globalStartNew = true
 
 var globalFromCache = false
@@ -418,6 +420,10 @@ func invokeAnalyze(host string, startNew bool, fromCache bool) (*LabsReport, err
 		}
 	} else if startNew {
 		command = command + "&startNew=on"
+	}
+
+	if globalIgnoreMismatch {
+		command = command + "&ignoreMismatch=on"
 	}
 
 	resp, body, err := invokeApi(command)
@@ -780,6 +786,7 @@ func main() {
 	var conf_grade = flag.Bool("grade", false, "Output only the hostname: grade")
 	var conf_hostcheck = flag.Bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
 	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
+	var conf_ignore_mismatch = flag.Bool("ignore-mismatch", false, "If true, certificate hostname mismatch does not stop assessment.")
 	var conf_insecure = flag.Bool("insecure", false, "Skip certificate validation. For use in development only. Do not use.")
 	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
 	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
@@ -790,6 +797,8 @@ func main() {
 	flag.Parse()
 
 	logLevel = parseLogLevel(strings.ToLower(*conf_verbosity))
+
+	globalIgnoreMismatch = *conf_ignore_mismatch
 
 	if *conf_quiet {
 		logLevel = LOG_NONE
