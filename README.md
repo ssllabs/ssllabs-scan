@@ -34,10 +34,11 @@ OPTIONS
 | Option      | Default value | Description |
 | ----------- | ------------- | ----------- |
 | --api       | BUILTIN       | API entry point, for example https://www.example.com/api/ |
-| --verbosity | info          | Configure log verbosity: error, info, debug, or trace. |
+| --verbosity | info          | Configure log verbosity: error, info, debug, or trace |
 | --quiet     | false         | Disable status messages (logging) |
+| --ignore-mismatch | false   | Proceed with assessments on certificate mismatch |
 | --json-flat | false         | Output results in flattened JSON format |
 | --hostfile  | none          | File containing hosts to scan (one per line) |
-| --usecache  | false         | If true, accept cached results (if available), else force live scan. |
+| --usecache  | false         | If true, accept cached results (if available), else force live scan |
 | --grade     | false         | Output only the hostname: grade |
-| --hostcheck | false         | If true, host resolution failure will result in a fatal error. |
+| --hostcheck | false         | If true, host resolution failure will result in a fatal error |
