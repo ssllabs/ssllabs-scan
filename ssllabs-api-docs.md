@@ -1,6 +1,6 @@
-# SSL Labs API Documentation: v2.0 #
+# SSL Labs API Documentation: v2.1 #
 
-**Last update:** 4 March 2015<br>
+**Last update:** 16 March 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -43,6 +43,7 @@ Parameters:
 * **fromCache** - always deliver cached assessment reports if available; optional, defaults to "off". This parameter is intended for API consumers that don't want to wait for assessment results. Can't be used at the same time as the startNew parameter.
 * **maxAge** - maximum report age, in hours, if retrieving from cache (fromCache parameter set).
 * **all** - by default this call results only summaries of individual endpoints. If this parameter is set to "on", full information will be returned. If set to "done", full information will be returned only if the assessment is complete (status is READY or ERROR).
+* **ignoreMismatch** - set to "on" to proceed with assessments even when the server certificate doesn't match the assessment hostname. Set to off by default. Please note that this parameter is ignored if a cached report is returned.
 
 Examples:
 
@@ -367,3 +368,7 @@ The remainder of the document explains the structure of the returned objects. Th
 ### 2.0 (3 March 2015) ###
 
 * First public release.
+
+### 2.1 (16 March 2015) ###
+
+* Added ignoreMismatch parameter to control if assessments proceed when server certificate does not match the assessment hostname.
