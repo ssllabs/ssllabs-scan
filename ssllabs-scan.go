@@ -310,8 +310,8 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 					if maxAssessments != i {
 						maxAssessments = i
 
-						if logLevel >= LOG_INFO {
-							log.Printf("[INFO] Server set max concurrent assessments to %v", headerValue)
+						if logLevel >= LOG_DEBUG {
+							log.Printf("[DEBUG] Server set max concurrent assessments to %v", headerValue)
 						}
 					}
 				} else {
