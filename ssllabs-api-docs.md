@@ -304,14 +304,20 @@ The remainder of the document explains the structure of the returned objects. Th
 
 * **subject** - certificate subject
 * **label** - certificate label (user-friendly name)
+* **notBefore** -
+* **notAfter** -
 * **issuerSubject** - issuer subject
 * **issuerLabel** - issuer label (user-friendly name)
+* **sigAlg** -
 * **issues** - a number of flags the describe the problems with this certificate:
    * bit 0 (1) - certificate not yet valid
    * bit 1 (2) - certificate expired
    * bit 2 (4) - weak key
    * bit 3 (8) - weak signature
    * bit 4 (16) - blacklisted
+* **keyAlg** - key algorithm.
+* **keySize** - key size, in bits appopriate for the key algorithm.
+* **keyStrength** - key strength, in equivalent RSA bits.
 * **raw** - PEM-encoded certificate data
 
 ### Protocol ###
@@ -375,3 +381,9 @@ The remainder of the document explains the structure of the returned objects. Th
 * Added ignoreMismatch parameter to control if assessments proceed when server certificate does not match the assessment hostname.
 
 ### 1.16.x (in progress) ###
+
+* Changed API versioning to match software version numbers.
+* Documented EndpointDetails.Freak.
+* Documented several new fields of ChainCert: notBefore, notAfter, SigAlg, KeyAlg, KeySize, KeyStrength.
+* Field ChainCert.issues is now set to zero if there are no issues. Previously this field wouldn't exist in the JSON structure.
+* Fixed ChainCert.issues didn't flag weak (e.g., SHA1) certificates.
