@@ -383,7 +383,7 @@ The remainder of the document explains the structure of the returned objects. Th
 ### 1.16.x (in progress) ###
 
 * Changed API versioning to match software version numbers.
-* Documented EndpointDetails.Freak.
-* Documented several new fields of ChainCert: notBefore, notAfter, SigAlg, KeyAlg, KeySize, KeyStrength.
+* Documented EndpointDetails.freak.
+* Documented several new fields of ChainCert: notBefore, notAfter, sigAlg, keyAlg, keySize, keyStrength.
 * Field ChainCert.issues is now set to zero if there are no issues. Previously this field wouldn't exist in the JSON structure.
 * Fixed ChainCert.issues didn't flag weak (e.g., SHA1) certificates.
