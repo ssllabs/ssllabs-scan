@@ -552,7 +552,7 @@ func (manager *Manager) run() {
 	transport := &http.Transport{
 		TLSClientConfig:   &tls.Config{InsecureSkipVerify: globalInsecure},
 		DisableKeepAlives: true,
-		Proxy: http.ProxyFromEnvironment,
+		Proxy:             http.ProxyFromEnvironment,
 	}
 
 	httpClient = &http.Client{Transport: transport}
