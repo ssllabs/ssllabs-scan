@@ -213,6 +213,7 @@ type LabsEndpointDetails struct {
 	OpenSslCcs          int
 	PoodleTls           int
 	FallbackScsv        bool
+	Freak               bool
 }
 
 type LabsEndpoint struct {
