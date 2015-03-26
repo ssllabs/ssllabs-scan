@@ -121,9 +121,15 @@ type LabsCert struct {
 type LabsChainCert struct {
 	Subject       string
 	Label         string
+	NotBefore     int64
+	NotAfter      int64
 	IssuerSubject string
 	IssuerLabel   string
+	SigAlg        string
 	Issues        int
+	KeyAlg        string
+	KeySize       int
+	KeyStrength   int
 	Raw           string
 }
 
