@@ -1,4 +1,4 @@
-# SSL Labs API Documentation: v2.1 #
+# SSL Labs API Documentation v1.16.x #
 
 **Last update:** 16 March 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
@@ -365,10 +365,12 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ## Changes ##
 
-### 2.0 (3 March 2015) ###
+### 1.14.x (3 March 2015) ###
 
 * First public release.
 
-### 2.1 (16 March 2015) ###
+### 1.15.x (16 March 2015) ###
 
 * Added ignoreMismatch parameter to control if assessments proceed when server certificate does not match the assessment hostname.
+
+### 1.16.x (in progress) ###
