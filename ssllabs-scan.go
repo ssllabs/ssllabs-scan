@@ -218,6 +218,7 @@ type LabsEndpointDetails struct {
 	Heartbleed          bool
 	Heartbeat           bool
 	OpenSslCcs          int
+	Poodle              bool
 	PoodleTls           int
 	FallbackScsv        bool
 	Freak               bool

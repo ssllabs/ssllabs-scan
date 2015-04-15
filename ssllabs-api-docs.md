@@ -228,6 +228,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - not vulnerable
    * 2 - possibly vulnerable, but not exploitable
    * 3 - vulnerable and exploitable
+* **poodle** - true if the endpoint is vulnerable to POODLE; false otherwise
 * **poodleTls** - results of the POODLE TLS test:
    * -1 - test failed
    * 0 - unknown
@@ -394,3 +395,4 @@ The remainder of the document explains the structure of the returned objects. Th
 * Fixed ChainCert.issues didn't flag weak (e.g., SHA1) certificates.
 * Added Cert.sct.
 * Added EndpointDetails.hasSct.
+* Added EndpointDetails.poodle.
