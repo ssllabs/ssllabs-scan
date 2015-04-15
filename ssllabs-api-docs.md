@@ -1,6 +1,6 @@
 # SSL Labs API Documentation v1.16.x #
 
-**Last update:** 16 March 2015<br>
+**Last update:** 15 April 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -235,6 +235,10 @@ The remainder of the document explains the structure of the returned objects. Th
    * 2 - vulnerable
 * **fallbackScsv** - true if the server supports TLS_FALLBACK_SCSV, false if it doesn't. This field will not be available if the server's support for TLS_FALLBACK_SCSV can't be tested because it supports only one protocol version (e.g., only TLS 1.2).
 * **freak** - true of the server is vulnerable to the FREAK attack, meaning it supports 512-bit key exchange.
+* **hasSct** - information about the availability of certificate transparency information (embedded SCTs):
+  * bit 0 - SCT in certificate
+  * bit 1 - SCT in the stapled OCSP response
+  * bit 2 - SCT in the TLS extension (ServerHello)
 
 ### Info ###
 
@@ -288,6 +292,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 6 (64) - self-signed
    * bit 7 (128) - blacklisted
    * bit 8 (256) - insecure signature
+* **sct** - true if the certificate contains an embedded SCT; false otherwise.
 
 ### Chain ###
 
@@ -383,7 +388,9 @@ The remainder of the document explains the structure of the returned objects. Th
 ### 1.16.x (in progress) ###
 
 * Changed API versioning to match software version numbers.
-* Documented EndpointDetails.freak.
-* Documented several new fields of ChainCert: notBefore, notAfter, sigAlg, keyAlg, keySize, keyStrength.
+* Added EndpointDetails.freak.
+* Added several new fields of ChainCert: notBefore, notAfter, sigAlg, keyAlg, keySize, keyStrength.
 * Field ChainCert.issues is now set to zero if there are no issues. Previously this field wouldn't exist in the JSON structure.
 * Fixed ChainCert.issues didn't flag weak (e.g., SHA1) certificates.
+* Added Cert.sct.
+* Added EndpointDetails.hasSct.

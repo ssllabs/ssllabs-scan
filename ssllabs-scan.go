@@ -116,6 +116,7 @@ type LabsCert struct {
 	Sgc              int
 	ValidationType   string
 	Issues           int
+    Sct              bool
 }
 
 type LabsChainCert struct {
@@ -220,6 +221,7 @@ type LabsEndpointDetails struct {
 	PoodleTls           int
 	FallbackScsv        bool
 	Freak               bool
+    HasSct              int
 }
 
 type LabsEndpoint struct {
