@@ -231,6 +231,7 @@ type LabsEndpoint struct {
 	StatusMessage        string
 	StatusDetailsMessage string
 	Grade                string
+	GradeTrustIgnored    string
 	HasWarnings          bool
 	IsExceptional        bool
 	Progress             int
