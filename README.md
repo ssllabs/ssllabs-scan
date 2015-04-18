@@ -21,6 +21,10 @@ https://www.ssllabs.com/about/terms.html
 
 * Go >= 1.3
 
+## Installation
+
+    go get github.com/ssllabs/ssllabs-scan
+
 ##Usage 
 
 SYNOPSIS
