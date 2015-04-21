@@ -173,8 +173,8 @@ The remainder of the document explains the structure of the returned objects. Th
 * **duration** - assessment duration, in milliseconds
 * **eta** - estimated time, in seconds, until the completion of the assessment
 * **delegation** - indicates domain name delegation with and without the www prefix
-   * bit 0 (1) is set for non-prefixed access
-   * bit 1 (2) is set for prefixed access
+   * bit 0 (1) - set for non-prefixed access
+   * bit 1 (2) - set for prefixed access
 * **details** - this field contains an EndpointDetails object. It's not present by default, but can be enabled by using the "all" paramerer to the `analyze` API call.
 
 ### EndpointDetails ###
@@ -190,10 +190,10 @@ The remainder of the document explains the structure of the returned objects. Th
 * **nonPrefixDelegation** (moved here from the summary) - true if this endpoint is reachable via a hostname without the www prefix
 * **vulnBeast** - true if the endpoint is vulnerable to the BEAST attack
 * **renegSupport** - this is an integer value that describes the endpoint support for renegotiation:
-   * bit 0 (1) is set if insecure client-initiated renegotiation is supported
-   * bit 1 (2) is set if secure renegotiation is supported
-   * bit 2 (4) is set if secure client-initiated renegotiation is supported
-   * bit 3 (8) is set if the server requires secure renegotiation support
+   * bit 0 (1) - set if insecure client-initiated renegotiation is supported
+   * bit 1 (2) - set if secure renegotiation is supported
+   * bit 2 (4) - set if secure client-initiated renegotiation is supported
+   * bit 3 (8) - set if the server requires secure renegotiation support
 * **stsResponseHeader** - the contents of the Strict-Transport-Security (STS) response header, if seen
 * **stsMaxAge** - the maxAge parameter extracted from the STS parameters; null if STS not seen, or -1 if the specified value is invalid (e.g., not a zero or a positive integer; the maximum value currently supported is 2,147,483,647)
 * **stsSubdomains** - true if the includeSubDomains STS parameter is set; null if STS not seen
@@ -207,9 +207,9 @@ The remainder of the document explains the structure of the returned objects. Th
 * **supportsNpn** - true if the server supports NPN
 * **npnProtocols** - space separated list of supported protocols
 * **sessionTickets** - indicates support for Session Tickets
-   * bit 0 is set if session tickets are supported
-   * bit 1 (not implemented) is set if the implementation is faulty
-   * bit 2 is set if the server is intolerant to the extension
+   * bit 0 (1) - set if session tickets are supported
+   * bit 1 (2) - set if the implementation is faulty [not implemented]
+   * bit 2 (4) - set if the server is intolerant to the extension
 * **ocspStapling** - true if OCSP stapling is deployed on the server
 * **staplingRevocationStatus** - same as Cert.revocationStatus, but for the stapled OCSP response.
 * **staplingRevocationErrorMessage** - description of the problem with the stapled OCSP response, if any.
@@ -218,9 +218,9 @@ The remainder of the document explains the structure of the returned objects. Th
 * **httpForwarding** - available on a server that responded with a redirection to some other hostname.
 * **supportsRc4** - true if the server supports at least one RC4 suite.
 * **forwardSecrecy** - indicates support for Forward Secrecy
-   * bit 0 - set if at least one browser from our simulations negotiated a Forward Secrecy suite.
-   * bit 1 - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
-   * bit 2 - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
+   * bit 0 (1) - set if at least one browser from our simulations negotiated a Forward Secrecy suite.
+   * bit 1 (2) - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
+   * bit 2 (4) - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
 * **rc4WithModern** - true if RC4 is used with modern clients.
 * **sims** - instance of [SimDetails](#simdetails).
 * **heartbleed** - true if the server is vulnerable to the Heartbleed attack.
@@ -240,9 +240,9 @@ The remainder of the document explains the structure of the returned objects. Th
 * **fallbackScsv** - true if the server supports TLS_FALLBACK_SCSV, false if it doesn't. This field will not be available if the server's support for TLS_FALLBACK_SCSV can't be tested because it supports only one protocol version (e.g., only TLS 1.2).
 * **freak** - true of the server is vulnerable to the FREAK attack, meaning it supports 512-bit key exchange.
 * **hasSct** - information about the availability of certificate transparency information (embedded SCTs):
-  * bit 0 - SCT in certificate
-  * bit 1 - SCT in the stapled OCSP response
-  * bit 2 - SCT in the TLS extension (ServerHello)
+  * bit 0 (1) - SCT in certificate
+  * bit 1 (2) - SCT in the stapled OCSP response
+  * bit 2 (4) - SCT in the TLS extension (ServerHello)
 
 ### Info ###
 
