@@ -1,6 +1,6 @@
 # SSL Labs API Documentation v1.16.x #
 
-**Last update:** 15 April 2015<br>
+**Last update:** 21 April 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -211,6 +211,8 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 1 (not implemented) is set if the implementation is faulty
    * bit 2 is set if the server is intolerant to the extension
 * **ocspStapling** - true if OCSP stapling is deployed on the server
+* **staplingRevocationStatus** - same as Cert.revocationStatus, but for the stapled OCSP response.
+* **staplingRevocationErrorMessage** - description of the problem with the stapled OCSP response, if any.
 * **sniRequired** - if SNI support is required to access the web site.
 * **httpStatusCode** - status code of the final HTTP response seen. When submitting HTTP requests, redirections are followed, but only if they lead to the same hostname. If this field is not available, that means the HTTP request failed.
 * **httpForwarding** - available on a server that responded with a redirection to some other hostname.
@@ -280,6 +282,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - certificate revoked
    * 2 - certificate not revoked
    * 3 - revocation check error
+   * 4 - internal error
 * **sgc** - Server Gated Cryptography support; integer:
    * bit 1 (1) - Netscape SGC
    * bit 2 (2) - Microsoft SGC
@@ -391,9 +394,10 @@ The remainder of the document explains the structure of the returned objects. Th
 
 * Changed API versioning to match software version numbers.
 * Added EndpointDetails.freak.
-* Added several new fields of ChainCert: notBefore, notAfter, sigAlg, keyAlg, keySize, keyStrength.
+* Added several new fields to ChainCert: notBefore, notAfter, sigAlg, keyAlg, keySize, keyStrength.
 * Field ChainCert.issues is now set to zero if there are no issues. Previously this field wouldn't exist in the JSON structure.
 * Fixed ChainCert.issues didn't flag weak (e.g., SHA1) certificates.
 * Added Cert.sct.
 * Added EndpointDetails.hasSct.
 * Added EndpointDetails.poodle.
+* Added EndpointDetails.staplingRevocationStatus and EndpointDetails.staplingRevocationErrorMessage.
