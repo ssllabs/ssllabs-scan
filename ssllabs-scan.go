@@ -101,37 +101,42 @@ type LabsKey struct {
 }
 
 type LabsCert struct {
-	Subject          string
-	CommonNames      []string
-	AltNames         []string
-	NotBefore        int64
-	NotAfter         int64
-	IssuerSubject    string
-	SigAlg           string
-	IssuerLabel      string
-	RevocationInfo   int
-	CrlURIs          []string
-	OcspURIs         []string
-	RevocationStatus int
-	Sgc              int
-	ValidationType   string
-	Issues           int
-	Sct              bool
+	Subject              string
+	CommonNames          []string
+	AltNames             []string
+	NotBefore            int64
+	NotAfter             int64
+	IssuerSubject        string
+	SigAlg               string
+	IssuerLabel          string
+	RevocationInfo       int
+	CrlURIs              []string
+	OcspURIs             []string
+	RevocationStatus     int
+	CrlRevocationStatus  int
+	OcspRevocationStatus int
+	Sgc                  int
+	ValidationType       string
+	Issues               int
+	Sct                  bool
 }
 
 type LabsChainCert struct {
-	Subject       string
-	Label         string
-	NotBefore     int64
-	NotAfter      int64
-	IssuerSubject string
-	IssuerLabel   string
-	SigAlg        string
-	Issues        int
-	KeyAlg        string
-	KeySize       int
-	KeyStrength   int
-	Raw           string
+	Subject              string
+	Label                string
+	NotBefore            int64
+	NotAfter             int64
+	IssuerSubject        string
+	IssuerLabel          string
+	SigAlg               string
+	Issues               int
+	KeyAlg               string
+	KeySize              int
+	KeyStrength          int
+	RevocationStatus     int
+	CrlRevocationStatus  int
+	OcspRevocationStatus int
+	Raw                  string
 }
 
 type LabsChain struct {

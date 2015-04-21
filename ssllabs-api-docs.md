@@ -282,7 +282,10 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - certificate revoked
    * 2 - certificate not revoked
    * 3 - revocation check error
-   * 4 - internal error
+   * 4 - no revocation information
+   * 5 - internal error
+* **crlRevocationStatus** - same as revocationStatus, but only for the CRL information (if any).
+* **ocspRevocationStatus** - same as revocationStatus, but only for the OCSP information (if any).
 * **sgc** - Server Gated Cryptography support; integer:
    * bit 1 (1) - Netscape SGC
    * bit 2 (2) - Microsoft SGC
@@ -328,6 +331,15 @@ The remainder of the document explains the structure of the returned objects. Th
 * **keyAlg** - key algorithm.
 * **keySize** - key size, in bits appopriate for the key algorithm.
 * **keyStrength** - key strength, in equivalent RSA bits.
+* **revocationStatus** - a number that describes the revocation status of the certificate:
+   * 0 - not checked
+   * 1 - certificate revoked
+   * 2 - certificate not revoked
+   * 3 - revocation check error
+   * 4 - no revocation information
+   * 5 - internal error
+* **crlRevocationStatus** - same as revocationStatus, but only for the CRL information (if any).
+* **ocspRevocationStatus** - same as revocationStatus, but only for the OCSP information (if any).
 * **raw** - PEM-encoded certificate data
 
 ### Protocol ###
@@ -401,3 +413,5 @@ The remainder of the document explains the structure of the returned objects. Th
 * Added EndpointDetails.hasSct.
 * Added EndpointDetails.poodle.
 * Added EndpointDetails.staplingRevocationStatus and EndpointDetails.staplingRevocationErrorMessage.
+* Added Cert.crlRevocationStatus and Cert.ocspRevocationStatus.
+* Added ChainCert.revocationStatus, ChainCert.crlRevocationStatus and ChainCert.ocspRevocationStatus.
