@@ -711,7 +711,7 @@ func flattenJSON(inputJSON map[string]interface{}, rootKey string, flattened *ma
 		if _, ok := value.(string); ok {
 			(*flattened)[key] = Q + value.(string) + Q
 		} else if _, ok := value.(float64); ok {
-			(*flattened)[key] = value.(float64)
+			(*flattened)[key] = fmt.Sprintf("%.f", value)
 		} else if _, ok := value.(bool); ok {
 			(*flattened)[key] = value.(bool)
 		} else if _, ok := value.([]interface{}); ok {
