@@ -402,7 +402,7 @@ The remainder of the document explains the structure of the returned objects. Th
 
 * Added ignoreMismatch parameter to control if assessments proceed when server certificate does not match the assessment hostname.
 
-### 1.16.x (in progress) ###
+### 1.16.x (27 April 2015) ###
 
 * Changed API versioning to match software version numbers.
 * Added EndpointDetails.freak.
