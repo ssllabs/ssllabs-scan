@@ -50,7 +50,7 @@ const (
 	LOG_TRACE    = 8
 )
 
-var USER_AGENT = "ssllabs-scan v1.0.0"
+var USER_AGENT = "ssllabs-scan v1.1.x ($Id$)"
 
 var logLevel = LOG_NOTICE
 
@@ -60,7 +60,7 @@ var maxAssessments = -1
 
 var requestCounter uint64 = 0
 
-var apiLocation = "https://api.ssllabs.com/api/v2"
+var apiLocation = "https://api.dev.ssllabs.com/api/v2"
 
 var globalIgnoreMismatch = false
 
@@ -101,30 +101,42 @@ type LabsKey struct {
 }
 
 type LabsCert struct {
-	Subject          string
-	CommonNames      []string
-	AltNames         []string
-	NotBefore        int64
-	NotAfter         int64
-	IssuerSubject    string
-	SigAlg           string
-	IssuerLabel      string
-	RevocationInfo   int
-	CrlURIs          []string
-	OcspURIs         []string
-	RevocationStatus int
-	Sgc              int
-	ValidationType   string
-	Issues           int
+	Subject              string
+	CommonNames          []string
+	AltNames             []string
+	NotBefore            int64
+	NotAfter             int64
+	IssuerSubject        string
+	SigAlg               string
+	IssuerLabel          string
+	RevocationInfo       int
+	CrlURIs              []string
+	OcspURIs             []string
+	RevocationStatus     int
+	CrlRevocationStatus  int
+	OcspRevocationStatus int
+	Sgc                  int
+	ValidationType       string
+	Issues               int
+	Sct                  bool
 }
 
 type LabsChainCert struct {
-	Subject       string
-	Label         string
-	IssuerSubject string
-	IssuerLabel   string
-	Issues        int
-	Raw           string
+	Subject              string
+	Label                string
+	NotBefore            int64
+	NotAfter             int64
+	IssuerSubject        string
+	IssuerLabel          string
+	SigAlg               string
+	Issues               int
+	KeyAlg               string
+	KeySize              int
+	KeyStrength          int
+	RevocationStatus     int
+	CrlRevocationStatus  int
+	OcspRevocationStatus int
+	Raw                  string
 }
 
 type LabsChain struct {
@@ -180,39 +192,44 @@ type LabsSuites struct {
 }
 
 type LabsEndpointDetails struct {
-	HostStartTime       int64
-	Key                 LabsKey
-	Cert                LabsCert
-	Chain               LabsChain
-	Protocols           []LabsProtocol
-	Suites              LabsSuites
-	ServerSignature     string
-	PrefixDelegation    bool
-	NonPrefixDelegation bool
-	VulnBeast           bool
-	RenegSupport        int
-	StsResponseHeader   string
-	StsMaxAge           int64
-	StsSubdomains       bool
-	PkpResponseHeader   string
-	SessionResumption   int
-	CompressionMethods  int
-	SupportsNpn         bool
-	NpnProtocols        string
-	SessionTickets      int
-	OcspStapling        bool
-	SniRequired         bool
-	HttpStatusCode      int
-	HttpForwarding      string
-	SupportsRc4         bool
-	ForwardSecrecy      int
-	Rc4WithModern       bool
-	Sims                LabsSimDetails
-	Heartbleed          bool
-	Heartbeat           bool
-	OpenSslCcs          int
-	PoodleTls           int
-	FallbackScsv        bool
+	HostStartTime                  int64
+	Key                            LabsKey
+	Cert                           LabsCert
+	Chain                          LabsChain
+	Protocols                      []LabsProtocol
+	Suites                         LabsSuites
+	ServerSignature                string
+	PrefixDelegation               bool
+	NonPrefixDelegation            bool
+	VulnBeast                      bool
+	RenegSupport                   int
+	StsResponseHeader              string
+	StsMaxAge                      int64
+	StsSubdomains                  bool
+	PkpResponseHeader              string
+	SessionResumption              int
+	CompressionMethods             int
+	SupportsNpn                    bool
+	NpnProtocols                   string
+	SessionTickets                 int
+	OcspStapling                   bool
+	StaplingRevocationStatus       int
+	StaplingRevocationErrorMessage string
+	SniRequired                    bool
+	HttpStatusCode                 int
+	HttpForwarding                 string
+	SupportsRc4                    bool
+	ForwardSecrecy                 int
+	Rc4WithModern                  bool
+	Sims                           LabsSimDetails
+	Heartbleed                     bool
+	Heartbeat                      bool
+	OpenSslCcs                     int
+	Poodle                         bool
+	PoodleTls                      int
+	FallbackScsv                   bool
+	Freak                          bool
+	HasSct                         int
 }
 
 type LabsEndpoint struct {
@@ -221,6 +238,7 @@ type LabsEndpoint struct {
 	StatusMessage        string
 	StatusDetailsMessage string
 	Grade                string
+	GradeTrustIgnored    string
 	HasWarnings          bool
 	IsExceptional        bool
 	Progress             int
@@ -551,6 +569,7 @@ func (manager *Manager) run() {
 	transport := &http.Transport{
 		TLSClientConfig:   &tls.Config{InsecureSkipVerify: globalInsecure},
 		DisableKeepAlives: true,
+		Proxy:             http.ProxyFromEnvironment,
 	}
 
 	httpClient = &http.Client{Transport: transport}
@@ -692,7 +711,7 @@ func flattenJSON(inputJSON map[string]interface{}, rootKey string, flattened *ma
 		if _, ok := value.(string); ok {
 			(*flattened)[key] = Q + value.(string) + Q
 		} else if _, ok := value.(float64); ok {
-			(*flattened)[key] = value.(float64)
+			(*flattened)[key] = fmt.Sprintf("%.f", value)
 		} else if _, ok := value.(bool); ok {
 			(*flattened)[key] = value.(bool)
 		} else if _, ok := value.([]interface{}); ok {

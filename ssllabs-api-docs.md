@@ -1,6 +1,6 @@
-# SSL Labs API Documentation: v2.1 #
+# SSL Labs API Documentation v1.16.14 #
 
-**Last update:** 16 March 2015<br>
+**Last update:** 27 April 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -166,14 +166,15 @@ The remainder of the document explains the structure of the returned objects. Th
 * **statusDetails** - code of the operation currently in progress
 * **statusDetailsMessage** - description of the operation currently in progress
 * **grade** - possible values: A+, A-, A-F, T (no trust) and M (certificate name mismatch)
+* **gradeTrustIgnored** - grade (as above), if trust issues are ignored
 * **hasWarnings** - if this endpoint has warnings that might affect the score (e.g., get A- instead of A).
 * **isExceptional** - this flag will be raised when an exceptional configuration is encountered. The SSL Labs test will give such sites an A+.
 * **progress** - assessment progress, which is a value from 0 to 100, and -1 if the assessment has not yet started
 * **duration** - assessment duration, in milliseconds
 * **eta** - estimated time, in seconds, until the completion of the assessment
 * **delegation** - indicates domain name delegation with and without the www prefix
-   * bit 0 (1) is set for non-prefixed access
-   * bit 1 (2) is set for prefixed access
+   * bit 0 (1) - set for non-prefixed access
+   * bit 1 (2) - set for prefixed access
 * **details** - this field contains an EndpointDetails object. It's not present by default, but can be enabled by using the "all" paramerer to the `analyze` API call.
 
 ### EndpointDetails ###
@@ -189,10 +190,10 @@ The remainder of the document explains the structure of the returned objects. Th
 * **nonPrefixDelegation** (moved here from the summary) - true if this endpoint is reachable via a hostname without the www prefix
 * **vulnBeast** - true if the endpoint is vulnerable to the BEAST attack
 * **renegSupport** - this is an integer value that describes the endpoint support for renegotiation:
-   * bit 0 (1) is set if insecure client-initiated renegotiation is supported
-   * bit 1 (2) is set if secure renegotiation is supported
-   * bit 2 (4) is set if secure client-initiated renegotiation is supported
-   * bit 3 (8) is set if the server requires secure renegotiation support
+   * bit 0 (1) - set if insecure client-initiated renegotiation is supported
+   * bit 1 (2) - set if secure renegotiation is supported
+   * bit 2 (4) - set if secure client-initiated renegotiation is supported
+   * bit 3 (8) - set if the server requires secure renegotiation support
 * **stsResponseHeader** - the contents of the Strict-Transport-Security (STS) response header, if seen
 * **stsMaxAge** - the maxAge parameter extracted from the STS parameters; null if STS not seen, or -1 if the specified value is invalid (e.g., not a zero or a positive integer; the maximum value currently supported is 2,147,483,647)
 * **stsSubdomains** - true if the includeSubDomains STS parameter is set; null if STS not seen
@@ -206,18 +207,20 @@ The remainder of the document explains the structure of the returned objects. Th
 * **supportsNpn** - true if the server supports NPN
 * **npnProtocols** - space separated list of supported protocols
 * **sessionTickets** - indicates support for Session Tickets
-   * bit 0 is set if session tickets are supported
-   * bit 1 (not implemented) is set if the implementation is faulty
-   * bit 2 is set if the server is intolerant to the extension
+   * bit 0 (1) - set if session tickets are supported
+   * bit 1 (2) - set if the implementation is faulty [not implemented]
+   * bit 2 (4) - set if the server is intolerant to the extension
 * **ocspStapling** - true if OCSP stapling is deployed on the server
+* **staplingRevocationStatus** - same as Cert.revocationStatus, but for the stapled OCSP response.
+* **staplingRevocationErrorMessage** - description of the problem with the stapled OCSP response, if any.
 * **sniRequired** - if SNI support is required to access the web site.
 * **httpStatusCode** - status code of the final HTTP response seen. When submitting HTTP requests, redirections are followed, but only if they lead to the same hostname. If this field is not available, that means the HTTP request failed.
 * **httpForwarding** - available on a server that responded with a redirection to some other hostname.
 * **supportsRc4** - true if the server supports at least one RC4 suite.
 * **forwardSecrecy** - indicates support for Forward Secrecy
-   * bit 0 - set if at least one browser from our simulations negotiated a Forward Secrecy suite.
-   * bit 1 - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
-   * bit 2 - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
+   * bit 0 (1) - set if at least one browser from our simulations negotiated a Forward Secrecy suite.
+   * bit 1 (2) - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
+   * bit 2 (4) - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
 * **rc4WithModern** - true if RC4 is used with modern clients.
 * **sims** - instance of [SimDetails](#simdetails).
 * **heartbleed** - true if the server is vulnerable to the Heartbleed attack.
@@ -228,12 +231,18 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - not vulnerable
    * 2 - possibly vulnerable, but not exploitable
    * 3 - vulnerable and exploitable
+* **poodle** - true if the endpoint is vulnerable to POODLE; false otherwise
 * **poodleTls** - results of the POODLE TLS test:
    * -1 - test failed
    * 0 - unknown
    * 1 - not vulnerable
    * 2 - vulnerable
 * **fallbackScsv** - true if the server supports TLS_FALLBACK_SCSV, false if it doesn't. This field will not be available if the server's support for TLS_FALLBACK_SCSV can't be tested because it supports only one protocol version (e.g., only TLS 1.2).
+* **freak** - true of the server is vulnerable to the FREAK attack, meaning it supports 512-bit key exchange.
+* **hasSct** - information about the availability of certificate transparency information (embedded SCTs):
+  * bit 0 (1) - SCT in certificate
+  * bit 1 (2) - SCT in the stapled OCSP response
+  * bit 2 (4) - SCT in the TLS extension (ServerHello)
 
 ### Info ###
 
@@ -273,6 +282,10 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - certificate revoked
    * 2 - certificate not revoked
    * 3 - revocation check error
+   * 4 - no revocation information
+   * 5 - internal error
+* **crlRevocationStatus** - same as revocationStatus, but only for the CRL information (if any).
+* **ocspRevocationStatus** - same as revocationStatus, but only for the OCSP information (if any).
 * **sgc** - Server Gated Cryptography support; integer:
    * bit 1 (1) - Netscape SGC
    * bit 2 (2) - Microsoft SGC
@@ -287,6 +300,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 6 (64) - self-signed
    * bit 7 (128) - blacklisted
    * bit 8 (256) - insecure signature
+* **sct** - true if the certificate contains an embedded SCT; false otherwise.
 
 ### Chain ###
 
@@ -303,14 +317,29 @@ The remainder of the document explains the structure of the returned objects. Th
 
 * **subject** - certificate subject
 * **label** - certificate label (user-friendly name)
+* **notBefore** -
+* **notAfter** -
 * **issuerSubject** - issuer subject
 * **issuerLabel** - issuer label (user-friendly name)
+* **sigAlg** -
 * **issues** - a number of flags the describe the problems with this certificate:
    * bit 0 (1) - certificate not yet valid
    * bit 1 (2) - certificate expired
    * bit 2 (4) - weak key
    * bit 3 (8) - weak signature
    * bit 4 (16) - blacklisted
+* **keyAlg** - key algorithm.
+* **keySize** - key size, in bits appopriate for the key algorithm.
+* **keyStrength** - key strength, in equivalent RSA bits.
+* **revocationStatus** - a number that describes the revocation status of the certificate:
+   * 0 - not checked
+   * 1 - certificate revoked
+   * 2 - certificate not revoked
+   * 3 - revocation check error
+   * 4 - no revocation information
+   * 5 - internal error
+* **crlRevocationStatus** - same as revocationStatus, but only for the CRL information (if any).
+* **ocspRevocationStatus** - same as revocationStatus, but only for the OCSP information (if any).
 * **raw** - PEM-encoded certificate data
 
 ### Protocol ###
@@ -365,10 +394,25 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ## Changes ##
 
-### 2.0 (3 March 2015) ###
+### 1.14.x (3 March 2015) ###
 
 * First public release.
 
-### 2.1 (16 March 2015) ###
+### 1.15.x (16 March 2015) ###
 
 * Added ignoreMismatch parameter to control if assessments proceed when server certificate does not match the assessment hostname.
+
+### 1.16.x (in progress) ###
+
+* Changed API versioning to match software version numbers.
+* Added EndpointDetails.freak.
+* Added several new fields to ChainCert: notBefore, notAfter, sigAlg, keyAlg, keySize, keyStrength.
+* Field ChainCert.issues is now set to zero if there are no issues. Previously this field wouldn't exist in the JSON structure.
+* Fixed ChainCert.issues didn't flag weak (e.g., SHA1) certificates.
+* Added Cert.sct.
+* Added EndpointDetails.hasSct.
+* Added EndpointDetails.poodle.
+* Added EndpointDetails.staplingRevocationStatus and EndpointDetails.staplingRevocationErrorMessage.
+* Added Cert.crlRevocationStatus and Cert.ocspRevocationStatus.
+* Added ChainCert.revocationStatus, ChainCert.crlRevocationStatus and ChainCert.ocspRevocationStatus.
+* Added Endpoint.gradeTrustIgnored.
