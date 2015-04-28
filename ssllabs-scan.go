@@ -60,7 +60,7 @@ var maxAssessments = -1
 
 var requestCounter uint64 = 0
 
-var apiLocation = "https://api.dev.ssllabs.com/api/v2"
+var apiLocation = "https://api.ssllabs.com/api/v2"
 
 var globalIgnoreMismatch = false
 
