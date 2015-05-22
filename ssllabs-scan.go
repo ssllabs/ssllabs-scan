@@ -19,60 +19,57 @@
 
 package main
 
-import "crypto/tls"
-import "encoding/json"
-import "flag"
-import "fmt"
-import "io/ioutil"
-import "bufio"
-import "os"
-import "log"
-import "math/rand"
-import "net"
-import "net/http"
-import "net/url"
-import "strconv"
-import "strings"
-import "sync/atomic"
-import "time"
-import "sort"
-
-const (
-	LOG_NONE     = -1
-	LOG_EMERG    = 0
-	LOG_ALERT    = 1
-	LOG_CRITICAL = 2
-	LOG_ERROR    = 3
-	LOG_WARNING  = 4
-	LOG_NOTICE   = 5
-	LOG_INFO     = 6
-	LOG_DEBUG    = 7
-	LOG_TRACE    = 8
+import (
+	"bufio"
+	"crypto/tls"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"math/rand"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
+	"sort"
+	"strconv"
+	"strings"
+	"sync/atomic"
+	"time"
 )
 
-var USER_AGENT = "ssllabs-scan v1.1.0 ($Id$)"
+const (
+	LogNone     = -1
+	LogEmerg    = 0
+	LogAlert    = 1
+	LogCritical = 2
+	LogError    = 3
+	LogWarning  = 4
+	LogNotice   = 5
+	LogInfo     = 6
+	LogDebug    = 7
+	LogTrace    = 8
+)
 
-var logLevel = LOG_NOTICE
+const UserAgent = "ssllabs-scan v1.1.0 ($Id$)"
 
-var activeAssessments = 0
+var (
+	logLevel             = LogNotice
+	activeAssessments    = 0
+	maxAssessments       = -1
+	apiLocation          = "https://api.ssllabs.com/api/v2"
+	globalIgnoreMismatch = false
+	globalStartNew       = true
+	globalFromCache      = false
+	globalMaxAge         = 0
+	globalInsecure       = false
+)
 
-var maxAssessments = -1
-
-var requestCounter uint64 = 0
-
-var apiLocation = "https://api.ssllabs.com/api/v2"
-
-var globalIgnoreMismatch = false
-
-var globalStartNew = true
-
-var globalFromCache = false
-
-var globalMaxAge = 0
-
-var globalInsecure = false
-
-var httpClient *http.Client
+var (
+	requestCounter uint64
+	httpClient     *http.Client
+)
 
 type LabsError struct {
 	Field   string
@@ -87,9 +84,8 @@ func (e LabsErrorResponse) Error() string {
 	msg, err := json.Marshal(e)
 	if err != nil {
 		return err.Error()
-	} else {
-		return string(msg)
 	}
+	return string(msg)
 }
 
 type LabsKey struct {
@@ -145,7 +141,7 @@ type LabsChain struct {
 }
 
 type LabsProtocol struct {
-	Id               int
+	ID               int
 	Name             string
 	Version          string
 	V2SuitesDisabled bool
@@ -154,7 +150,7 @@ type LabsProtocol struct {
 }
 
 type LabsSimClient struct {
-	Id          int
+	ID          int
 	Name        string
 	Platform    string
 	Version     string
@@ -165,8 +161,8 @@ type LabsSimulation struct {
 	Client     LabsSimClient
 	ErrorCode  int
 	Attempts   int
-	ProtocolId int
-	SuiteId    int
+	ProtocolID int
+	SuiteID    int
 }
 
 type LabsSimDetails struct {
@@ -174,7 +170,7 @@ type LabsSimDetails struct {
 }
 
 type LabsSuite struct {
-	Id             int
+	ID             int
 	Name           string
 	CipherStrength int
 	DhStrength     int
@@ -216,8 +212,8 @@ type LabsEndpointDetails struct {
 	StaplingRevocationStatus       int
 	StaplingRevocationErrorMessage string
 	SniRequired                    bool
-	HttpStatusCode                 int
-	HttpForwarding                 string
+	HTTPStatusCode                 int
+	HTTPForwarding                 string
 	SupportsRc4                    bool
 	ForwardSecrecy                 int
 	Rc4WithModern                  bool
@@ -226,14 +222,14 @@ type LabsEndpointDetails struct {
 	Heartbeat                      bool
 	OpenSslCcs                     int
 	Poodle                         bool
-	PoodleTls                      int
+	PoodleTLS                      int
 	FallbackScsv                   bool
 	Freak                          bool
 	HasSct                         int
 }
 
 type LabsEndpoint struct {
-	IpAddress            string
+	IPAddress            string
 	ServerName           string
 	StatusMessage        string
 	StatusDetailsMessage string
@@ -282,10 +278,10 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 	retryCount := 0
 
 	for {
-		var reqId = atomic.AddUint64(&requestCounter, 1)
+		var reqID = atomic.AddUint64(&requestCounter, 1)
 
-		if logLevel >= LOG_DEBUG {
-			log.Printf("[DEBUG] Request #%v: %v", reqId, url)
+		if logLevel >= LogDebug {
+			log.Printf("[DEBUG] Request #%v: %v", reqID, url)
 		}
 
 		req, err := http.NewRequest("GET", url, nil)
@@ -293,15 +289,15 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 			return nil, nil, err
 		}
 
-		req.Header.Add("User-Agent", USER_AGENT)
+		req.Header.Add("User-Agent", UserAgent)
 
 		resp, err := httpClient.Do(req)
 		if err == nil {
-			if logLevel >= LOG_DEBUG {
-				log.Printf("[DEBUG] Response #%v status: %v %v", reqId, resp.Proto, resp.Status)
+			if logLevel >= LogDebug {
+				log.Printf("[DEBUG] Response #%v status: %v %v", reqID, resp.Proto, resp.Status)
 			}
 
-			if logLevel >= LOG_TRACE {
+			if logLevel >= LogTrace {
 				for key, values := range resp.Header {
 					for _, value := range values {
 						log.Printf("[TRACE] %v: %v\n", key, value)
@@ -309,7 +305,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 				}
 			}
 
-			if logLevel >= LOG_NOTICE {
+			if logLevel >= LogNotice {
 				for key, values := range resp.Header {
 					if strings.ToLower(key) == "x-message" {
 						for _, value := range values {
@@ -328,12 +324,12 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 					if maxAssessments != i {
 						maxAssessments = i
 
-						if logLevel >= LOG_DEBUG {
+						if logLevel >= LogDebug {
 							log.Printf("[DEBUG] Server set max concurrent assessments to %v", headerValue)
 						}
 					}
 				} else {
-					if logLevel >= LOG_WARNING {
+					if logLevel >= LogWarning {
 						log.Printf("[WARNING] Ignoring invalid X-Max-Assessments value (%v): %v", headerValue, err)
 					}
 				}
@@ -348,33 +344,33 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 				return nil, nil, err
 			}
 
-			if logLevel >= LOG_TRACE {
-				log.Printf("[TRACE] Response #%v body:\n%v", reqId, string(body))
+			if logLevel >= LogTrace {
+				log.Printf("[TRACE] Response #%v body:\n%v", reqID, string(body))
 			}
 
 			return resp, body, nil
-		} else {
-			if err.Error() == "EOF" {
-				// Server closed a persistent connection on us, which
-				// Go doesn't seem to be handling well. So we'll try one
-				// more time.
-				if retryCount > 5 {
-					log.Fatalf("[ERROR] Too many HTTP requests failed with EOF")
-				}
+		}
 
-				if logLevel >= LOG_DEBUG {
-					log.Printf("[DEBUG] HTTP request failed with EOF")
-				}
-			} else {
-				log.Fatalf("[ERROR] HTTP request failed: %v", err)
+		if err.Error() == "EOF" {
+			// Server closed a persistent connection on us, which
+			// Go doesn't seem to be handling well. So we'll try one
+			// more time.
+			if retryCount > 5 {
+				log.Fatalf("[ERROR] Too many HTTP requests failed with EOF")
 			}
 
-			retryCount++
+			if logLevel >= LogDebug {
+				log.Printf("[DEBUG] HTTP request failed with EOF")
+			}
+		} else {
+			log.Fatalf("[ERROR] HTTP request failed: %v", err)
 		}
+
+		retryCount++
 	}
 }
 
-func invokeApi(command string) (*http.Response, []byte, error) {
+func invokeAPI(command string) (*http.Response, []byte, error) {
 	var url = apiLocation + "/" + command
 
 	for {
@@ -386,7 +382,7 @@ func invokeApi(command string) (*http.Response, []byte, error) {
 		// Status codes 429, 503, and 529 essentially mean try later. Thus,
 		// if we encounter them, we sleep for a while and try again.
 		if resp.StatusCode == 429 {
-			if logLevel >= LOG_NOTICE {
+			if logLevel >= LogNotice {
 				log.Printf("[NOTICE] Sleeping for 30 seconds after a %v response", resp.StatusCode)
 			}
 
@@ -397,7 +393,7 @@ func invokeApi(command string) (*http.Response, []byte, error) {
 
 			sleepTime := 15 + rand.Int31n(15)
 
-			if logLevel >= LOG_NOTICE {
+			if logLevel >= LogNotice {
 				log.Printf("[NOTICE] Sleeping for %v minutes after a %v response", sleepTime, resp.StatusCode)
 			}
 
@@ -413,7 +409,7 @@ func invokeApi(command string) (*http.Response, []byte, error) {
 func invokeInfo() (*LabsInfo, error) {
 	var command = "info"
 
-	_, body, err := invokeApi(command)
+	_, body, err := invokeAPI(command)
 	if err != nil {
 		return nil, err
 	}
@@ -444,7 +440,7 @@ func invokeAnalyze(host string, startNew bool, fromCache bool) (*LabsReport, err
 		command = command + "&ignoreMismatch=on"
 	}
 
-	resp, body, err := invokeApi(command)
+	resp, body, err := invokeAPI(command)
 	if err != nil {
 		return nil, err
 	}
@@ -460,20 +456,19 @@ func invokeAnalyze(host string, startNew bool, fromCache bool) (*LabsReport, err
 		}
 
 		return nil, apiError
-	} else {
-		// We should have a proper response.
-
-		var analyzeResponse LabsReport
-		err = json.Unmarshal(body, &analyzeResponse)
-		if err != nil {
-			return nil, err
-		}
-
-		// Add the JSON body to the response
-		analyzeResponse.rawJSON = string(body)
-
-		return &analyzeResponse, nil
 	}
+
+	// We should have a proper response.
+	var analyzeResponse LabsReport
+	err = json.Unmarshal(body, &analyzeResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add the JSON body to the response
+	analyzeResponse.rawJSON = string(body)
+
+	return &analyzeResponse, nil
 }
 
 type Event struct {
@@ -483,12 +478,12 @@ type Event struct {
 }
 
 const (
-	ASSESSMENT_STARTING = 0
-	ASSESSMENT_COMPLETE = 1
+	AssessmentStarting = 0
+	AssessmentComplete = 1
 )
 
 func NewAssessment(host string, eventChannel chan Event) {
-	eventChannel <- Event{host, ASSESSMENT_STARTING, nil}
+	eventChannel <- Event{host, AssessmentStarting, nil}
 
 	var report *LabsReport
 	var startTime int64 = -1
@@ -517,7 +512,7 @@ func NewAssessment(host string, eventChannel chan Event) {
 		time.Sleep(5 * time.Second)
 	}
 
-	eventChannel <- Event{host, ASSESSMENT_COMPLETE, report}
+	eventChannel <- Event{host, AssessmentComplete, report}
 }
 
 type HostProvider struct {
@@ -535,9 +530,8 @@ func (hp *HostProvider) next() (string, bool) {
 		host := hp.hostnames[hp.i]
 		hp.i = hp.i + 1
 		return host, true
-	} else {
-		return "", false
 	}
+	return "", false
 }
 
 type Manager struct {
@@ -584,11 +578,11 @@ func (manager *Manager) run() {
 		close(manager.FrontendEventChannel)
 	}
 
-	if logLevel >= LOG_INFO {
+	if logLevel >= LogInfo {
 		log.Printf("[INFO] SSL Labs v%v (criteria version %v)", labsInfo.EngineVersion, labsInfo.CriteriaVersion)
 	}
 
-	if logLevel >= LOG_NOTICE {
+	if logLevel >= LogNotice {
 		for _, message := range labsInfo.Messages {
 			log.Printf("[NOTICE] Server message: %v", message)
 		}
@@ -597,7 +591,7 @@ func (manager *Manager) run() {
 	maxAssessments = labsInfo.MaxAssessments
 
 	if maxAssessments <= 0 {
-		if logLevel >= LOG_WARNING {
+		if logLevel >= LogWarning {
 			log.Printf("[WARNING] You're not allowed to request new assessments")
 		}
 	}
@@ -608,14 +602,14 @@ func (manager *Manager) run() {
 		select {
 		// Handle assessment events (e.g., starting and finishing).
 		case e := <-manager.BackendEventChannel:
-			if e.eventType == ASSESSMENT_STARTING {
-				if logLevel >= LOG_INFO {
+			if e.eventType == AssessmentStarting {
+				if logLevel >= LogInfo {
 					log.Printf("[INFO] Assessment starting: %v", e.host)
 				}
 			}
 
-			if e.eventType == ASSESSMENT_COMPLETE {
-				if logLevel >= LOG_INFO {
+			if e.eventType == AssessmentComplete {
+				if logLevel >= LogInfo {
 					msg := ""
 
 					// Missing C's ternary operator here.
@@ -631,9 +625,9 @@ func (manager *Manager) run() {
 
 					for _, endpoint := range e.report.Endpoints {
 						if endpoint.Grade != "" {
-							msg = msg + "\n    " + endpoint.IpAddress + ": " + endpoint.Grade
+							msg = msg + "\n    " + endpoint.IPAddress + ": " + endpoint.Grade
 						} else {
-							msg = msg + "\n    " + endpoint.IpAddress + ": Err: " + endpoint.StatusMessage
+							msg = msg + "\n    " + endpoint.IPAddress + ": Err: " + endpoint.StatusMessage
 						}
 					}
 
@@ -645,7 +639,7 @@ func (manager *Manager) run() {
 				manager.results.reports = append(manager.results.reports, *e.report)
 				manager.results.responses = append(manager.results.responses, e.report.rawJSON)
 
-				if logLevel >= LOG_DEBUG {
+				if logLevel >= LogDebug {
 					log.Printf("[DEBUG] Active assessments: %v (more: %v)", activeAssessments, moreAssessments)
 				}
 
@@ -687,15 +681,15 @@ func (manager *Manager) run() {
 func parseLogLevel(level string) int {
 	switch {
 	case level == "error":
-		return LOG_ERROR
+		return LogError
 	case level == "notice":
-		return LOG_NOTICE
+		return LogNotice
 	case level == "info":
-		return LOG_INFO
+		return LogInfo
 	case level == "debug":
-		return LOG_DEBUG
+		return LogDebug
 	case level == "trace":
-		return LOG_TRACE
+		return LogTrace
 	}
 
 	log.Fatalf("[ERROR] Unrecognized log level: %v", level)
@@ -748,17 +742,17 @@ func flattenAndFormatJSON(inputJSON []byte) *[]string {
 	flattenJSON(mappedJSON, "", &flattened)
 
 	// Make a sorted index, so we can print keys in order
-	kIndex := make([]string, len(flattened))
+	index := make([]string, len(flattened))
 	ki := 0
-	for key, _ := range flattened {
-		kIndex[ki] = key
+	for key := range flattened {
+		index[ki] = key
 		ki++
 	}
-	sort.Strings(kIndex)
+	sort.Strings(index)
 
 	// Ordered flattened data
 	var flatStrings []string
-	for _, value := range kIndex {
+	for _, value := range index {
 		flatStrings = append(flatStrings, fmt.Sprintf("\"%v\": %v\n", value, flattened[value]))
 	}
 	return &flatStrings
@@ -783,9 +777,8 @@ func validateURL(URL string) bool {
 	_, err := url.Parse(URL)
 	if err != nil {
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
 func validateHostname(hostname string) bool {
@@ -795,47 +788,48 @@ func validateHostname(hostname string) bool {
 	// but there are also no addresses
 	if err != nil || len(addrs) < 1 {
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
 func main() {
-	var conf_api = flag.String("api", "BUILTIN", "API entry point, for example https://www.example.com/api/")
-	var conf_grade = flag.Bool("grade", false, "Output only the hostname: grade")
-	var conf_hostcheck = flag.Bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
-	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
-	var conf_ignore_mismatch = flag.Bool("ignore-mismatch", false, "If true, certificate hostname mismatch does not stop assessment.")
-	var conf_insecure = flag.Bool("insecure", false, "Skip certificate validation. For use in development only. Do not use.")
-	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
-	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
-	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
-	var conf_maxage = flag.Int("maxage", 0, "Maximum acceptable age of cached results, in hours. A zero value is ignored.")
-	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
+	var (
+		confAPI            = flag.String("api", "BUILTIN", "API entry point, for example https://www.example.com/api/")
+		confGrade          = flag.Bool("grade", false, "Output only the hostname: grade")
+		confHostcheck      = flag.Bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
+		confHostfile       = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
+		confIgnoreMismatch = flag.Bool("ignore-mismatch", false, "If true, certificate hostname mismatch does not stop assessment.")
+		confInsecure       = flag.Bool("insecure", false, "Skip certificate validation. For use in development only. Do not use.")
+		confJSONFlat       = flag.Bool("json-flat", false, "Output results in flattened JSON format")
+		confQuiet          = flag.Bool("quiet", false, "Disable status messages (logging)")
+		confUsecache       = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
+		confMaxage         = flag.Int("maxage", 0, "Maximum acceptable age of cached results, in hours. A zero value is ignored.")
+		confVerbosity      = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
+	)
 
 	flag.Parse()
 
-	logLevel = parseLogLevel(strings.ToLower(*conf_verbosity))
+	logLevel = parseLogLevel(strings.ToLower(*confVerbosity))
 
-	globalIgnoreMismatch = *conf_ignore_mismatch
+	globalIgnoreMismatch = *confIgnoreMismatch
 
-	if *conf_quiet {
-		logLevel = LOG_NONE
+	if *confQuiet {
+		logLevel = LogNone
 	}
 
 	// We prefer cached results
-	if *conf_usecache {
+	if *confUsecache {
 		globalFromCache = true
 		globalStartNew = false
 	}
 
-	if *conf_maxage != 0 {
-		globalMaxAge = *conf_maxage
+	if *confMaxage != 0 {
+		globalMaxAge = *confMaxage
 	}
 
 	// Verify that the API entry point is a URL.
-	if *conf_api != "BUILTIN" {
-		apiLocation = *conf_api
+	if *confAPI != "BUILTIN" {
+		apiLocation = *confAPI
 	}
 
 	if validateURL(apiLocation) == false {
@@ -844,10 +838,10 @@ func main() {
 
 	var hostnames []string
 
-	if *conf_hostfile != "" {
+	if *confHostfile != "" {
 		// Open file, and read it
 		var err error
-		hostnames, err = readLines(conf_hostfile)
+		hostnames, err = readLines(confHostfile)
 		if err != nil {
 			log.Fatalf("[ERROR] Reading from specified hostfile failed: %v", err)
 		}
@@ -857,7 +851,7 @@ func main() {
 		hostnames = flag.Args()
 	}
 
-	if *conf_hostcheck {
+	if *confHostcheck {
 		// Validate all hostnames before we attempt to test them. At least
 		// one hostname is required.
 		for _, host := range hostnames {
@@ -867,8 +861,8 @@ func main() {
 		}
 	}
 
-	if *conf_insecure {
-		globalInsecure = *conf_insecure
+	if *confInsecure {
+		globalInsecure = *confInsecure
 	}
 
 	hp := NewHostProvider(hostnames)
@@ -881,7 +875,7 @@ func main() {
 			var results []byte
 			var err error
 
-			if *conf_grade {
+			if *confGrade {
 				// Just the grade(s). We use flatten and RAW
 				/*
 					"endpoints.0.grade": "A"
@@ -916,7 +910,7 @@ func main() {
 						fmt.Println(name + ": " + grade)
 					}
 				}
-			} else if *conf_json_flat {
+			} else if *confJSONFlat {
 				// Flat JSON and RAW
 
 				for i := range manager.results.responses {
@@ -948,7 +942,7 @@ func main() {
 
 			fmt.Println(string(results))
 
-			if logLevel >= LOG_INFO {
+			if logLevel >= LogInfo {
 				log.Println("[INFO] All assessments complete; shutting down")
 			}
 
