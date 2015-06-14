@@ -42,3 +42,10 @@ OPTIONS
 | --usecache  | false         | If true, accept cached results (if available), else force live scan |
 | --grade     | false         | Output only the hostname: grade |
 | --hostcheck | false         | If true, host resolution failure will result in a fatal error |
+
+##Docker
+
+Docker images for this project are available at:
+
+* [https://github.com/jumanjihouse/docker-ssllabs-scan]
+  (https://github.com/jumanjihouse/docker-ssllabs-scan)
