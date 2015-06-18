@@ -230,7 +230,7 @@ type LabsEndpointDetails struct {
 	FallbackScsv                   bool
 	Freak                          bool
 	HasSct                         int
-	DhPrimes                       string
+	DhPrimes                       []string
 	DhUsesKnownPrimes              int
 	DhYsReuse                      bool
 	Logjam                         bool
