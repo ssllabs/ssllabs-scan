@@ -230,7 +230,7 @@ type LabsEndpointDetails struct {
 	FallbackScsv                   bool
 	Freak                          bool
 	HasSct                         int
-	DhPrimes                       string	
+	DhPrimes                       string
 	DhUsesKnownPrimes              int
 	DhYsReuse                      bool
 	Logjam                         bool
@@ -817,7 +817,7 @@ func main() {
 	var conf_maxage = flag.Int("maxage", 0, "Maximum acceptable age of cached results, in hours. A zero value is ignored.")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
 	var conf_version = flag.Bool("version", false, "Print version and API location information and exit")
-	
+
 	flag.Parse()
 
 	if *conf_version {
