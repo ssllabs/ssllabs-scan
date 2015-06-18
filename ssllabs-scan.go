@@ -816,8 +816,15 @@ func main() {
 	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
 	var conf_maxage = flag.Int("maxage", 0, "Maximum acceptable age of cached results, in hours. A zero value is ignored.")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
-
+	var conf_version = flag.Bool("version", false, "Print version and API location information and exit")
+	
 	flag.Parse()
+
+	if *conf_version {
+		fmt.Println(USER_AGENT)
+		fmt.Println("API location: " + apiLocation)
+		return
+	}
 
 	logLevel = parseLogLevel(strings.ToLower(*conf_verbosity))
 
