@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.16.14 #
+# SSL Labs API Documentation v1.19.7 #
 
-**Last update:** 27 April 2015<br>
+**Last update:** 18 June 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -416,3 +416,8 @@ The remainder of the document explains the structure of the returned objects. Th
 * Added Cert.crlRevocationStatus and Cert.ocspRevocationStatus.
 * Added ChainCert.revocationStatus, ChainCert.crlRevocationStatus and ChainCert.ocspRevocationStatus.
 * Added Endpoint.gradeTrustIgnored.
+
+### 1.19.x (Not released) ###
+
+* New EndpointDetails fields: dhPrimes, dhUsesKnownPrimes, dhYsReuse, and logjam.
+
