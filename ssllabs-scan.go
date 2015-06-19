@@ -572,7 +572,7 @@ func (manager *Manager) startAssessment(h string) {
 func (manager *Manager) run() {
 	transport := &http.Transport{
 		TLSClientConfig:   &tls.Config{InsecureSkipVerify: globalInsecure},
-		DisableKeepAlives: true,
+		DisableKeepAlives: false,
 		Proxy:             http.ProxyFromEnvironment,
 	}
 
