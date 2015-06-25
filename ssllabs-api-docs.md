@@ -156,7 +156,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **criteriaVersion** - grading criteria version (e.g., "2009")
 * **cacheExpiryTime** - when will the assessment results expire from the cache (typically set only for assessment with errors; otherwise the results stay in the cache for as long as there's sufficient room)
 * **endpoints[]** - list of [Endpoint objects](#endpoint)
-* **certHostnames[]** - the list of certificate hostnames collected from the certificates seen during assessment. The hostnames may not be valid.
+* **certHostnames[]** - the list of certificate hostnames collected from the certificates seen during assessment. The hostnames may not be valid. This field is available only if the server certificate doesn't match the requested hostname. In that case, this field saves you some time as you don't have to inspect the certificates yourself to find out what valid hostnames might be.
 
 ### Endpoint ###
 
