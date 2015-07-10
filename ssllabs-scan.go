@@ -62,6 +62,8 @@ var requestCounter uint64 = 0
 
 var apiLocation = "https://api.dev.ssllabs.com/api/v2"
 
+var globalNewAssessmentCoolOff int64 = 1000
+
 var globalIgnoreMismatch = false
 
 var globalStartNew = true
@@ -275,11 +277,12 @@ type LabsResults struct {
 }
 
 type LabsInfo struct {
-	EngineVersion      string
-	CriteriaVersion    string
-	MaxAssessments     int
-	CurrentAssessments int
-	Messages           []string
+	EngineVersion        string
+	CriteriaVersion      string
+	MaxAssessments       int
+	CurrentAssessments   int
+	NewAssessmentCoolOff int64
+	Messages             []string
 }
 
 func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
@@ -607,6 +610,14 @@ func (manager *Manager) run() {
 	}
 
 	moreAssessments := true
+
+	if labsInfo.NewAssessmentCoolOff >= 1000 {
+		globalNewAssessmentCoolOff = labsInfo.NewAssessmentCoolOff
+	} else {
+		if logLevel >= LOG_WARNING {
+			log.Printf("[WARNING] Info.NewAssessmentCoolOff too small: %v", labsInfo.NewAssessmentCoolOff)
+		}
+	}
 
 	for {
 		select {
