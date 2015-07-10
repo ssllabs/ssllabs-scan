@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.19.7 #
+# SSL Labs API Documentation v1.19.27 #
 
-**Last update:** 18 June 2015<br>
+**Last update:** 10 July 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -107,12 +107,12 @@ The field value references the API parameter name that has an incorrect value. T
 The following status codes are used:
 
 * 400 - invocation error (e.g., invalid parameters)
-* 429 - client request rate too high
+* 429 - client request rate too high or too many new assessments too fast
 * 500 - internal error
 * 503 - the service is not available (e.g., down for maintenance)
 * 529 - the service is overloaded
 
-If you get 429, 503, 529, you should sleep for several minutes (e.g., 5, 15, 30 minutes, respectively) then try again. If you're writing an API client tool and get a 529 response, randomize the back-off time. If you get 500, it's best to give up.
+A well-written client should never get a 429 response. If you do get one, it means that you're either submitting new assessments at a rate that is too fast, or that you're not correctly tracking how many concurrent requests you're allowed to have. If you get a 503 or 529 status code, you should sleep for several minutes (e.g., 15 and 30 minutes, respectively) then try again. It's best to randomize the delay, especially if you're writing a client tool -- you don't want everyone to retry exactly at the same time. If you get 500, it means that there's a severe problem with the SSL Labs application itself. A sensible approach would be to mark that one assessment as flawed, but to continue on. However, if you continue to receive 500 responses, it's best to give up.
 
 ### Access Rate and Rate Limiting ###
 
@@ -121,9 +121,9 @@ Please note the following:
 * Server assessments usually take at least 60 seconds. (They are intentionally slow, to avoid harming servers.) Thus, there is no need to poll for the results very often. In fact, polling too often slows down the service for everyone. It's best to use variable polling: 5 seconds until an assessment gets under way (status changes to IN_PROGRESS), then 10 seconds until it completes.
 * Keep down the number of concurrent assessments to a minimum. If you're not in a hurry, test only one hostname at a time.
 
-We may limit your usage of the API, by enforcing a limit on concurrent assessments, and the overall number of assessments performed in a time period. If that happens, we will respond with 429 (Too Many Requests) to API calls that wish to initiate new assessments. Your ability to follow previously initiated assessments, or retrieve assessment results from the cache, will not be impacted. If you receive a 429 response, reduce the number of concurrent assessments.
+We may limit your usage of the API, by enforcing a limit on concurrent assessments, and the overall number of assessments performed in a time period. If that happens, we will respond with 429 (Too Many Requests) to API calls that wish to initiate new assessments. Your ability to follow previously initiated assessments, or retrieve assessment results from the cache, will not be impacted. If you receive a 429 response, reduce the number of concurrent assessments and check that you're not submitting new assessments at a rate higher than allowed.
 
-If the server is overloaded (a condition that is not a result of the client's behaviour), the 529 status code will be used instead. This is not a situation we wish to be in. If you encounter it, take a break and come back after at least 30 minutes of sleep.
+If the server is overloaded (a condition that is not a result of the client's behaviour), the 529 status code will be used instead. This is not a situation we wish to be in. If you encounter it, take a break and come back later.
 
 All successful API calls contain response headers `X-Max-Assessments` and `X-Current-Assessments`. They can be used to calculate how many new
 assessments can be submitted. It is recommended that clients update their internal state after each complete response.
@@ -257,6 +257,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **criteriaVersion** - rating criteria version as a string (e.g., "2009f")
 * **maxAssessments** - the maximum number of concurrent assessments the client is allowed to initiate.
 * **currentAssessments** - the number of ongoing assessments submitted by this client.
+* **newAssessmentCoolOff** - the cool-off period after each new assessment; you're not allowed to submit a new assessment before the cool-off expires, otherwise you'll get a 429.
 * **messages** - a list of messages (strings). Messages can be public (sent to everyone) and private (sent only to the invoking client).
                  Private messages are prefixed with "[Private]".
 * **clientMaxAssessments** - deprecated and scheduled for removal in the next release.
@@ -427,4 +428,6 @@ The remainder of the document explains the structure of the returned objects. Th
 ### 1.19.x (Not released) ###
 
 * New EndpointDetails fields: dhPrimes, dhUsesKnownPrimes, dhYsReuse, and logjam.
+* New Info field: newAssessmentCoolOff. There is now a mandatory cool-off period after each new assessment.
+
 
