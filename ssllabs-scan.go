@@ -54,15 +54,20 @@ var USER_AGENT = "ssllabs-scan v1.2.x (dev $Id$)"
 
 var logLevel = LOG_NOTICE
 
+// How many assessment do we have in progress?
 var activeAssessments = 0
 
+// How many assessments does the server think we have in progress?
+var currentAssessments = -1
+
+// The maximum number of assessments we can have in progress at any one time.
 var maxAssessments = -1
 
 var requestCounter uint64 = 0
 
 var apiLocation = "https://api.dev.ssllabs.com/api/v2"
 
-var globalNewAssessmentCoolOff int64 = 1000
+var globalNewAssessmentCoolOff int64 = 1100
 
 var globalIgnoreMismatch = false
 
@@ -326,9 +331,28 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 				}
 			}
 
-			// Adjust maximum concurrent requests.
+			// Update current assessments.
+			headerValue := resp.Header.Get("X-Current-Assessments")
+			if headerValue != "" {
+				i, err := strconv.Atoi(headerValue)
+				if err == nil {
+					if currentAssessments != i {
+						currentAssessments = i
 
-			headerValue := resp.Header.Get("X-Max-Assessments")
+						if logLevel >= LOG_DEBUG {
+							log.Printf("[DEBUG] Server set current assessments to %v", headerValue)
+						}
+					}
+				} else {
+					if logLevel >= LOG_WARNING {
+						log.Printf("[WARNING] Ignoring invalid X-Current-Assessments value (%v): %v", headerValue, err)
+					}
+				}
+			}
+
+			// Update maximum assessments.
+
+			headerValue = resp.Header.Get("X-Max-Assessments")
 			if headerValue != "" {
 				i, err := strconv.Atoi(headerValue)
 				if err == nil {
@@ -336,7 +360,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 						maxAssessments = i
 
 						if logLevel >= LOG_DEBUG {
-							log.Printf("[DEBUG] Server set max concurrent assessments to %v", headerValue)
+							log.Printf("[DEBUG] Server set maximum assessments to %v", headerValue)
 						}
 					}
 				} else {
@@ -612,7 +636,7 @@ func (manager *Manager) run() {
 	moreAssessments := true
 
 	if labsInfo.NewAssessmentCoolOff >= 1000 {
-		globalNewAssessmentCoolOff = labsInfo.NewAssessmentCoolOff
+		globalNewAssessmentCoolOff = 100 + labsInfo.NewAssessmentCoolOff
 	} else {
 		if logLevel >= LOG_WARNING {
 			log.Printf("[WARNING] Info.NewAssessmentCoolOff too small: %v", labsInfo.NewAssessmentCoolOff)
@@ -676,9 +700,9 @@ func (manager *Manager) run() {
 		// Once a second, start a new assessment, provided there are
 		// hostnames left and we're not over the concurrent assessment limit.
 		default:
-			<-time.NewTimer(time.Second).C
+			<-time.NewTimer(time.Duration(globalNewAssessmentCoolOff) * time.Millisecond).C
 			if moreAssessments {
-				if activeAssessments < maxAssessments {
+				if currentAssessments < maxAssessments {
 					host, hasNext := manager.hostProvider.next()
 					if hasNext {
 						manager.startAssessment(host)
