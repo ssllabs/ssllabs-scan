@@ -20,6 +20,7 @@
 package main
 
 import "crypto/tls"
+import "errors"
 import "encoding/json"
 import "flag"
 import "fmt"
@@ -332,6 +333,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 			}
 
 			// Update current assessments.
+
 			headerValue := resp.Header.Get("X-Current-Assessments")
 			if headerValue != "" {
 				i, err := strconv.Atoi(headerValue)
@@ -417,11 +419,7 @@ func invokeApi(command string) (*http.Response, []byte, error) {
 		// Status codes 429, 503, and 529 essentially mean try later. Thus,
 		// if we encounter them, we sleep for a while and try again.
 		if resp.StatusCode == 429 {
-			if logLevel >= LOG_NOTICE {
-				log.Printf("[NOTICE] Sleeping for 30 seconds after a %v response", resp.StatusCode)
-			}
-
-			time.Sleep(30 * time.Second)
+			return resp, body, errors.New("Assessment failed: 429")
 		} else if (resp.StatusCode == 503) || (resp.StatusCode == 529) {
 			// In case of the overloaded server, randomize the sleep time so
 			// that some clients reconnect earlier and some later.
@@ -514,6 +512,7 @@ type Event struct {
 }
 
 const (
+	ASSESSMENT_FAILED   = -1
 	ASSESSMENT_STARTING = 0
 	ASSESSMENT_COMPLETE = 1
 )
@@ -528,7 +527,9 @@ func NewAssessment(host string, eventChannel chan Event) {
 	for {
 		myResponse, err := invokeAnalyze(host, startNew, globalFromCache)
 		if err != nil {
-			log.Fatalf("[ERROR] API invocation failed: %v", err)
+			//log.Fatalf("[ERROR] API invocation failed: %v", err)
+			eventChannel <- Event{host, ASSESSMENT_FAILED, nil}
+			return
 		}
 
 		if startTime == -1 {
@@ -557,18 +558,25 @@ type HostProvider struct {
 }
 
 func NewHostProvider(hs []string) *HostProvider {
-	hostProvider := HostProvider{hs, 0}
+	hostnames := make([]string, len(hs))
+	copy(hostnames, hs)
+	hostProvider := HostProvider{hostnames, 0}
 	return &hostProvider
 }
 
 func (hp *HostProvider) next() (string, bool) {
-	if hp.i < len(hp.hostnames) {
-		host := hp.hostnames[hp.i]
-		hp.i = hp.i + 1
-		return host, true
-	} else {
+	if len(hp.hostnames) == 0 {
 		return "", false
 	}
+
+	var e string
+	e, hp.hostnames = hp.hostnames[0], hp.hostnames[1:]
+
+	return e, true
+}
+
+func (hp *HostProvider) retry(host string) {
+	hp.hostnames = append(hp.hostnames, host)
 }
 
 type Manager struct {
@@ -647,6 +655,11 @@ func (manager *Manager) run() {
 		select {
 		// Handle assessment events (e.g., starting and finishing).
 		case e := <-manager.BackendEventChannel:
+			if e.eventType == ASSESSMENT_FAILED {
+				activeAssessments--
+				manager.hostProvider.retry(e.host)
+			}
+
 			if e.eventType == ASSESSMENT_STARTING {
 				if logLevel >= LOG_INFO {
 					log.Printf("[INFO] Assessment starting: %v", e.host)
@@ -686,12 +699,12 @@ func (manager *Manager) run() {
 				if logLevel >= LOG_DEBUG {
 					log.Printf("[DEBUG] Active assessments: %v (more: %v)", activeAssessments, moreAssessments)
 				}
+			}
 
-				// Are we done?
-				if (activeAssessments == 0) && (moreAssessments == false) {
-					close(manager.FrontendEventChannel)
-					return
-				}
+			// Are we done?
+			if (activeAssessments == 0) && (moreAssessments == false) {
+				close(manager.FrontendEventChannel)
+				return
 			}
 
 			break
