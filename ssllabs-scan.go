@@ -579,6 +579,10 @@ func (hp *HostProvider) retry(host string) {
 	hp.hostnames = append(hp.hostnames, host)
 }
 
+func (hp *HostProvider) len() int {
+	return len(hp.hostnames)
+}
+
 type Manager struct {
 	hostProvider         *HostProvider
 	FrontendEventChannel chan Event
@@ -712,7 +716,10 @@ func (manager *Manager) run() {
 		// Once a second, start a new assessment, provided there are
 		// hostnames left and we're not over the concurrent assessment limit.
 		default:
-			<-time.NewTimer(time.Duration(globalNewAssessmentCoolOff) * time.Millisecond).C
+			if manager.hostProvider.len() > 0 {
+				<-time.NewTimer(time.Duration(globalNewAssessmentCoolOff) * time.Millisecond).C
+			}
+
 			if moreAssessments {
 				if currentAssessments < maxAssessments {
 					host, hasNext := manager.hostProvider.next()
@@ -938,6 +945,10 @@ func main() {
 		if running == false {
 			var results []byte
 			var err error
+
+			if hp.len() == 0 {
+				return
+			}
 
 			if *conf_grade {
 				// Just the grade(s). We use flatten and RAW
