@@ -531,7 +531,6 @@ func NewAssessment(host string, eventChannel chan Event) {
 	for {
 		myResponse, err := invokeAnalyze(host, startNew, globalFromCache)
 		if err != nil {
-			//log.Fatalf("[ERROR] API invocation failed: %v", err)
 			eventChannel <- Event{host, ASSESSMENT_FAILED, nil}
 			return
 		}
