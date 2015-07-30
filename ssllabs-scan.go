@@ -361,6 +361,10 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 					if maxAssessments != i {
 						maxAssessments = i
 
+						if maxAssessments <= 0 {
+							log.Fatalf("[ERROR] Server doesn't allow further API requests")
+						}
+
 						if logLevel >= LOG_DEBUG {
 							log.Printf("[DEBUG] Server set maximum assessments to %v", headerValue)
 						}
