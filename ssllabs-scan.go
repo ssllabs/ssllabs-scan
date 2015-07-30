@@ -657,7 +657,6 @@ func (manager *Manager) run() {
 				if logLevel >= LOG_INFO {
 					msg := ""
 
-					// Missing C's ternary operator here.
 					if len(e.report.Endpoints) == 0 {
 						msg = fmt.Sprintf("[WARN] Assessment failed: %v (%v)", e.host, e.report.StatusMessage)
 					} else if len(e.report.Endpoints) > 1 {
