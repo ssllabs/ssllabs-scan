@@ -539,8 +539,15 @@ func NewAssessment(host string, eventChannel chan Event) {
 			startTime = myResponse.StartTime
 			startNew = false
 		} else {
-			if myResponse.StartTime != startTime {
-				log.Fatalf("[ERROR] Inconsistent startTime. Expected %v, got %v.", startTime, myResponse.StartTime)
+			// Abort this assessment if the time we receive in a follow-up check
+			// is older than the time we got when we started the request. The
+			// upstream code should then retry the hostname in order to get
+			// consistent results.
+			if myResponse.StartTime > startTime {
+				eventChannel <- Event{host, ASSESSMENT_FAILED, nil}
+				return
+			} else {
+				startTime = myResponse.StartTime
 			}
 		}
 
