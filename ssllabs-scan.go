@@ -563,14 +563,14 @@ func NewAssessment(host string, eventChannel chan Event) {
 }
 
 type HostProvider struct {
-	hostnames []string
-	i         int
+	hostnames   []string
+	StartingLen int
 }
 
 func NewHostProvider(hs []string) *HostProvider {
 	hostnames := make([]string, len(hs))
 	copy(hostnames, hs)
-	hostProvider := HostProvider{hostnames, 0}
+	hostProvider := HostProvider{hostnames, len(hs)}
 	return &hostProvider
 }
 
@@ -587,10 +587,6 @@ func (hp *HostProvider) next() (string, bool) {
 
 func (hp *HostProvider) retry(host string) {
 	hp.hostnames = append(hp.hostnames, host)
-}
-
-func (hp *HostProvider) len() int {
-	return len(hp.hostnames)
 }
 
 type Manager struct {
@@ -726,7 +722,7 @@ func (manager *Manager) run() {
 		// Once a second, start a new assessment, provided there are
 		// hostnames left and we're not over the concurrent assessment limit.
 		default:
-			if manager.hostProvider.len() > 0 {
+			if manager.hostProvider.StartingLen > 0 {
 				<-time.NewTimer(time.Duration(globalNewAssessmentCoolOff) * time.Millisecond).C
 			}
 
@@ -956,7 +952,7 @@ func main() {
 			var results []byte
 			var err error
 
-			if hp.len() == 0 {
+			if hp.StartingLen == 0 {
 				return
 			}
 
