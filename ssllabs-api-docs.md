@@ -424,9 +424,8 @@ The remainder of the document explains the structure of the returned objects. Th
 * Added ChainCert.revocationStatus, ChainCert.crlRevocationStatus and ChainCert.ocspRevocationStatus.
 * Added Endpoint.gradeTrustIgnored.
 
-### 1.19.x (Not released) ###
+### 1.19.x (1 August 2015) ###
 
 * New EndpointDetails fields: dhPrimes, dhUsesKnownPrimes, dhYsReuse, and logjam.
 * New Info field: newAssessmentCoolOff. There is now a mandatory cool-off period after each new assessment.
-
 
