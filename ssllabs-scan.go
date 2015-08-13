@@ -20,6 +20,7 @@
 package main
 
 import "crypto/tls"
+import "errors"
 import "encoding/json"
 import "flag"
 import "fmt"
@@ -50,17 +51,24 @@ const (
 	LOG_TRACE    = 8
 )
 
-var USER_AGENT = "ssllabs-scan v1.1.0 ($Id$)"
+var USER_AGENT = "ssllabs-scan v1.2.0 (dev $Id$)"
 
 var logLevel = LOG_NOTICE
 
+// How many assessment do we have in progress?
 var activeAssessments = 0
 
+// How many assessments does the server think we have in progress?
+var currentAssessments = -1
+
+// The maximum number of assessments we can have in progress at any one time.
 var maxAssessments = -1
 
 var requestCounter uint64 = 0
 
 var apiLocation = "https://api.ssllabs.com/api/v2"
+
+var globalNewAssessmentCoolOff int64 = 1100
 
 var globalIgnoreMismatch = false
 
@@ -230,6 +238,10 @@ type LabsEndpointDetails struct {
 	FallbackScsv                   bool
 	Freak                          bool
 	HasSct                         int
+	DhPrimes                       []string
+	DhUsesKnownPrimes              int
+	DhYsReuse                      bool
+	Logjam                         bool
 }
 
 type LabsEndpoint struct {
@@ -271,11 +283,12 @@ type LabsResults struct {
 }
 
 type LabsInfo struct {
-	EngineVersion      string
-	CriteriaVersion    string
-	MaxAssessments     int
-	CurrentAssessments int
-	Messages           []string
+	EngineVersion        string
+	CriteriaVersion      string
+	MaxAssessments       int
+	CurrentAssessments   int
+	NewAssessmentCoolOff int64
+	Messages             []string
 }
 
 func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
@@ -319,17 +332,41 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 				}
 			}
 
-			// Adjust maximum concurrent requests.
+			// Update current assessments.
 
-			headerValue := resp.Header.Get("X-Max-Assessments")
+			headerValue := resp.Header.Get("X-Current-Assessments")
+			if headerValue != "" {
+				i, err := strconv.Atoi(headerValue)
+				if err == nil {
+					if currentAssessments != i {
+						currentAssessments = i
+
+						if logLevel >= LOG_DEBUG {
+							log.Printf("[DEBUG] Server set current assessments to %v", headerValue)
+						}
+					}
+				} else {
+					if logLevel >= LOG_WARNING {
+						log.Printf("[WARNING] Ignoring invalid X-Current-Assessments value (%v): %v", headerValue, err)
+					}
+				}
+			}
+
+			// Update maximum assessments.
+
+			headerValue = resp.Header.Get("X-Max-Assessments")
 			if headerValue != "" {
 				i, err := strconv.Atoi(headerValue)
 				if err == nil {
 					if maxAssessments != i {
 						maxAssessments = i
 
+						if maxAssessments <= 0 {
+							log.Fatalf("[ERROR] Server doesn't allow further API requests")
+						}
+
 						if logLevel >= LOG_DEBUG {
-							log.Printf("[DEBUG] Server set max concurrent assessments to %v", headerValue)
+							log.Printf("[DEBUG] Server set maximum assessments to %v", headerValue)
 						}
 					}
 				} else {
@@ -354,7 +391,7 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 
 			return resp, body, nil
 		} else {
-			if err.Error() == "EOF" {
+			if strings.Contains(err.Error(), "EOF") {
 				// Server closed a persistent connection on us, which
 				// Go doesn't seem to be handling well. So we'll try one
 				// more time.
@@ -386,11 +423,7 @@ func invokeApi(command string) (*http.Response, []byte, error) {
 		// Status codes 429, 503, and 529 essentially mean try later. Thus,
 		// if we encounter them, we sleep for a while and try again.
 		if resp.StatusCode == 429 {
-			if logLevel >= LOG_NOTICE {
-				log.Printf("[NOTICE] Sleeping for 30 seconds after a %v response", resp.StatusCode)
-			}
-
-			time.Sleep(30 * time.Second)
+			return resp, body, errors.New("Assessment failed: 429")
 		} else if (resp.StatusCode == 503) || (resp.StatusCode == 529) {
 			// In case of the overloaded server, randomize the sleep time so
 			// that some clients reconnect earlier and some later.
@@ -483,6 +516,7 @@ type Event struct {
 }
 
 const (
+	ASSESSMENT_FAILED   = -1
 	ASSESSMENT_STARTING = 0
 	ASSESSMENT_COMPLETE = 1
 )
@@ -497,15 +531,23 @@ func NewAssessment(host string, eventChannel chan Event) {
 	for {
 		myResponse, err := invokeAnalyze(host, startNew, globalFromCache)
 		if err != nil {
-			log.Fatalf("[ERROR] API invocation failed: %v", err)
+			eventChannel <- Event{host, ASSESSMENT_FAILED, nil}
+			return
 		}
 
 		if startTime == -1 {
 			startTime = myResponse.StartTime
 			startNew = false
 		} else {
-			if myResponse.StartTime != startTime {
-				log.Fatalf("[ERROR] Inconsistent startTime. Expected %v, got %v.", startTime, myResponse.StartTime)
+			// Abort this assessment if the time we receive in a follow-up check
+			// is older than the time we got when we started the request. The
+			// upstream code should then retry the hostname in order to get
+			// consistent results.
+			if myResponse.StartTime > startTime {
+				eventChannel <- Event{host, ASSESSMENT_FAILED, nil}
+				return
+			} else {
+				startTime = myResponse.StartTime
 			}
 		}
 
@@ -521,23 +563,30 @@ func NewAssessment(host string, eventChannel chan Event) {
 }
 
 type HostProvider struct {
-	hostnames []string
-	i         int
+	hostnames   []string
+	StartingLen int
 }
 
 func NewHostProvider(hs []string) *HostProvider {
-	hostProvider := HostProvider{hs, 0}
+	hostnames := make([]string, len(hs))
+	copy(hostnames, hs)
+	hostProvider := HostProvider{hostnames, len(hs)}
 	return &hostProvider
 }
 
 func (hp *HostProvider) next() (string, bool) {
-	if hp.i < len(hp.hostnames) {
-		host := hp.hostnames[hp.i]
-		hp.i = hp.i + 1
-		return host, true
-	} else {
+	if len(hp.hostnames) == 0 {
 		return "", false
 	}
+
+	var e string
+	e, hp.hostnames = hp.hostnames[0], hp.hostnames[1:]
+
+	return e, true
+}
+
+func (hp *HostProvider) retry(host string) {
+	hp.hostnames = append(hp.hostnames, host)
 }
 
 type Manager struct {
@@ -568,7 +617,7 @@ func (manager *Manager) startAssessment(h string) {
 func (manager *Manager) run() {
 	transport := &http.Transport{
 		TLSClientConfig:   &tls.Config{InsecureSkipVerify: globalInsecure},
-		DisableKeepAlives: true,
+		DisableKeepAlives: false,
 		Proxy:             http.ProxyFromEnvironment,
 	}
 
@@ -604,10 +653,23 @@ func (manager *Manager) run() {
 
 	moreAssessments := true
 
+	if labsInfo.NewAssessmentCoolOff >= 1000 {
+		globalNewAssessmentCoolOff = 100 + labsInfo.NewAssessmentCoolOff
+	} else {
+		if logLevel >= LOG_WARNING {
+			log.Printf("[WARNING] Info.NewAssessmentCoolOff too small: %v", labsInfo.NewAssessmentCoolOff)
+		}
+	}
+
 	for {
 		select {
 		// Handle assessment events (e.g., starting and finishing).
 		case e := <-manager.BackendEventChannel:
+			if e.eventType == ASSESSMENT_FAILED {
+				activeAssessments--
+				manager.hostProvider.retry(e.host)
+			}
+
 			if e.eventType == ASSESSMENT_STARTING {
 				if logLevel >= LOG_INFO {
 					log.Printf("[INFO] Assessment starting: %v", e.host)
@@ -618,7 +680,6 @@ func (manager *Manager) run() {
 				if logLevel >= LOG_INFO {
 					msg := ""
 
-					// Missing C's ternary operator here.
 					if len(e.report.Endpoints) == 0 {
 						msg = fmt.Sprintf("[WARN] Assessment failed: %v (%v)", e.host, e.report.StatusMessage)
 					} else if len(e.report.Endpoints) > 1 {
@@ -648,12 +709,12 @@ func (manager *Manager) run() {
 				if logLevel >= LOG_DEBUG {
 					log.Printf("[DEBUG] Active assessments: %v (more: %v)", activeAssessments, moreAssessments)
 				}
+			}
 
-				// Are we done?
-				if (activeAssessments == 0) && (moreAssessments == false) {
-					close(manager.FrontendEventChannel)
-					return
-				}
+			// Are we done?
+			if (activeAssessments == 0) && (moreAssessments == false) {
+				close(manager.FrontendEventChannel)
+				return
 			}
 
 			break
@@ -661,9 +722,12 @@ func (manager *Manager) run() {
 		// Once a second, start a new assessment, provided there are
 		// hostnames left and we're not over the concurrent assessment limit.
 		default:
-			<-time.NewTimer(time.Second).C
+			if manager.hostProvider.StartingLen > 0 {
+				<-time.NewTimer(time.Duration(globalNewAssessmentCoolOff) * time.Millisecond).C
+			}
+
 			if moreAssessments {
-				if activeAssessments < maxAssessments {
+				if currentAssessments < maxAssessments {
 					host, hasNext := manager.hostProvider.next()
 					if hasNext {
 						manager.startAssessment(host)
@@ -812,8 +876,15 @@ func main() {
 	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
 	var conf_maxage = flag.Int("maxage", 0, "Maximum acceptable age of cached results, in hours. A zero value is ignored.")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
+	var conf_version = flag.Bool("version", false, "Print version and API location information and exit")
 
 	flag.Parse()
+
+	if *conf_version {
+		fmt.Println(USER_AGENT)
+		fmt.Println("API location: " + apiLocation)
+		return
+	}
 
 	logLevel = parseLogLevel(strings.ToLower(*conf_verbosity))
 
@@ -880,6 +951,10 @@ func main() {
 		if running == false {
 			var results []byte
 			var err error
+
+			if hp.StartingLen == 0 {
+				return
+			}
 
 			if *conf_grade {
 				// Just the grade(s). We use flatten and RAW
