@@ -233,6 +233,8 @@ The remainder of the document explains the structure of the returned objects. Th
    * 3 - vulnerable and exploitable
 * **poodle** - true if the endpoint is vulnerable to POODLE; false otherwise
 * **poodleTls** - results of the POODLE TLS test:
+   * -3 - timeout
+   * -2 - TLS not supported
    * -1 - test failed
    * 0 - unknown
    * 1 - not vulnerable
