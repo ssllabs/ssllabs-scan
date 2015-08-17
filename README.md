@@ -43,7 +43,7 @@ OPTIONS
 | --grade     | false         | Output only the hostname: grade |
 | --hostcheck | false         | If true, host resolution failure will result in a fatal error |
 
-##Tools and Libraries
+##Third-Party Tools and Libraries
 
 A list of libraries and tools that rely on the SSL Labs APIs can be found on the SSL Labs web site: https://www.ssllabs.com/projects/ssllabs-apis/
 
