@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.19.27 #
+# SSL Labs API Documentation v1.20.10 #
 
-**Last update:** 10 July 2015<br>
+**Last update:** 7 September 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -217,11 +217,12 @@ The remainder of the document explains the structure of the returned objects. Th
 * **httpStatusCode** - status code of the final HTTP response seen. When submitting HTTP requests, redirections are followed, but only if they lead to the same hostname. If this field is not available, that means the HTTP request failed.
 * **httpForwarding** - available on a server that responded with a redirection to some other hostname.
 * **supportsRc4** - true if the server supports at least one RC4 suite.
+* **rc4WithModern** - true if RC4 is used with modern clients.
+* **rc4Only** - true if only RC4 suites are supported.
 * **forwardSecrecy** - indicates support for Forward Secrecy
    * bit 0 (1) - set if at least one browser from our simulations negotiated a Forward Secrecy suite.
    * bit 1 (2) - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
    * bit 2 (4) - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
-* **rc4WithModern** - true if RC4 is used with modern clients.
 * **sims** - instance of [SimDetails](#simdetails).
 * **heartbleed** - true if the server is vulnerable to the Heartbleed attack.
 * **heartbeat** - true if the server supports the Heartbeat extension.
@@ -431,3 +432,6 @@ The remainder of the document explains the structure of the returned objects. Th
 * New EndpointDetails fields: dhPrimes, dhUsesKnownPrimes, dhYsReuse, and logjam.
 * New Info field: newAssessmentCoolOff. There is now a mandatory cool-off period after each new assessment.
 
+### 1.20.x (In development) ###
+
+* New EndpointDetails field: rc4Only.

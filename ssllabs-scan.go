@@ -226,9 +226,10 @@ type LabsEndpointDetails struct {
 	SniRequired                    bool
 	HttpStatusCode                 int
 	HttpForwarding                 string
-	SupportsRc4                    bool
 	ForwardSecrecy                 int
+	SupportsRc4                    bool
 	Rc4WithModern                  bool
+	Rc4Only                        bool
 	Sims                           LabsSimDetails
 	Heartbleed                     bool
 	Heartbeat                      bool
