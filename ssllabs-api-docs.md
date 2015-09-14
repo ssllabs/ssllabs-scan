@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.20.10 #
+# SSL Labs API Documentation v1.20.15 #
 
-**Last update:** 7 September 2015<br>
+**Last update:** 14 September 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -253,6 +253,7 @@ The remainder of the document explains the structure of the returned objects. Th
   * 2 - yes and they're weak
 * **dhYsReuse** - true if the DH ephemeral server value is reused.
 * **logjam** - true if the server uses DH parameters weaker than 1024 bits.
+* **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites.
 
 ### Info ###
 
@@ -434,4 +435,4 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ### 1.20.x (In development) ###
 
-* New EndpointDetails field: rc4Only.
+* New EndpointDetails fields: rc4Only, chaCha20Preference.

@@ -243,6 +243,7 @@ type LabsEndpointDetails struct {
 	DhUsesKnownPrimes              int
 	DhYsReuse                      bool
 	Logjam                         bool
+	ChaCha20Preference             bool
 }
 
 type LabsEndpoint struct {
