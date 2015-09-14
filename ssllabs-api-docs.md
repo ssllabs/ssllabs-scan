@@ -261,7 +261,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **criteriaVersion** - rating criteria version as a string (e.g., "2009f")
 * **maxAssessments** - the maximum number of concurrent assessments the client is allowed to initiate.
 * **currentAssessments** - the number of ongoing assessments submitted by this client.
-* **newAssessmentCoolOff** - the cool-off period after each new assessment; you're not allowed to submit a new assessment before the cool-off expires, otherwise you'll get a 429.
+* **newAssessmentCoolOff** - the cool-off period after each new assessment, in milliseconds; you're not allowed to submit a new assessment before the cool-off expires, otherwise you'll get a 429.
 * **messages** - a list of messages (strings). Messages can be public (sent to everyone) and private (sent only to the invoking client).
                  Private messages are prefixed with "[Private]".
 
