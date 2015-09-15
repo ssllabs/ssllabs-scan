@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.20.15 #
+# SSL Labs API Documentation v1.20.17 #
 
-**Last update:** 14 September 2015<br>
+**Last update:** 15 September 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -194,9 +194,11 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 1 (2) - set if secure renegotiation is supported
    * bit 2 (4) - set if secure client-initiated renegotiation is supported
    * bit 3 (8) - set if the server requires secure renegotiation support
+* **stsStatus** - status of the HSTS header. The possible values are: unknown, present, absent, and error (e.g., header parsing failure)
 * **stsResponseHeader** - the contents of the Strict-Transport-Security (STS) response header, if seen
-* **stsMaxAge** - the maxAge parameter extracted from the STS parameters; null if STS not seen, or -1 if the specified value is invalid (e.g., not a zero or a positive integer; the maximum value currently supported is 2,147,483,647)
-* **stsSubdomains** - true if the includeSubDomains STS parameter is set; null if STS not seen
+* **stsMaxAge** - the maxAge parameter extracted from the STS parameters; null if STS not seen or on header parsing error; the maximum value currently supported is 9223372036854775807
+* **stsSubdomains** - true if the includeSubDomains STS parameter is set; null if STS not seen or on header parsing error
+* **stsPreload** - true if the preload directive is used; null if STS not seen or on header parsing error
 * **pkpResponseHeader** - the contents of the Public-Key-Pinning response header, if seen
 * **sessionResumption** - this is an integer value that describes endpoint support for session resumption. The possible values are:
    * 0 - session resumption is not enabled and we're seeing empty session IDs
@@ -435,4 +437,5 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ### 1.20.x (In development) ###
 
-* New EndpointDetails fields: rc4Only, chaCha20Preference.
+* New EndpointDetails fields: rc4Only, chaCha20Preference, stsStatus, stsPreload.
+* The maximum value supported by the stsMaxAge field has been increased to 9223372036854775807.

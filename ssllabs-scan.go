@@ -211,9 +211,11 @@ type LabsEndpointDetails struct {
 	NonPrefixDelegation            bool
 	VulnBeast                      bool
 	RenegSupport                   int
+	StsStatus                      string
 	StsResponseHeader              string
 	StsMaxAge                      int64
 	StsSubdomains                  bool
+	StsPreload                     bool
 	PkpResponseHeader              string
 	SessionResumption              int
 	CompressionMethods             int
