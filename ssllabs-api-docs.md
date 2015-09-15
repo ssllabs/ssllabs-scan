@@ -31,7 +31,7 @@ Parameters:
 
 #### Invoke assessment and check progress ####
 
-This call is used to initiate an assessment, or to retrieve the status of an assessment in progress or in the cache. It will return a single [Host object](#host) on success. The Endpoint object embedded in the Host object will provide partial endpoint results.
+This call is used to initiate an assessment, or to retrieve the status of an assessment in progress or in the cache. It will return a single [Host object](#host) on success. The Endpoint object embedded in the Host object will provide partial endpoint results. Please note that assessments of individual endpoints can fail even when the overall assessment is successful (e.g., one server might be down). At this time, you can determine the success of an endpoint assessment by checking the statusMessage field; it should contain "Ready".
 
 **API Call:** `analyze`
 
@@ -162,7 +162,7 @@ The remainder of the document explains the structure of the returned objects. Th
 
 * **ipAddress** - endpoint IP address, in IPv4 or IPv6 format.
 * **serverName** - server name retrieved via reverse DNS
-* **statusMessage** - assessment status message
+* **statusMessage** - assessment status message; this field will contain "Ready" if the endpoint assessment was successful.
 * **statusDetails** - code of the operation currently in progress
 * **statusDetailsMessage** - description of the operation currently in progress
 * **grade** - possible values: A+, A-, A-F, T (no trust) and M (certificate name mismatch)
