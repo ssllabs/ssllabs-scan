@@ -248,12 +248,12 @@ The remainder of the document explains the structure of the returned objects. Th
   * bit 0 (1) - SCT in certificate
   * bit 1 (2) - SCT in the stapled OCSP response
   * bit 2 (4) - SCT in the TLS extension (ServerHello)
-* **dhPrimes[]** - list of hex-encoded DH primes used by the server
-* **dhUsesKnownPrimes** - whether the server uses known DH primes:
+* **dhPrimes[]** - list of hex-encoded DH primes used by the server. Not present if the server doesn't support the DH key exchange.
+* **dhUsesKnownPrimes** - whether the server uses known DH primes. Not present if the server doesn't support the DH key exchange. Possible values:
   * 0 - no
   * 1 - yes, but they're not weak
   * 2 - yes and they're weak
-* **dhYsReuse** - true if the DH ephemeral server value is reused.
+* **dhYsReuse** - true if the DH ephemeral server value is reused. Not present if the server doesn't support the DH key exchange.
 * **logjam** - true if the server uses DH parameters weaker than 1024 bits.
 * **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites.
 
