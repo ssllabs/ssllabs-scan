@@ -194,7 +194,11 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 1 (2) - set if secure renegotiation is supported
    * bit 2 (4) - set if secure client-initiated renegotiation is supported
    * bit 3 (8) - set if the server requires secure renegotiation support
-* **stsStatus** - status of the HSTS header. The possible values are: unknown, present, absent, and error (e.g., header parsing failure)
+* **stsStatus** - status of the HSTS header. Possible values are:
+   * unknown - server's HTTP response headers were not available
+   * present - the header is present and valid
+   * absent - the header is not present
+   * invalid - the header is present but malformed in some way
 * **stsResponseHeader** - the contents of the Strict-Transport-Security (STS) response header, if seen
 * **stsMaxAge** - the maxAge parameter extracted from the STS parameters; null if STS not seen or on header parsing error; the maximum value currently supported is 9223372036854775807
 * **stsSubdomains** - true if the includeSubDomains STS parameter is set; null if STS not seen or on header parsing error
