@@ -11,7 +11,7 @@ The protocol is based on HTTP and JSON. All invocations of the API should use th
 
 ### Terms and Conditions ###
 
-SSL Labs APIs are provided free of charge, subject to our terms and conditions: <https://www.ssllabs.com/about/terms.html>. The spirit of the license is that the APIs are made available so that system operators can test their own infrastructure. Please read the actual terms and conditions, which are more involved and cover things such as integrating with open source projects, and so on. For example, it's important (for reasons of privacy, compliance, etc) for end users to understand that assessments are carried out by Qualys's servers, not locally.
+SSL Labs APIs are provided free of charge, subject to our terms and conditions: <https://www.ssllabs.com/about/terms.html>. The spirit of the license is that the APIs are made available so that system operators can test their own infrastructure. Please read the actual terms and conditions, which are more involved and cover things such as integrating with open source projects, and so on. For example, it's important (for reasons of privacy, compliance, etc.) for end users to understand that assessments are carried out by Qualys's servers, not locally.
 
 Commercial use is generally not allowed, except with an explicit permission from Qualys. That said, we're usually happy to support good causes, even uses by commercial organizations that help improve the security of their customers. If you're a CA, CDN, hosting company, domain name registrar, we're happy for you to use our APIs (but you still have to get in touch with us before you begin).
 
@@ -147,7 +147,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **host** - assessment host, which can be a hostname or an IP address
 * **port** - assessment port (e.g., 443)
 * **protocol** - protocol (e.g., HTTP)
-* **isPublic** - true if this assessment publicly available (listed on the SSL Labs assessment boards)
+* **isPublic** - true if this assessment is publicly available (listed on the SSL Labs assessment boards)
 * **status** - assessment status; possible values: DNS, ERROR, IN_PROGRESS, and READY.
 * **statusMessage** - status message in English. When status is ERROR, this field will contain an error message.
 * **startTime** - assessment starting time, in milliseconds since 1970
@@ -175,7 +175,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **delegation** - indicates domain name delegation with and without the www prefix
    * bit 0 (1) - set for non-prefixed access
    * bit 1 (2) - set for prefixed access
-* **details** - this field contains an EndpointDetails object. It's not present by default, but can be enabled by using the "all" paramerer to the `analyze` API call.
+* **details** - this field contains an EndpointDetails object. It's not present by default, but can be enabled by using the "all" parameter to the `analyze` API call.
 
 ### EndpointDetails ###
 
@@ -338,7 +338,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 3 (8) - weak signature
    * bit 4 (16) - blacklisted
 * **keyAlg** - key algorithm.
-* **keySize** - key size, in bits appopriate for the key algorithm.
+* **keySize** - key size, in bits appropriate for the key algorithm.
 * **keyStrength** - key strength, in equivalent RSA bits.
 * **revocationStatus** - a number that describes the revocation status of the certificate:
    * 0 - not checked
