@@ -199,6 +199,29 @@ type LabsSuites struct {
 	Preference bool
 }
 
+type LabsHstsPolicy struct {
+	LONG_MAX_AGE      int64
+	Header            string
+	Status            string
+	Error             string
+	MaxAge            int64
+	IncludeSubDomains bool
+	Preload           bool
+	Directives        map[string]string
+}
+
+type LabsHpkpPolicy struct {
+	Header            string
+	Status            string
+	Error             string
+	MaxAge            int64
+	IncludeSubDomains bool
+	ReportUri         bool
+	Pins              []string
+	MatchedPins       []string
+	Directives        map[string]string
+}
+
 type LabsEndpointDetails struct {
 	HostStartTime                  int64
 	Key                            LabsKey
@@ -211,12 +234,6 @@ type LabsEndpointDetails struct {
 	NonPrefixDelegation            bool
 	VulnBeast                      bool
 	RenegSupport                   int
-	StsStatus                      string
-	StsResponseHeader              string
-	StsMaxAge                      int64
-	StsSubdomains                  bool
-	StsPreload                     bool
-	PkpResponseHeader              string
 	SessionResumption              int
 	CompressionMethods             int
 	SupportsNpn                    bool
@@ -246,6 +263,9 @@ type LabsEndpointDetails struct {
 	DhYsReuse                      bool
 	Logjam                         bool
 	ChaCha20Preference             bool
+	HstsPolicy                     LabsHstsPolicy
+	HpkpPolicy                     LabsHpkpPolicy
+	HpkpRoPolicy                   LabsHpkpPolicy
 }
 
 type LabsEndpoint struct {
