@@ -273,7 +273,7 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ### Info ###
 
-* **engineVersion** - SSL Labs software version as a string (e.g., "1.20.28")
+* **version** - SSL Labs software version as a string (e.g., "1.11.14")
 * **criteriaVersion** - rating criteria version as a string (e.g., "2009f")
 * **maxAssessments** - the maximum number of concurrent assessments the client is allowed to initiate.
 * **currentAssessments** - the number of ongoing assessments submitted by this client.
@@ -415,6 +415,21 @@ The remainder of the document explains the structure of the returned objects. Th
 * **ecdhStrength** - ECDH RSA-equivalent strength
 * **q** - 0 if the suite is insecure, null otherwise
 
+### HstsPolicy ###
+
+* **LONG_MAX_AGE** - this constant contains what SSL Labs considers to be sufficiently large max-age value
+* **status** - status of the HSTS header. Possible values are:
+   * unknown - server's HTTP response headers were not available
+   * present - the header is present and valid
+   * absent - the header is not present
+   * invalid - the header is present but malformed in some way
+* **header** - the contents of the HSTS response header, if present
+* **directives** - complete list of raw directives from the policy
+* **error** - error message when error is encountered, null otherwise
+* **maxAge** - the maxAge value specified in the HSTS policy; null if policy is missing or invalid or on parsing error; the maximum value currently supported is 9223372036854775807
+* **includeSubDomains** - true if the includeSubDomains directive is set; null otherwise
+* **preload** - true if the preload directive is set; null otherwise
+
 ### StatusCodes ###
 
 * **statusDetails** - a map containing all status details codes and the corresponding English translations. Please note that, once in use, the codes will not change, whereas the translations may change at any time.
@@ -457,4 +472,5 @@ The remainder of the document explains the structure of the returned objects. Th
 ### 1.21.x (In development) ###
 
 * New API call: getRootCertsRaw.
+* HSTS information is now contained within its own structure EndpointDetails.hstsPolicy. The previously-used fields are deprecated but continue to be supported for backward compatibility. 
 
