@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.20.17 #
+# SSL Labs API Documentation v1.21.8 #
 
-**Last update:** 15 September 2015<br>
+**Last update:** 30 November 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -71,6 +71,16 @@ Example:
 This call will return one [StatusCodes instance](#statuscodes).
 
 **API Call:** `getStatusCodes`
+
+Parameters:
+
+* None.
+
+#### Retrieve root certificates ####
+
+This call returns the root certificates used for trust validation.
+
+**API Call:** `getRootCertsRaw`
 
 Parameters:
 
@@ -439,7 +449,12 @@ The remainder of the document explains the structure of the returned objects. Th
 * New EndpointDetails fields: dhPrimes, dhUsesKnownPrimes, dhYsReuse, and logjam.
 * New Info field: newAssessmentCoolOff. There is now a mandatory cool-off period after each new assessment.
 
-### 1.20.x (In development) ###
+### 1.20.x (6 November 2015) ###
 
 * New EndpointDetails fields: rc4Only, chaCha20Preference, stsStatus, stsPreload.
 * The maximum value supported by the stsMaxAge field has been increased to 9223372036854775807.
+
+### 1.21.x (In development) ###
+
+* New API call: getRootCertsRaw.
+
