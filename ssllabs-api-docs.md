@@ -7,7 +7,7 @@ This document explains the SSL Labs Assessment APIs, which can be used to test S
 
 ## Protocol Overview ##
 
-The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload. In essence, the client submits an assessment requests to the servers. If an acceptable report is already available, it's received straight away. Otherwise, the server will start a new assessment and the client should periodically check to see if the job is complete.
+The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload. In essence, the client submits an assessment reque`sts` to the servers. If an acceptable report is already available, it's received straight away. Otherwise, the server will start a new assessment and the client should periodically check to see if the job is complete.
 
 ### Terms and Conditions ###
 
@@ -204,16 +204,12 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 1 (2) - set if secure renegotiation is supported
    * bit 2 (4) - set if secure client-initiated renegotiation is supported
    * bit 3 (8) - set if the server requires secure renegotiation support
-* **stsStatus** - status of the HSTS header. Possible values are:
-   * unknown - server's HTTP response headers were not available
-   * present - the header is present and valid
-   * absent - the header is not present
-   * invalid - the header is present but malformed in some way
-* **stsResponseHeader** - the contents of the Strict-Transport-Security (STS) response header, if seen
-* **stsMaxAge** - the maxAge parameter extracted from the STS parameters; null if STS not seen or on header parsing error; the maximum value currently supported is 9223372036854775807
-* **stsSubdomains** - true if the includeSubDomains STS parameter is set; null if STS not seen or on header parsing error
-* **stsPreload** - true if the preload directive is used; null if STS not seen or on header parsing error
-* **pkpResponseHeader** - the contents of the Public-Key-Pinning response header, if seen
+* **stsStatus** - deprecated
+* **stsResponseHeader** - deprecated
+* **stsMaxAge** - deprecated
+* **stsSubdomains** - deprecated
+* **stsPreload** - deprecated
+* **pkpResponseHeader** - deprecated
 * **sessionResumption** - this is an integer value that describes endpoint support for session resumption. The possible values are:
    * 0 - session resumption is not enabled and we're seeing empty session IDs
    * 1 - endpoint returns session IDs, but sessions are not resumed
@@ -270,6 +266,9 @@ The remainder of the document explains the structure of the returned objects. Th
 * **dhYsReuse** - true if the DH ephemeral server value is reused. Not present if the server doesn't support the DH key exchange.
 * **logjam** - true if the server uses DH parameters weaker than 1024 bits.
 * **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites.
+* **hstsPolicy** - server's HSTS policy. Experimental.
+* **hpkpPolicy** - server's HPKP policy. Experimental.
+* **hpkpRoPolicy** - server's HPKP RO (Report Only) policy. Experimental. 
 
 ### Info ###
 
@@ -418,17 +417,37 @@ The remainder of the document explains the structure of the returned objects. Th
 ### HstsPolicy ###
 
 * **LONG_MAX_AGE** - this constant contains what SSL Labs considers to be sufficiently large max-age value
-* **status** - status of the HSTS header. Possible values are:
-   * unknown - server's HTTP response headers were not available
-   * present - the header is present and valid
-   * absent - the header is not present
-   * invalid - the header is present but malformed in some way
 * **header** - the contents of the HSTS response header, if present
-* **directives** - complete list of raw directives from the policy
+* **status** - HSTS status:
+   * unknown - either before the server is checked or when its HTTP response headers are not available
+   * absent - header not present
+   * present - header present and syntatically correct
+   * invalid - header present, but couldn't be parsed
+   * disabled - header present and syntatically correct, but HSTS is disabled
 * **error** - error message when error is encountered, null otherwise
-* **maxAge** - the maxAge value specified in the HSTS policy; null if policy is missing or invalid or on parsing error; the maximum value currently supported is 9223372036854775807
+* **maxAge** - the max-age value specified in the policy; null if policy is missing or invalid or on parsing error; the maximum value currently supported is 9223372036854775807
 * **includeSubDomains** - true if the includeSubDomains directive is set; null otherwise
 * **preload** - true if the preload directive is set; null otherwise
+* **directives** - list of raw policy directives
+
+### HpkpPolicy ###
+
+* **status** - HPKP status:
+   * unknown - either before the server is checked or when its HTTP response headers are not available
+   * absent - header not present
+   * invalid - header present, but couldn't be parsed
+   * disabled - header present and syntatically correct, but HPKP is disabled
+   * incomplete - header present and syntatically correct, incorrectly used
+   * valid - header present, syntatically correct, and correctly used
+* **header** - the contents of the HPKP response header, if present
+* **error** - error message, when the policy is invalid
+* **maxAge** - the max-age value from the policy
+* **includeSubDomains** - true if the includeSubDomains directive is set; null otherwise
+* **reportUri** - the report-uri value from the policy
+* **pins** - list of all pins used by the policy
+* **matchedPins** -  list of pins that match the current configuration
+* **directives** - list of raw policy directives
+
 
 ### StatusCodes ###
 
@@ -464,13 +483,11 @@ The remainder of the document explains the structure of the returned objects. Th
 * New EndpointDetails fields: dhPrimes, dhUsesKnownPrimes, dhYsReuse, and logjam.
 * New Info field: newAssessmentCoolOff. There is now a mandatory cool-off period after each new assessment.
 
-### 1.20.x (6 November 2015) ###
-
-* New EndpointDetails fields: rc4Only, chaCha20Preference, stsStatus, stsPreload.
-* The maximum value supported by the stsMaxAge field has been increased to 9223372036854775807.
-
 ### 1.21.x (In development) ###
 
-* New API call: getRootCertsRaw.
-* HSTS information is now contained within its own structure EndpointDetails.hstsPolicy. The previously-used fields are deprecated but continue to be supported for backward compatibility. 
+* New EndpointDetails fields: rc4Only, chaCha20Preference.
+* The maximum value supported by the stsMaxAge field has been increased to 9223372036854775807.
+* [Experimental] New API call: getRootCertsRaw.
+* [Experimental] HSTS information is now contained within its own structure EndpointDetails.hstsPolicy. The previously-used fields are deprecated but continue to be supported for backward compatibility. 
+* [Experimental] New fields: HPKP and HPKP-RO information is now exposed in EndpointDetails.hpkpPolicy and EndpointDetails.hpkpRoPolicy. The field pkpResponseHeader is now deprecated, but continues to be supported for backward compatibility.
 
