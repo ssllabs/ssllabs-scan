@@ -273,7 +273,7 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ### Info ###
 
-* **version** - SSL Labs software version as a string (e.g., "1.11.14")
+* **engineVersion** - SSL Labs software version as a string (e.g., "1.20.28")
 * **criteriaVersion** - rating criteria version as a string (e.g., "2009f")
 * **maxAssessments** - the maximum number of concurrent assessments the client is allowed to initiate.
 * **currentAssessments** - the number of ongoing assessments submitted by this client.
