@@ -210,6 +210,13 @@ type LabsHstsPolicy struct {
 	Directives        map[string]string
 }
 
+type LabsHstsPreload struct {
+	Source     string
+	Status     string
+	Error      string
+	SourceTime int64
+}
+
 type LabsHpkpPin struct {
 	HashFunction string
 	Value        string
@@ -269,6 +276,7 @@ type LabsEndpointDetails struct {
 	Logjam                         bool
 	ChaCha20Preference             bool
 	HstsPolicy                     LabsHstsPolicy
+	HstsPreloads                   []LabsHstsPreload
 	HpkpPolicy                     LabsHpkpPolicy
 	HpkpRoPolicy                   LabsHpkpPolicy
 }

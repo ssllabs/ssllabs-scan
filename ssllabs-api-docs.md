@@ -267,6 +267,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **logjam** - true if the server uses DH parameters weaker than 1024 bits.
 * **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites.
 * **hstsPolicy** - server's HSTS policy. Experimental.
+* **hstsPreloads[]** - information about preloaded HSTS policies.
 * **hpkpPolicy** - server's HPKP policy. Experimental.
 * **hpkpRoPolicy** - server's HPKP RO (Report Only) policy. Experimental. 
 
@@ -428,7 +429,20 @@ The remainder of the document explains the structure of the returned objects. Th
 * **maxAge** - the max-age value specified in the policy; null if policy is missing or invalid or on parsing error; the maximum value currently supported is 9223372036854775807
 * **includeSubDomains** - true if the includeSubDomains directive is set; null otherwise
 * **preload** - true if the preload directive is set; null otherwise
-* **directives** - list of raw policy directives
+* **directives[][]** - list of raw policy directives
+
+### HstsPreload ###
+
+The HstsPreload object contains preload HSTS status of one source for the current hostname. Preload checks are done for the current hostname, not for a domain name. For example, a hostname "www.example.com" tested in SSL Labs would come back as "present" if there is an entry for "example.com" with includeSubDomains enabled or if there is an explicit entry for "www.example.com".
+
+* **source** - source name
+* **status** - preload status:
+   * error
+   * unknown - either before the preload status is checked, or if the information is not available for some reason.
+   * absent
+   * present
+* **error** - error message, when status is "error" 
+* **sourceTime** - time, as a Unix timestamp, when the preload database was retrieved
 
 ### HpkpPolicy ###
 
@@ -444,9 +458,9 @@ The remainder of the document explains the structure of the returned objects. Th
 * **maxAge** - the max-age value from the policy
 * **includeSubDomains** - true if the includeSubDomains directive is set; null otherwise
 * **reportUri** - the report-uri value from the policy
-* **pins** - list of all pins used by the policy
-* **matchedPins** -  list of pins that match the current configuration
-* **directives** - list of raw policy directives
+* **pins[]** - list of all pins used by the policy
+* **matchedPins[]** -  list of pins that match the current configuration
+* **directives[][]** - list of raw policy directives
 
 
 ### StatusCodes ###
