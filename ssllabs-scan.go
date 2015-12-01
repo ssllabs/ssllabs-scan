@@ -210,15 +210,20 @@ type LabsHstsPolicy struct {
 	Directives        map[string]string
 }
 
+type LabsHpkpPin struct {
+	HashFunction string
+	Value        string
+}
+
 type LabsHpkpPolicy struct {
 	Header            string
 	Status            string
 	Error             string
 	MaxAge            int64
 	IncludeSubDomains bool
-	ReportUri         bool
-	Pins              []string
-	MatchedPins       []string
+	ReportUri         string
+	Pins              []LabsHpkpPin
+	MatchedPins       []LabsHpkpPin
 	Directives        map[string]string
 }
 
@@ -478,6 +483,7 @@ func invokeInfo() (*LabsInfo, error) {
 	var labsInfo LabsInfo
 	err = json.Unmarshal(body, &labsInfo)
 	if err != nil {
+		log.Printf("[ERROR] JSON unmarshal error: %v", err)
 		return nil, err
 	}
 
@@ -513,6 +519,7 @@ func invokeAnalyze(host string, startNew bool, fromCache bool) (*LabsReport, err
 		var apiError LabsErrorResponse
 		err = json.Unmarshal(body, &apiError)
 		if err != nil {
+			log.Printf("[ERROR] JSON unmarshal error: %v", err)
 			return nil, err
 		}
 
@@ -523,6 +530,7 @@ func invokeAnalyze(host string, startNew bool, fromCache bool) (*LabsReport, err
 		var analyzeResponse LabsReport
 		err = json.Unmarshal(body, &analyzeResponse)
 		if err != nil {
+			log.Printf("[ERROR] JSON unmarshal error: %v", err)
 			return nil, err
 		}
 
