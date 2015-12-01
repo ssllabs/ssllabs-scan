@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.21.8 #
+# SSL Labs API Documentation v1.21.9 #
 
-**Last update:** 30 November 2015<br>
+**Last update:** 1 December 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
