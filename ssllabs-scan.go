@@ -51,7 +51,7 @@ const (
 	LOG_TRACE    = 8
 )
 
-var USER_AGENT = "ssllabs-scan v1.2.0 (dev $Id$)"
+var USER_AGENT = "ssllabs-scan v1.3.x (dev $Id$)"
 
 var logLevel = LOG_NOTICE
 
@@ -199,6 +199,41 @@ type LabsSuites struct {
 	Preference bool
 }
 
+type LabsHstsPolicy struct {
+	LONG_MAX_AGE      int64
+	Header            string
+	Status            string
+	Error             string
+	MaxAge            int64
+	IncludeSubDomains bool
+	Preload           bool
+	Directives        map[string]string
+}
+
+type LabsHstsPreload struct {
+	Source     string
+	Status     string
+	Error      string
+	SourceTime int64
+}
+
+type LabsHpkpPin struct {
+	HashFunction string
+	Value        string
+}
+
+type LabsHpkpPolicy struct {
+	Header            string
+	Status            string
+	Error             string
+	MaxAge            int64
+	IncludeSubDomains bool
+	ReportUri         string
+	Pins              []LabsHpkpPin
+	MatchedPins       []LabsHpkpPin
+	Directives        map[string]string
+}
+
 type LabsEndpointDetails struct {
 	HostStartTime                  int64
 	Key                            LabsKey
@@ -211,10 +246,6 @@ type LabsEndpointDetails struct {
 	NonPrefixDelegation            bool
 	VulnBeast                      bool
 	RenegSupport                   int
-	StsResponseHeader              string
-	StsMaxAge                      int64
-	StsSubdomains                  bool
-	PkpResponseHeader              string
 	SessionResumption              int
 	CompressionMethods             int
 	SupportsNpn                    bool
@@ -226,9 +257,10 @@ type LabsEndpointDetails struct {
 	SniRequired                    bool
 	HttpStatusCode                 int
 	HttpForwarding                 string
-	SupportsRc4                    bool
 	ForwardSecrecy                 int
+	SupportsRc4                    bool
 	Rc4WithModern                  bool
+	Rc4Only                        bool
 	Sims                           LabsSimDetails
 	Heartbleed                     bool
 	Heartbeat                      bool
@@ -242,6 +274,11 @@ type LabsEndpointDetails struct {
 	DhUsesKnownPrimes              int
 	DhYsReuse                      bool
 	Logjam                         bool
+	ChaCha20Preference             bool
+	HstsPolicy                     LabsHstsPolicy
+	HstsPreloads                   []LabsHstsPreload
+	HpkpPolicy                     LabsHpkpPolicy
+	HpkpRoPolicy                   LabsHpkpPolicy
 }
 
 type LabsEndpoint struct {
@@ -454,6 +491,7 @@ func invokeInfo() (*LabsInfo, error) {
 	var labsInfo LabsInfo
 	err = json.Unmarshal(body, &labsInfo)
 	if err != nil {
+		log.Printf("[ERROR] JSON unmarshal error: %v", err)
 		return nil, err
 	}
 
@@ -489,6 +527,7 @@ func invokeAnalyze(host string, startNew bool, fromCache bool) (*LabsReport, err
 		var apiError LabsErrorResponse
 		err = json.Unmarshal(body, &apiError)
 		if err != nil {
+			log.Printf("[ERROR] JSON unmarshal error: %v", err)
 			return nil, err
 		}
 
@@ -499,6 +538,7 @@ func invokeAnalyze(host string, startNew bool, fromCache bool) (*LabsReport, err
 		var analyzeResponse LabsReport
 		err = json.Unmarshal(body, &analyzeResponse)
 		if err != nil {
+			log.Printf("[ERROR] JSON unmarshal error: %v", err)
 			return nil, err
 		}
 

@@ -1,13 +1,13 @@
-# SSL Labs API Documentation v1.19.27 #
+# SSL Labs API Documentation v1.21.13 #
 
-**Last update:** 10 July 2015<br>
+**Last update:** 9 December 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
 
 ## Protocol Overview ##
 
-The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload. In essence, the client submits an assessment requests to the servers. If an acceptable report is already available, it's received straight away. Otherwise, the server will start a new assessment and the client should periodically check to see if the job is complete.
+The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload. In essence, the client submits an assessment reque`sts` to the servers. If an acceptable report is already available, it's received straight away. Otherwise, the server will start a new assessment and the client should periodically check to see if the job is complete.
 
 ### Terms and Conditions ###
 
@@ -31,7 +31,7 @@ Parameters:
 
 #### Invoke assessment and check progress ####
 
-This call is used to initiate an assessment, or to retrieve the status of an assessment in progress or in the cache. It will return a single [Host object](#host) on success. The Endpoint object embedded in the Host object will provide partial endpoint results.
+This call is used to initiate an assessment, or to retrieve the status of an assessment in progress or in the cache. It will return a single [Host object](#host) on success. The Endpoint object embedded in the Host object will provide partial endpoint results. Please note that assessments of individual endpoints can fail even when the overall assessment is successful (e.g., one server might be down). At this time, you can determine the success of an endpoint assessment by checking the statusMessage field; it should contain "Ready".
 
 **API Call:** `analyze`
 
@@ -71,6 +71,16 @@ Example:
 This call will return one [StatusCodes instance](#statuscodes).
 
 **API Call:** `getStatusCodes`
+
+Parameters:
+
+* None.
+
+#### Retrieve root certificates ####
+
+This call returns the root certificates used for trust validation.
+
+**API Call:** `getRootCertsRaw`
 
 Parameters:
 
@@ -162,7 +172,7 @@ The remainder of the document explains the structure of the returned objects. Th
 
 * **ipAddress** - endpoint IP address, in IPv4 or IPv6 format.
 * **serverName** - server name retrieved via reverse DNS
-* **statusMessage** - assessment status message
+* **statusMessage** - assessment status message; this field will contain "Ready" if the endpoint assessment was successful.
 * **statusDetails** - code of the operation currently in progress
 * **statusDetailsMessage** - description of the operation currently in progress
 * **grade** - possible values: A+, A-, A-F, T (no trust) and M (certificate name mismatch)
@@ -194,10 +204,12 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 1 (2) - set if secure renegotiation is supported
    * bit 2 (4) - set if secure client-initiated renegotiation is supported
    * bit 3 (8) - set if the server requires secure renegotiation support
-* **stsResponseHeader** - the contents of the Strict-Transport-Security (STS) response header, if seen
-* **stsMaxAge** - the maxAge parameter extracted from the STS parameters; null if STS not seen, or -1 if the specified value is invalid (e.g., not a zero or a positive integer; the maximum value currently supported is 2,147,483,647)
-* **stsSubdomains** - true if the includeSubDomains STS parameter is set; null if STS not seen
-* **pkpResponseHeader** - the contents of the Public-Key-Pinning response header, if seen
+* **stsStatus** - deprecated
+* **stsResponseHeader** - deprecated
+* **stsMaxAge** - deprecated
+* **stsSubdomains** - deprecated
+* **stsPreload** - deprecated
+* **pkpResponseHeader** - deprecated
 * **sessionResumption** - this is an integer value that describes endpoint support for session resumption. The possible values are:
    * 0 - session resumption is not enabled and we're seeing empty session IDs
    * 1 - endpoint returns session IDs, but sessions are not resumed
@@ -217,11 +229,12 @@ The remainder of the document explains the structure of the returned objects. Th
 * **httpStatusCode** - status code of the final HTTP response seen. When submitting HTTP requests, redirections are followed, but only if they lead to the same hostname. If this field is not available, that means the HTTP request failed.
 * **httpForwarding** - available on a server that responded with a redirection to some other hostname.
 * **supportsRc4** - true if the server supports at least one RC4 suite.
+* **rc4WithModern** - true if RC4 is used with modern clients.
+* **rc4Only** - true if only RC4 suites are supported.
 * **forwardSecrecy** - indicates support for Forward Secrecy
    * bit 0 (1) - set if at least one browser from our simulations negotiated a Forward Secrecy suite.
    * bit 1 (2) - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
    * bit 2 (4) - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
-* **rc4WithModern** - true if RC4 is used with modern clients.
 * **sims** - instance of [SimDetails](#simdetails).
 * **heartbleed** - true if the server is vulnerable to the Heartbleed attack.
 * **heartbeat** - true if the server supports the Heartbeat extension.
@@ -245,13 +258,18 @@ The remainder of the document explains the structure of the returned objects. Th
   * bit 0 (1) - SCT in certificate
   * bit 1 (2) - SCT in the stapled OCSP response
   * bit 2 (4) - SCT in the TLS extension (ServerHello)
-* **dhPrimes[]** - list of hex-encoded DH primes used by the server
-* **dhUsesKnownPrimes** - whether the server uses known DH primes:
+* **dhPrimes[]** - list of hex-encoded DH primes used by the server. Not present if the server doesn't support the DH key exchange.
+* **dhUsesKnownPrimes** - whether the server uses known DH primes. Not present if the server doesn't support the DH key exchange. Possible values:
   * 0 - no
   * 1 - yes, but they're not weak
   * 2 - yes and they're weak
-* **dhYsReuse** - true if the DH ephemeral server value is reused.
+* **dhYsReuse** - true if the DH ephemeral server value is reused. Not present if the server doesn't support the DH key exchange.
 * **logjam** - true if the server uses DH parameters weaker than 1024 bits.
+* **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites.
+* **hstsPolicy** - server's HSTS policy. Experimental.
+* **hstsPreloads[]** - information about preloaded HSTS policies.
+* **hpkpPolicy** - server's HPKP policy. Experimental.
+* **hpkpRoPolicy** - server's HPKP RO (Report Only) policy. Experimental. 
 
 ### Info ###
 
@@ -259,7 +277,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **criteriaVersion** - rating criteria version as a string (e.g., "2009f")
 * **maxAssessments** - the maximum number of concurrent assessments the client is allowed to initiate.
 * **currentAssessments** - the number of ongoing assessments submitted by this client.
-* **newAssessmentCoolOff** - the cool-off period after each new assessment; you're not allowed to submit a new assessment before the cool-off expires, otherwise you'll get a 429.
+* **newAssessmentCoolOff** - the cool-off period after each new assessment, in milliseconds; you're not allowed to submit a new assessment before the cool-off expires, otherwise you'll get a 429.
 * **messages** - a list of messages (strings). Messages can be public (sent to everyone) and private (sent only to the invoking client).
                  Private messages are prefixed with "[Private]".
 
@@ -397,6 +415,54 @@ The remainder of the document explains the structure of the returned objects. Th
 * **ecdhStrength** - ECDH RSA-equivalent strength
 * **q** - 0 if the suite is insecure, null otherwise
 
+### HstsPolicy ###
+
+* **LONG_MAX_AGE** - this constant contains what SSL Labs considers to be sufficiently large max-age value
+* **header** - the contents of the HSTS response header, if present
+* **status** - HSTS status:
+   * unknown - either before the server is checked or when its HTTP response headers are not available
+   * absent - header not present
+   * present - header present and syntatically correct
+   * invalid - header present, but couldn't be parsed
+   * disabled - header present and syntatically correct, but HSTS is disabled
+* **error** - error message when error is encountered, null otherwise
+* **maxAge** - the max-age value specified in the policy; null if policy is missing or invalid or on parsing error; the maximum value currently supported is 9223372036854775807
+* **includeSubDomains** - true if the includeSubDomains directive is set; null otherwise
+* **preload** - true if the preload directive is set; null otherwise
+* **directives[][]** - list of raw policy directives
+
+### HstsPreload ###
+
+The HstsPreload object contains preload HSTS status of one source for the current hostname. Preload checks are done for the current hostname, not for a domain name. For example, a hostname "www.example.com" tested in SSL Labs would come back as "present" if there is an entry for "example.com" with includeSubDomains enabled or if there is an explicit entry for "www.example.com".
+
+* **source** - source name
+* **status** - preload status:
+   * error
+   * unknown - either before the preload status is checked, or if the information is not available for some reason.
+   * absent
+   * present
+* **error** - error message, when status is "error" 
+* **sourceTime** - time, as a Unix timestamp, when the preload database was retrieved
+
+### HpkpPolicy ###
+
+* **status** - HPKP status:
+   * unknown - either before the server is checked or when its HTTP response headers are not available
+   * absent - header not present
+   * invalid - header present, but couldn't be parsed
+   * disabled - header present and syntatically correct, but HPKP is disabled
+   * incomplete - header present and syntatically correct, incorrectly used
+   * valid - header present, syntatically correct, and correctly used
+* **header** - the contents of the HPKP response header, if present
+* **error** - error message, when the policy is invalid
+* **maxAge** - the max-age value from the policy
+* **includeSubDomains** - true if the includeSubDomains directive is set; null otherwise
+* **reportUri** - the report-uri value from the policy
+* **pins[]** - list of all pins used by the policy
+* **matchedPins[]** -  list of pins that match the current configuration
+* **directives[][]** - list of raw policy directives
+
+
 ### StatusCodes ###
 
 * **statusDetails** - a map containing all status details codes and the corresponding English translations. Please note that, once in use, the codes will not change, whereas the translations may change at any time.
@@ -430,4 +496,12 @@ The remainder of the document explains the structure of the returned objects. Th
 
 * New EndpointDetails fields: dhPrimes, dhUsesKnownPrimes, dhYsReuse, and logjam.
 * New Info field: newAssessmentCoolOff. There is now a mandatory cool-off period after each new assessment.
+
+### 1.21.x (9 December 2015) ###
+
+* New EndpointDetails fields: rc4Only, chaCha20Preference.
+* The maximum value supported by the stsMaxAge field has been increased to 9223372036854775807.
+* [Experimental] New API call: getRootCertsRaw.
+* [Experimental] HSTS information is now contained within its own structure EndpointDetails.hstsPolicy. The previously-used fields are deprecated but continue to be supported for backward compatibility. 
+* [Experimental] New fields: HPKP and HPKP-RO information is now exposed in EndpointDetails.hpkpPolicy and EndpointDetails.hpkpRoPolicy. The field pkpResponseHeader is now deprecated, but continues to be supported for backward compatibility.
 
