@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.21.9 #
+# SSL Labs API Documentation v1.21.13 #
 
-**Last update:** 1 December 2015<br>
+**Last update:** 9 December 2015<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -497,7 +497,7 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 * New EndpointDetails fields: dhPrimes, dhUsesKnownPrimes, dhYsReuse, and logjam.
 * New Info field: newAssessmentCoolOff. There is now a mandatory cool-off period after each new assessment.
 
-### 1.21.x (In development) ###
+### 1.21.x (9 December 2015) ###
 
 * New EndpointDetails fields: rc4Only, chaCha20Preference.
 * The maximum value supported by the stsMaxAge field has been increased to 9223372036854775807.
