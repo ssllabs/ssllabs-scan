@@ -51,7 +51,7 @@ const (
 	LOG_TRACE    = 8
 )
 
-var USER_AGENT = "ssllabs-scan v1.3.x (stable $Id$)"
+var USER_AGENT = "ssllabs-scan v1.3.0 (stable $Id$)"
 
 var logLevel = LOG_NOTICE
 
