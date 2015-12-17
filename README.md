@@ -43,6 +43,20 @@ OPTIONS
 | --grade     | false         | Output only the hostname: grade |
 | --hostcheck | false         | If true, host resolution failure will result in a fatal error |
 
+##Using behind a web Proxy
+
+Linux/Unix:
+```
+    export HTTP_PROXY=[http://]host[:port]
+```
+Windows:
+
+```
+    set HTTP_PROXY=[http://]host[:port]
+```
+
+The rules of Go's ProxyFromEnvironment apply (HTTP_PROXY, HTTPS_PROXY, NO_PROXY, lowercase variants allowed).
+
 ##Third-Party Tools and Libraries
 
 A list of libraries and tools that rely on the SSL Labs APIs can be found on the SSL Labs web site: https://www.ssllabs.com/projects/ssllabs-apis/
