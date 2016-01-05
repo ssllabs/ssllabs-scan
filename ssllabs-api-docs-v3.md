@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.21.13 #
+# SSL Labs API Documentation v1.22.x #
 
-**Last update:** 9 December 2015<br>
+**Last update:** 5 January 2016<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -204,12 +204,6 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 1 (2) - set if secure renegotiation is supported
    * bit 2 (4) - set if secure client-initiated renegotiation is supported
    * bit 3 (8) - set if the server requires secure renegotiation support
-* **stsStatus** - deprecated
-* **stsResponseHeader** - deprecated
-* **stsMaxAge** - deprecated
-* **stsSubdomains** - deprecated
-* **stsPreload** - deprecated
-* **pkpResponseHeader** - deprecated
 * **sessionResumption** - this is an integer value that describes endpoint support for session resumption. The possible values are:
    * 0 - session resumption is not enabled and we're seeing empty session IDs
    * 1 - endpoint returns session IDs, but sessions are not resumed
@@ -469,39 +463,6 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 
 ## Changes ##
 
-### 1.14.x (3 March 2015) ###
+### 1.22.x (Not released) ###
 
-* First public release.
-
-### 1.15.x (16 March 2015) ###
-
-* Added ignoreMismatch parameter to control if assessments proceed when server certificate does not match the assessment hostname.
-
-### 1.16.x (27 April 2015) ###
-
-* Changed API versioning to match software version numbers.
-* Added EndpointDetails.freak.
-* Added several new fields to ChainCert: notBefore, notAfter, sigAlg, keyAlg, keySize, keyStrength.
-* Field ChainCert.issues is now set to zero if there are no issues. Previously this field wouldn't exist in the JSON structure.
-* Fixed ChainCert.issues didn't flag weak (e.g., SHA1) certificates.
-* Added Cert.sct.
-* Added EndpointDetails.hasSct.
-* Added EndpointDetails.poodle.
-* Added EndpointDetails.staplingRevocationStatus and EndpointDetails.staplingRevocationErrorMessage.
-* Added Cert.crlRevocationStatus and Cert.ocspRevocationStatus.
-* Added ChainCert.revocationStatus, ChainCert.crlRevocationStatus and ChainCert.ocspRevocationStatus.
-* Added Endpoint.gradeTrustIgnored.
-
-### 1.19.x (1 August 2015) ###
-
-* New EndpointDetails fields: dhPrimes, dhUsesKnownPrimes, dhYsReuse, and logjam.
-* New Info field: newAssessmentCoolOff. There is now a mandatory cool-off period after each new assessment.
-
-### 1.21.x (9 December 2015) ###
-
-* New EndpointDetails fields: rc4Only, chaCha20Preference.
-* The maximum value supported by the stsMaxAge field has been increased to 9223372036854775807.
-* [Experimental] New API call: getRootCertsRaw.
-* [Experimental] HSTS information is now contained within its own structure EndpointDetails.hstsPolicy. The previously-used fields are deprecated but continue to be supported for backward compatibility. 
-* [Experimental] New fields: HPKP and HPKP-RO information is now exposed in EndpointDetails.hpkpPolicy and EndpointDetails.hpkpRoPolicy. The field pkpResponseHeader is now deprecated, but continues to be supported for backward compatibility.
-
+* Removed deprecated fields.
