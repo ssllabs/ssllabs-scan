@@ -1,8 +1,0 @@
-
-TODO
-----
-
-- Make the testing resumable.
-
-- Output assessment results in SSL Pulse CSV format, which is designed for
-  import into a relational database.
