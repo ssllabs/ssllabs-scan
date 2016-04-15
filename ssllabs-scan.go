@@ -234,6 +234,15 @@ type LabsHpkpPolicy struct {
 	Directives        map[string]string
 }
 
+type DrownHost struct {
+	Ip      string
+	Export  bool
+	Port    int
+	Special bool
+	Sslv2   bool
+	Status  string
+}
+
 type LabsEndpointDetails struct {
 	HostStartTime                  int64
 	Key                            LabsKey
@@ -279,6 +288,9 @@ type LabsEndpointDetails struct {
 	HstsPreloads                   []LabsHstsPreload
 	HpkpPolicy                     LabsHpkpPolicy
 	HpkpRoPolicy                   LabsHpkpPolicy
+	DrownHosts                     []DrownHost
+	DrownErrors                    bool
+	DrownVulnerable                bool
 }
 
 type LabsEndpoint struct {
