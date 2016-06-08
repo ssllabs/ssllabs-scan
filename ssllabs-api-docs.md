@@ -244,6 +244,11 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - not vulnerable
    * 2 - possibly vulnerable, but not exploitable
    * 3 - vulnerable and exploitable
+* **openSSLLuckyMinus20** - results of the CVE-2016-2107 test:
+   * -1 - test failed
+   * 0 - unknown
+   * 1 - not vulnerable
+   * 2 - vulnerable and insecure
 * **poodle** - true if the endpoint is vulnerable to POODLE; false otherwise
 * **poodleTls** - results of the POODLE TLS test:
    * -3 - timeout
@@ -270,6 +275,9 @@ The remainder of the document explains the structure of the returned objects. Th
 * **hstsPreloads[]** - information about preloaded HSTS policies.
 * **hpkpPolicy** - server's HPKP policy. Experimental.
 * **hpkpRoPolicy** - server's HPKP RO (Report Only) policy. Experimental. 
+* **drownHosts[]** - list of [drown hosts](#drownhosts). Experimental.
+* **drownErrors** - true if error occurred in drown test.
+* **drownVulnerable** - true if server vulnerable to drown attack.
 
 ### Info ###
 
@@ -462,7 +470,23 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 * **matchedPins[]** -  list of pins that match the current configuration
 * **directives[][]** - list of raw policy directives
 
+### DrownHosts ###
 
+* **ip** - Ip address of server that shares same RSA-Key/hostname in its certificate
+* **export** - true if export cipher suites detected
+* **port** - port number of the server
+* **special** - true if vulnerable OpenSSL version detected
+* **sslv2** - true if SSL v2 is supported
+* **status** - drown host status:
+   * error - error occurred in test
+   * unknown - before the status is checked
+   * not_checked - not checked if already vulnerable server found
+   * not_checked_same_host - Not checked (same host)
+   * handshake_failure - when SSL v2 not supported by server
+   * sslv2 - SSL v2 supported but not same rsa key
+   * key_match - vulnerable (same key with SSL v2)
+   * hostname_match - vulnerable (same hostname with SSL v2)
+   
 ### StatusCodes ###
 
 * **statusDetails** - a map containing all status details codes and the corresponding English translations. Please note that, once in use, the codes will not change, whereas the translations may change at any time.
