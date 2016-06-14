@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.21.13 #
+# SSL Labs API Documentation v1.23.44 #
 
-**Last update:** 9 December 2015<br>
+**Last update:** 14 June 2016<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -528,4 +528,8 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 * [Experimental] New API call: getRootCertsRaw.
 * [Experimental] HSTS information is now contained within its own structure EndpointDetails.hstsPolicy. The previously-used fields are deprecated but continue to be supported for backward compatibility. 
 * [Experimental] New fields: HPKP and HPKP-RO information is now exposed in EndpointDetails.hpkpPolicy and EndpointDetails.hpkpRoPolicy. The field pkpResponseHeader is now deprecated, but continues to be supported for backward compatibility.
+
+### 1.23.x (14 June 2016) ###
+ * Added EndpointDetails for DROWN. Fields: drownHosts list which uses DrownHosts structure, drownErrors and drownVulnerable.
+ * Added EndpointDetails for CVE-2016-2107. Fields: openSSLLuckyMinus20.
 
