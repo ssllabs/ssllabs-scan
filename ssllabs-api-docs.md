@@ -336,6 +336,10 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 7 (128) - blacklisted
    * bit 8 (256) - insecure signature
 * **sct** - true if the certificate contains an embedded SCT; false otherwise.
+* **mustStaple** - a number that describes the must staple feature extension status:
+   * 0 - not supported
+   * 1 - Supported, but OCSP response is not stapled
+   * 2 - Supported, OCSP response is stapled
 
 ### Chain ###
 
@@ -532,4 +536,5 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 ### 1.23.x (14 June 2016) ###
  * Added EndpointDetails for DROWN. Fields: drownHosts list which uses DrownHosts structure, drownErrors and drownVulnerable.
  * Added EndpointDetails for CVE-2016-2107. Fields: openSSLLuckyMinus20.
+ * New Cert field: mustStaple.
 
