@@ -890,7 +890,10 @@ func readLines(path *string) ([]string, error) {
 	var lines []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		var line = strings.TrimSpace(scanner.Text())
+		if (!strings.HasPrefix(line, "#")) && (line != "") {
+			lines = append(lines, line)
+		}
 	}
 	return lines, scanner.Err()
 }
