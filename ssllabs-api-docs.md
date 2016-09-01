@@ -1,7 +1,6 @@
-# SSL Labs API Documentation v1.23.44 #
+# SSL Labs API Documentation v1.24.0 #
 
-**Last update:** 14 June 2016<br>
-**Author:** Ivan Ristic <iristic@qualys.com>
+**Last update:** 1 September 2016
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
 
@@ -235,6 +234,17 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 0 (1) - set if at least one browser from our simulations negotiated a Forward Secrecy suite.
    * bit 1 (2) - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
    * bit 2 (4) - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
+* **protocolIntolerance** - indicates protocol version intolerance issues:
+   * bit 0 (1) - TLS 1.0
+   * bit 1 (2) - TLS 1.1
+   * bit 2 (4) - TLS 1.2
+   * bit 3 (8) - TLS 1.3
+   * bit 4 (16) - TLS 1.152
+   * bit 5 (32) - TLS 2.152
+* **miscIntolerance** - indicates various other types of intolerance:
+   * bit 0 (1) - extension intolerance
+   * bit 1 (2) - long handshake intolerance
+   * bit 2 (4) - long handshake intolerance workaround success
 * **sims** - instance of [SimDetails](#simdetails).
 * **heartbleed** - true if the server is vulnerable to the Heartbleed attack.
 * **heartbeat** - true if the server supports the Heartbeat extension.
@@ -534,7 +544,9 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 * [Experimental] New fields: HPKP and HPKP-RO information is now exposed in EndpointDetails.hpkpPolicy and EndpointDetails.hpkpRoPolicy. The field pkpResponseHeader is now deprecated, but continues to be supported for backward compatibility.
 
 ### 1.23.x (14 June 2016) ###
- * Added EndpointDetails for DROWN. Fields: drownHosts list which uses DrownHosts structure, drownErrors and drownVulnerable.
- * Added EndpointDetails for CVE-2016-2107. Fields: openSSLLuckyMinus20.
- * New Cert field: mustStaple.
-
+ * Added EndpointDetails fields: drownHosts list which uses DrownHosts structure, drownErrors and drownVulnerable.
+ * Added EndpointDetails fields: openSSLLuckyMinus20.
+ * Added Cert field: mustStaple.
+ 
+### 1.24.x (1 September 2016) ###
+ * Added EndpointDetails fields: protocolIntolerance and miscIntolerance.
