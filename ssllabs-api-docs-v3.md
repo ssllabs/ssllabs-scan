@@ -453,7 +453,7 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 * **includeSubDomains** - true if the includeSubDomains directive is set; null otherwise
 * **reportUri** - the report-uri value from the policy
 * **pins[]** - list of all pins used by the policy
-* **matchedPins[]** -  list of pins that match the current configuration
+* **matchedPins[]** - list of pins that match the current configuration; each list entry contains an object with two fields, `hashFunction` and `value` (hex-encoded)
 * **directives[][]** - list of raw policy directives
 
 
