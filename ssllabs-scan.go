@@ -176,6 +176,7 @@ type LabsSimulation struct {
 	Attempts   int
 	ProtocolId int
 	SuiteId    int
+	KxInfo     string
 }
 
 type LabsSimDetails struct {
@@ -223,6 +224,11 @@ type LabsHpkpPin struct {
 	Value        string
 }
 
+type LabsHpkpDirective struct {
+	Name         string
+	Value        string
+}
+
 type LabsHpkpPolicy struct {
 	Header            string
 	Status            string
@@ -232,7 +238,7 @@ type LabsHpkpPolicy struct {
 	ReportUri         string
 	Pins              []LabsHpkpPin
 	MatchedPins       []LabsHpkpPin
-	Directives        map[string]string
+	Directives        []LabsHpkpDirective
 }
 
 type DrownHost struct {
