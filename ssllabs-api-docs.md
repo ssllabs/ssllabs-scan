@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.24.0 #
+# SSL Labs API Documentation v1.24.4 #
 
-**Last update:** 1 September 2016
+**Last update:** 22 October 2016
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
 
@@ -418,6 +418,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **attempts** - always 1 with the current implementation.
 * **protocolId** - Negotiated protocol ID.
 * **suiteId** - Negotiated suite ID.
+* **kxInfo** - key exchange info.
 
 ### Suites ###
 
@@ -550,3 +551,4 @@ The HstsPreload object contains preload HSTS status of one source for the curren
  
 ### 1.24.x (1 September 2016) ###
  * Added EndpointDetails fields: protocolIntolerance and miscIntolerance.
+ * Added Simulation field: kxInfo
