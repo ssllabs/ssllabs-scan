@@ -21,6 +21,12 @@ https://www.ssllabs.com/about/terms.html
 
 * Go >= 1.3
 
+## Installation
+
+Download binaries for your platform from https://github.com/ssllabs/ssllabs-scan/releases, or install from source
+
+    go get github.com/ssllabs/ssllabs-scan
+
 ##Usage 
 
 SYNOPSIS
