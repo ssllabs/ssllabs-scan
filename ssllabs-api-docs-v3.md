@@ -1,6 +1,6 @@
-# SSL Labs API Documentation v1.22.x (In Development)#
+# SSL Labs API v3 Documentation v1.26.x (work in progress)#
 
-**Last update:** 5 January 2016<br>
+**Last update:** 13 January 2017<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -190,11 +190,13 @@ The remainder of the document explains the structure of the returned objects. Th
 ### EndpointDetails ###
 
 * **hostStartTime** = endpoint assessment starting time, in milliseconds since 1970. This field is useful when test results are retrieved in several HTTP invocations. Then, you should check that the hostStartTime value matches the startTime value of the host.
+* **certChains** - TODO
 * **key{}** - [key information](#key)
 * **cert{}** - [certificate information](#cert)
 * **chain{}** - [chain information](#chain)
 * **protocols[]** - supported [protocols](#protocol)
 * **suites{}** - supported [cipher suites](#suites)
+* **namedCurves** - instance of [NamedCurves](#NamedCurves] object.
 * **serverSignature** - Contents of the HTTP Server response header when known. This field could be absent for one of two reasons: 1) the HTTP request failed (check httpStatusCode) or 2) there was no Server response header returned.
 * **prefixDelegation** - true if this endpoint is reachable via a hostname with the www prefix
 * **nonPrefixDelegation** (moved here from the summary) - true if this endpoint is reachable via a hostname without the www prefix
@@ -258,12 +260,17 @@ The remainder of the document explains the structure of the returned objects. Th
   * 1 - yes, but they're not weak
   * 2 - yes and they're weak
 * **dhYsReuse** - true if the DH ephemeral server value is reused. Not present if the server doesn't support the DH key exchange.
+* **ecdhParameterReuse** - true if the server reuses its ECDHE values
 * **logjam** - true if the server uses DH parameters weaker than 1024 bits.
 * **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites.
 * **hstsPolicy** - server's HSTS policy. Experimental.
 * **hstsPreloads[]** - information about preloaded HSTS policies.
 * **hpkpPolicy** - server's HPKP policy. Experimental.
-* **hpkpRoPolicy** - server's HPKP RO (Report Only) policy. Experimental. 
+* **hpkpRoPolicy** - server's HPKP RO (Report Only) policy. Experimental.
+* **httpTransactions** - an array of [HttpTransaction](#HttpTransaction) objects.
+* **drownHosts[]** - list of DROWN hosts. Experimental.
+* **drownErrors** - true if error occurred in the DROWN test.
+* **drownVulnerable** - true if server vulnerable to the DROWN attack.
 
 ### Info ###
 
@@ -388,11 +395,25 @@ The remainder of the document explains the structure of the returned objects. Th
 * **client** - instance of [SimClient](#simclient).
 * **errorCode** - zero if handshake was successful, 1 if it was not.
 * **attempts** - always 1 with the current implementation.
-* **protocolId** - Negotiated protocol ID.
-* **suiteId** - Negotiated suite ID.
+* **protocolId** - negotiated protocol ID.
+* **suiteId** - negotiated suite ID.
+* **suiteName** - negotiated suite Name.
+* **kxType** - negotiated key exchange, for example "RSA".
+* **kxStrength** - negotiated key exchange strength, in RSA-equivalent bits.
+* **ecdhBits** - when ECDHE is negotiated, length of EC parameters.
+* **ecdhCurveId** - when ECDHE is negotiated, EC curve ID.
+* **ecdhCurveName** - when ECDHE is negotiated, EC curve nanme (e.g., "secp256r1").
+* **keyAlg** - connection certificate key algorithsm (e.g., "RSA").
+* **keySize** - connection certificate key size (e.g., 2048).
+* **sigAlg** - connection certificate signature algorithm (e.g, "SHA256withRSA").
 
 ### Suites ###
 
+This object is an array of [ProtocolSuites](#protocolsuites) objects.
+
+### ProtocolSuites ###
+
+* **protocol** - protocol version.
 * **list[]** - list of [Suite objects](#suite)
 * **preference** - true if the server actively selects cipher suites; if null, we were not able to determine if the server has a preference
 
@@ -401,12 +422,14 @@ The remainder of the document explains the structure of the returned objects. Th
 * **id** - suite RFC ID (e.g., 5)
 * **name** - suite name (e.g., TLS_RSA_WITH_RC4_128_SHA)
 * **cipherStrength** - suite strength (e.g., 128)
-* **dhStrength** - strength of DH params (e.g., 1024)
+* **kxType** -
+* **kxStrength** - key exchange strength, in RSA-equivalent bits
 * **dhP** - DH params, p component
 * **dhG** - DH params, g component
 * **dhYs** - DH params, Ys component
-* **ecdhBits** - ECDH bits
-* **ecdhStrength** - ECDH RSA-equivalent strength
+* **ecdhBits** - EC bits
+* **ecdhCurveId** - EC curve ID
+* **ecdhCurveName** - EC curve name
 * **q** - 0 if the suite is insecure, null otherwise
 
 ### HstsPolicy ###
@@ -456,13 +479,28 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 * **matchedPins[]** - list of pins that match the current configuration; each list entry contains an object with two fields, `hashFunction` and `value` (hex-encoded)
 * **directives[][]** - list of raw policy directives
 
+### HttpTransaction ###
+
+* **requestUrl** - request URL
+* **statusCode** - response status code
+* **requestLine** - the entire request line as a single field
+* **requestHeaders[]** - an array of request HTTP headers, each with name and value
+* **responseLine** - the entire response line as a single field
+* **responseHeadersRaw** - all response headers as a single field (useful if the headers are malformed)
+* **responseHeaders[]** - an array of response HTTP headers, each with name and value
+* **fragileServer** - true if the server crashes when inspected by SSL Labs (in which case the full test is refused)
+
+### NamedCurves ###
+ 
+* **list** - an array of [NamedCurve](#NamedCurve) objects
+* **preference** - true if the server has preferred curves that it uses first
+
+### NamedCurve ### 
+
+* **curveId** - named curve ID
+* **curveName** - named curve name
+* **bits** - named curve strength in EC bits
 
 ### StatusCodes ###
 
 * **statusDetails** - a map containing all status details codes and the corresponding English translations. Please note that, once in use, the codes will not change, whereas the translations may change at any time.
-
-## Changes ##
-
-### 1.22.x (Not released) ###
-
-* Removed deprecated fields.
