@@ -291,7 +291,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **logjam** - true if the server uses DH parameters weaker than 1024 bits.
 * **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites.
 * **hstsPolicy{}** - server's [HSTS policy](#hstspolicy). Experimental.
-* **hstsPreloads[]** - information about[preloaded HSTS policies](#hstspreload).
+* **hstsPreloads[]** - information about [preloaded HSTS policies](#hstspreload).
 * **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy).
 * **hpkpRoPolicy{}** - server's [HPKP-RO policy](#hpkppolicy).
 * **httpTransactions[]** - an array of [HttpTransaction](#httptransaction) objects.
