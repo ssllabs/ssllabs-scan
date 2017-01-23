@@ -363,11 +363,15 @@ The remainder of the document explains the structure of the returned objects. Th
 * **list** - an array of [NamedGroup](#namedgroup) objects
 * **preference** - true if the server has preferred curves that it uses first
 
-### NamedGroup ### 
+
+
+### NamedGroup ###
 
 * **Id** - named curve ID
 * **Name** - named curve name
 * **bits** - named curve strength in EC bits
+
+
 ### SimDetails ###
 
 * **results[]** - instances of [Simulation](#simulation).
