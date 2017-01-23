@@ -204,7 +204,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **hostStartTime** = endpoint assessment starting time, in milliseconds since 1970. This field is useful when test results are retrieved in several HTTP invocations. Then, you should check that the hostStartTime value matches the startTime value of the host.
 * **certChains[]** - Server [Certificate chains](#certificatechain)
 * **protocols[]** - supported [protocols](#protocol)
-* **suites[]** - supported [cipher suites] per protocol (#protocolsuites)
+* **suites[]** - supported [cipher suites](#protocolsuites) per protocol 
 * **noSniSuites** - [cipher suites](#protocolsuites) observed only with client that does not support Server Name Indication (SNI).
 * **namedGroups** - instance of [NamedGroups](#namedgroups) object.
 * **serverSignature** - Contents of the HTTP Server response header when known. This field could be absent for one of two reasons: 1) the HTTP request failed (check httpStatusCode) or 2) there was no Server response header returned.
