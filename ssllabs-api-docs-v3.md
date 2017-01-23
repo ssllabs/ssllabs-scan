@@ -178,7 +178,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **cacheExpiryTime** - when will the assessment results expire from the cache (typically set only for assessment with errors; otherwise the results stay in the cache for as long as there's sufficient room)
 * **certHostnames[]** - the list of certificate hostnames collected from the certificates seen during assessment. The hostnames may not be valid. This field is available only if the server certificate doesn't match the requested hostname. In that case, this field saves you some time as you don't have to inspect the certificates yourself to find out what valid hostnames might be.
 * **endpoints[]** - list of [Endpoint objects](#endpoint)
-* **certs[]** - a list of [Cert object](#certs), representing the chain certificates in the order in which they were retrieved from the server.
+* **certs[]** - a list of [Cert object](#cert), representing the chain certificates in the order in which they were retrieved from the server.
 
 ### Endpoint ###
 
@@ -197,16 +197,16 @@ The remainder of the document explains the structure of the returned objects. Th
 * **delegation** - indicates domain name delegation with and without the www prefix
    * bit 0 (1) - set for non-prefixed access
    * bit 1 (2) - set for prefixed access
-* **details** - this field contains an [EndpointDetails object](#EndpointDetails). It's not present by default, but can be enabled by using the "all" parameter to the `analyze` API call.
+* **details** - this field contains an [EndpointDetails object](#endpointdetails). It's not present by default, but can be enabled by using the "all" parameter to the `analyze` API call.
 
 ### EndpointDetails ###
 
 * **hostStartTime** = endpoint assessment starting time, in milliseconds since 1970. This field is useful when test results are retrieved in several HTTP invocations. Then, you should check that the hostStartTime value matches the startTime value of the host.
-* **certChains[]** - Server [Certificate chains](#CertificateChain)
+* **certChains[]** - Server [Certificate chains](#certificatechain)
 * **protocols[]** - supported [protocols](#protocol)
-* **suites[]** - supported [cipher suites] per protocol (#ProtocolSuites)
-* **noSniSuites** - [cipher suites](#ProtocolSuites) observed only with client that does not support Server Name Indication (SNI).
-* **namedGroups** - instance of [NamedGroups](#NamedGroups) object.
+* **suites[]** - supported [cipher suites] per protocol (#protocolsuites)
+* **noSniSuites** - [cipher suites](#protocolsuites) observed only with client that does not support Server Name Indication (SNI).
+* **namedGroups** - instance of [NamedGroups](#namedgroups) object.
 * **serverSignature** - Contents of the HTTP Server response header when known. This field could be absent for one of two reasons: 1) the HTTP request failed (check httpStatusCode) or 2) there was no Server response header returned.
 * **prefixDelegation** - true if this endpoint is reachable via a hostname with the www prefix
 * **nonPrefixDelegation** (moved here from the summary) - true if this endpoint is reachable via a hostname without the www prefix
@@ -294,7 +294,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **hstsPreloads[]** - information about[preloaded HSTS policies](#hstspreload).
 * **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy).
 * **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy).
-* **httpTransactions[]** - an array of [HttpTransaction](#HttpTransaction) objects.
+* **httpTransactions[]** - an array of [HttpTransaction](#httptransaction) objects.
 * **drownHosts[]** - list of [DROWN hosts](#drownhosts).
 * **drownErrors** - true if error occurred in the DROWN test.
 * **drownVulnerable** - true if server vulnerable to the DROWN attack.
@@ -360,7 +360,7 @@ The remainder of the document explains the structure of the returned objects. Th
 
 ### NamedGroups ###
  
-* **list** - an array of [NamedGroup](#NamedGroup) objects
+* **list** - an array of [NamedGroup](#namedgroup) objects
 * **preference** - true if the server has preferred curves that it uses first
 
 ### NamedGroup ### 
@@ -479,8 +479,7 @@ The HstsPreload object contains preload HSTS status of one source for the curren
    * key_match - vulnerable (same key with SSL v2)
    * hostname_match - vulnerable (same hostname with SSL v2)
    
-   
-   
+      
 ### Cert ###
 
 * **id** - certificate ID
