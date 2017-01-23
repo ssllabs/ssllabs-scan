@@ -152,21 +152,33 @@ The remainder of the document explains the structure of the returned objects. Th
 * **object{}** - an object
 * **array[]** - an array
 
+
+### Info ###
+
+* **engineVersion** - SSL Labs software version as a string (e.g., "1.11.14")
+* **criteriaVersion** - rating criteria version as a string (e.g., "2009f")
+* **maxAssessments** - the maximum number of concurrent assessments the client is allowed to initiate.
+* **currentAssessments** - the number of ongoing assessments submitted by this client.
+* **newAssessmentCoolOff** - the cool-off period after each new assessment, in milliseconds; you're not allowed to submit a new assessment before the cool-off expires, otherwise you'll get a 429.
+* **messages** - a list of messages (strings). Messages can be public (sent to everyone) and private (sent only to the invoking client).
+                 Private messages are prefixed with "[Private]".
+
 ### Host ###
 
 * **host** - assessment host, which can be a hostname or an IP address
 * **port** - assessment port (e.g., 443)
 * **protocol** - protocol (e.g., HTTP)
-* **isPublic** - true if this assessment publicly available (listed on the SSL Labs assessment boards)
+* **isPublic** - true if this assessment is publicly available (listed on the SSL Labs assessment boards)
 * **status** - assessment status; possible values: DNS, ERROR, IN_PROGRESS, and READY.
 * **statusMessage** - status message in English. When status is ERROR, this field will contain an error message.
 * **startTime** - assessment starting time, in milliseconds since 1970
 * **testTime** - assessment completion time, in milliseconds since 1970
-* **engineVersion** - assessment engine version (e.g., "1.0.120")
-* **criteriaVersion** - grading criteria version (e.g., "2009")
+* **engineVersion** - assessment engine version (e.g., "1.26.5")
+* **criteriaVersion** - grading criteria version (e.g., "2009l")
 * **cacheExpiryTime** - when will the assessment results expire from the cache (typically set only for assessment with errors; otherwise the results stay in the cache for as long as there's sufficient room)
-* **endpoints[]** - list of [Endpoint objects](#endpoint)
 * **certHostnames[]** - the list of certificate hostnames collected from the certificates seen during assessment. The hostnames may not be valid. This field is available only if the server certificate doesn't match the requested hostname. In that case, this field saves you some time as you don't have to inspect the certificates yourself to find out what valid hostnames might be.
+* **endpoints[]** - list of [Endpoint objects](#endpoint)
+* **certs[]** - a list of [Cert object](#certs), representing the chain certificates in the order in which they were retrieved from the server.
 
 ### Endpoint ###
 
@@ -185,18 +197,16 @@ The remainder of the document explains the structure of the returned objects. Th
 * **delegation** - indicates domain name delegation with and without the www prefix
    * bit 0 (1) - set for non-prefixed access
    * bit 1 (2) - set for prefixed access
-* **details** - this field contains an EndpointDetails object. It's not present by default, but can be enabled by using the "all" paramerer to the `analyze` API call.
+* **details** - this field contains an [EndpointDetails object](#EndpointDetails). It's not present by default, but can be enabled by using the "all" parameter to the `analyze` API call.
 
 ### EndpointDetails ###
 
 * **hostStartTime** = endpoint assessment starting time, in milliseconds since 1970. This field is useful when test results are retrieved in several HTTP invocations. Then, you should check that the hostStartTime value matches the startTime value of the host.
-* **certChains** - TODO
-* **key{}** - [key information](#key)
-* **cert{}** - [certificate information](#cert)
-* **chain{}** - [chain information](#chain)
+* **certChains[]** - Server [Certificate chains](#CertificateChain)
 * **protocols[]** - supported [protocols](#protocol)
-* **suites{}** - supported [cipher suites](#suites)
-* **namedCurves** - instance of [NamedCurves](#NamedCurves] object.
+* **suites[]** - supported [cipher suites] per protocol (#ProtocolSuites)
+* **noSniSuites** - [cipher suites](#ProtocolSuites) observed only with client that does not support Server Name Indication (SNI).
+* **namedGroups** - instance of [NamedGroups](#NamedGroups) object.
 * **serverSignature** - Contents of the HTTP Server response header when known. This field could be absent for one of two reasons: 1) the HTTP request failed (check httpStatusCode) or 2) there was no Server response header returned.
 * **prefixDelegation** - true if this endpoint is reachable via a hostname with the www prefix
 * **nonPrefixDelegation** (moved here from the summary) - true if this endpoint is reachable via a hostname without the www prefix
@@ -214,6 +224,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 0 is set for DEFLATE
 * **supportsNpn** - true if the server supports NPN
 * **npnProtocols** - space separated list of supported protocols
+* **supportsAlpn** - true if the server supports ALPN
 * **sessionTickets** - indicates support for Session Tickets
    * bit 0 (1) - set if session tickets are supported
    * bit 1 (2) - set if the implementation is faulty [not implemented]
@@ -231,6 +242,17 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 0 (1) - set if at least one browser from our simulations negotiated a Forward Secrecy suite.
    * bit 1 (2) - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
    * bit 2 (4) - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
+* **protocolIntolerance** - indicates protocol version intolerance issues:
+   * bit 0 (1) - TLS 1.0
+   * bit 1 (2) - TLS 1.1
+   * bit 2 (4) - TLS 1.2
+   * bit 3 (8) - TLS 1.3
+   * bit 4 (16) - TLS 1.152
+   * bit 5 (32) - TLS 2.152
+* **miscIntolerance** - indicates various other types of intolerance:
+   * bit 0 (1) - extension intolerance
+   * bit 1 (2) - long handshake intolerance
+   * bit 2 (4) - long handshake intolerance workaround success
 * **sims** - instance of [SimDetails](#simdetails).
 * **heartbleed** - true if the server is vulnerable to the Heartbleed attack.
 * **heartbeat** - true if the server supports the Heartbeat extension.
@@ -240,6 +262,11 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - not vulnerable
    * 2 - possibly vulnerable, but not exploitable
    * 3 - vulnerable and exploitable
+* **openSSLLuckyMinus20** - results of the CVE-2016-2107 test:
+   * -1 - test failed
+   * 0 - unknown
+   * 1 - not vulnerable
+   * 2 - vulnerable and insecure
 * **poodle** - true if the endpoint is vulnerable to POODLE; false otherwise
 * **poodleTls** - results of the POODLE TLS test:
    * -3 - timeout
@@ -249,7 +276,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - not vulnerable
    * 2 - vulnerable
 * **fallbackScsv** - true if the server supports TLS_FALLBACK_SCSV, false if it doesn't. This field will not be available if the server's support for TLS_FALLBACK_SCSV can't be tested because it supports only one protocol version (e.g., only TLS 1.2).
-* **freak** - true of the server is vulnerable to the FREAK attack, meaning it supports 512-bit key exchange.
+* **freak** - true if the server is vulnerable to the FREAK attack, meaning it supports 512-bit key exchange.
 * **hasSct** - information about the availability of certificate transparency information (embedded SCTs):
   * bit 0 (1) - SCT in certificate
   * bit 1 (2) - SCT in the stapled OCSP response
@@ -263,76 +290,20 @@ The remainder of the document explains the structure of the returned objects. Th
 * **ecdhParameterReuse** - true if the server reuses its ECDHE values
 * **logjam** - true if the server uses DH parameters weaker than 1024 bits.
 * **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites.
-* **hstsPolicy** - server's HSTS policy. Experimental.
-* **hstsPreloads[]** - information about preloaded HSTS policies.
-* **hpkpPolicy** - server's HPKP policy. Experimental.
-* **hpkpRoPolicy** - server's HPKP RO (Report Only) policy. Experimental.
-* **httpTransactions** - an array of [HttpTransaction](#HttpTransaction) objects.
-* **drownHosts[]** - list of DROWN hosts. Experimental.
+* **hstsPolicy{}** - server's [HSTS policy](#hstspolicy). Experimental.
+* **hstsPreloads[]** - information about[preloaded HSTS policies](#hstspreload).
+* **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy).
+* **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy).
+* **httpTransactions[]** - an array of [HttpTransaction](#HttpTransaction) objects.
+* **drownHosts[]** - list of [DROWN hosts](#drownhosts).
 * **drownErrors** - true if error occurred in the DROWN test.
 * **drownVulnerable** - true if server vulnerable to the DROWN attack.
 
-### Info ###
+### CertificateChain ###
 
-* **version** - SSL Labs software version as a string (e.g., "1.11.14")
-* **criteriaVersion** - rating criteria version as a string (e.g., "2009f")
-* **maxAssessments** - the maximum number of concurrent assessments the client is allowed to initiate.
-* **currentAssessments** - the number of ongoing assessments submitted by this client.
-* **newAssessmentCoolOff** - the cool-off period after each new assessment, in milliseconds; you're not allowed to submit a new assessment before the cool-off expires, otherwise you'll get a 429.
-* **messages** - a list of messages (strings). Messages can be public (sent to everyone) and private (sent only to the invoking client).
-                 Private messages are prefixed with "[Private]".
-
-### Key ###
-
-* **size** - key size, e.g., 1024 or 2048 for RSA and DSA, or 256 bits for EC.
-* **strength** - key size expressed in RSA bits.
-* **alg** - key algorithm; possible values: RSA, DSA, and EC.
-* **debianFlaw** - true if we suspect that the key was generated using a weak random number generator (detected via a blacklist database)
-* **q** - 0 if key is insecure, null otherwise
-
-### Cert ###
-
-* **subject** - certificate subject
-* **commonNames[]** - common names extracted from the subject
-* **altNames[]** - alternative names
-* **notBefore** - timestamp before which the certificate is not valid
-* **notAfter** - timestamp after which the certificate is not valid
-* **issuerSubject** -  issuer subject
-* **sigAlg** - certificate signature algorithm
-* **issuerLabel** - issuer name
-* **revocationInfo** - a number that represents revocation information present in the certificate:
-   * bit 0 (1) - CRL information available
-   * bit 1 (2) - OCSP information available
-* **crlURIs[]** - CRL URIs extracted from the certificate
-* **ocspURIs[]** -  OCSP URIs extracted from the certificate
-* **revocationStatus** - a number that describes the revocation status of the certificate:
-   * 0 - not checked
-   * 1 - certificate revoked
-   * 2 - certificate not revoked
-   * 3 - revocation check error
-   * 4 - no revocation information
-   * 5 - internal error
-* **crlRevocationStatus** - same as revocationStatus, but only for the CRL information (if any).
-* **ocspRevocationStatus** - same as revocationStatus, but only for the OCSP information (if any).
-* **sgc** - Server Gated Cryptography support; integer:
-   * bit 1 (1) - Netscape SGC
-   * bit 2 (2) - Microsoft SGC
-* **validationType** - E for Extended Validation certificates; may be null if unable to determine
-* **issues** - list of certificate issues, one bit per issue:
-   * bit 0 (1) - no chain of trust
-   * bit 1 (2) - not before
-   * bit 2 (4) - not after
-   * bit 3 (8) - hostname mismatch
-   * bit 4 (16) - revoked
-   * bit 5 (32) - bad common name
-   * bit 6 (64) - self-signed
-   * bit 7 (128) - blacklisted
-   * bit 8 (256) - insecure signature
-* **sct** - true if the certificate contains an embedded SCT; false otherwise.
-
-### Chain ###
-
-* **certs[]** - a list of [ChainCert objects](#chaincert), representing the chain certificates in the order in which they were retrieved from the server
+* **id** - Certificate chain ID
+* **certIds[]** - list of IDs of each [certificate](#certificate), representing the chain certificates in the order in which they were retrieved from the server
+* **trustPaths[]** - [trust path object](#trustpath)
 * **issues** - a number of flags that describe the chain and the problems it has:
    * bit 0 (1) - unused
    * bit 1 (2) - incomplete chain (set only when we were able to build a chain by adding missing intermediate certificates from external sources)
@@ -341,75 +312,29 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 4 (16) - contains a self-signed root certificate (not set for self-signed leafs)
    * bit 5 (32) - the certificates form a chain (if we added external certificates, bit 1 will be set), but we could not validate it. If the leaf was trusted, that means that we built a different chain we trusted.
 
-### ChainCert ###
+* **noSni** - true for certificate obtained only with No Server Name Indication (SNI).
 
-* **subject** - certificate subject
-* **label** - certificate label (user-friendly name)
-* **notBefore** -
-* **notAfter** -
-* **issuerSubject** - issuer subject
-* **issuerLabel** - issuer label (user-friendly name)
-* **sigAlg** -
-* **issues** - a number of flags the describe the problems with this certificate:
-   * bit 0 (1) - certificate not yet valid
-   * bit 1 (2) - certificate expired
-   * bit 2 (4) - weak key
-   * bit 3 (8) - weak signature
-   * bit 4 (16) - blacklisted
-* **keyAlg** - key algorithm.
-* **keySize** - key size, in bits appopriate for the key algorithm.
-* **keyStrength** - key strength, in equivalent RSA bits.
-* **revocationStatus** - a number that describes the revocation status of the certificate:
-   * 0 - not checked
-   * 1 - certificate revoked
-   * 2 - certificate not revoked
-   * 3 - revocation check error
-   * 4 - no revocation information
-   * 5 - internal error
-* **crlRevocationStatus** - same as revocationStatus, but only for the CRL information (if any).
-* **ocspRevocationStatus** - same as revocationStatus, but only for the OCSP information (if any).
-* **raw** - PEM-encoded certificate data
+### trustPath ###
+
+* **certIds[]** - list of certificate ID from leaf to root.
+* **trust[]** - [trust object](#trust). This object shows info about the trusted certificate by using Mozilla trust store.
+* **isPinned** - true if a key is pinned, else false
+* **mactchedPins** - number of matched pins with HPKP policy
+* **unmatchedPins** - number of unmatched pins with HPKP policy
+
+### trust ###
+
+* **rootStore** - this field shows the Trust store being used (eg. "Mozilla")
+* **isTrusted** - true if trusted against above rootStore
+* **trustErrorMessage** - shows the error message if any, Null otherwise.
 
 ### Protocol ###
 
-* **id** - protocol version number, e.g. 0x0303 for TLS 1.2
-* **name** - protocol name, i.e. SSL or TLS.
-* **version** - protocol version, e.g. 1.2 (for TLS)
+* **id** - protocol version, e.g. 771 for TLS 1.2 (0x0303)
+* **name** - protocol name SSL/TLS.
+* **version** - protocol version, e.g. 1.2, 1.1 etc
 * **v2SuitesDisabled** - some servers have SSLv2 protocol enabled, but with all SSLv2 cipher suites disabled. In that case, this field is set to true.
 * **q** - 0 if the protocol is insecure, null otherwise
-
-### SimClient ###
-
-* **id** - unique client ID (integer)
-* **name** - text.
-* **platform** - text.
-* **version** - text.
-* **isReference** - true if the browser is considered representative of modern browsers, false otherwise. This flag does not correlate to client's capabilities, but is used by SSL Labs to determine if a particular configuration is effective. For example, to track Forward Secrecy support, we mark several representative browsers as "modern" and then test to see if they succeed in negotiating a FS suite. Just as an illustration, modern browsers are currently Chrome, Firefox (not ESR versions), IE/Win7, and Safari.
-
-### SimDetails ###
-
-* **results[]** - instances of [Simulation](#simulation).
-
-### Simulation ###
-
-* **client** - instance of [SimClient](#simclient).
-* **errorCode** - zero if handshake was successful, 1 if it was not.
-* **attempts** - always 1 with the current implementation.
-* **protocolId** - negotiated protocol ID.
-* **suiteId** - negotiated suite ID.
-* **suiteName** - negotiated suite Name.
-* **kxType** - negotiated key exchange, for example "RSA".
-* **kxStrength** - negotiated key exchange strength, in RSA-equivalent bits.
-* **ecdhBits** - when ECDHE is negotiated, length of EC parameters.
-* **ecdhCurveId** - when ECDHE is negotiated, EC curve ID.
-* **ecdhCurveName** - when ECDHE is negotiated, EC curve nanme (e.g., "secp256r1").
-* **keyAlg** - connection certificate key algorithsm (e.g., "RSA").
-* **keySize** - connection certificate key size (e.g., 2048).
-* **sigAlg** - connection certificate signature algorithm (e.g, "SHA256withRSA").
-
-### Suites ###
-
-This object is an array of [ProtocolSuites](#protocolsuites) objects.
 
 ### ProtocolSuites ###
 
@@ -427,10 +352,56 @@ This object is an array of [ProtocolSuites](#protocolsuites) objects.
 * **dhP** - DH params, p component
 * **dhG** - DH params, g component
 * **dhYs** - DH params, Ys component
-* **ecdhBits** - EC bits
-* **ecdhCurveId** - EC curve ID
-* **ecdhCurveName** - EC curve name
+* **namedGroupBits** - EC bits
+* **namedGroupId** - EC curve ID
+* **namedGroupName** - EC curve name
 * **q** - 0 if the suite is insecure, null otherwise
+
+
+### NamedGroups ###
+ 
+* **list** - an array of [NamedGroup](#NamedGroup) objects
+* **preference** - true if the server has preferred curves that it uses first
+
+### NamedGroup ### 
+
+* **Id** - named curve ID
+* **Name** - named curve name
+* **bits** - named curve strength in EC bits
+### SimDetails ###
+
+* **results[]** - instances of [Simulation](#simulation).
+
+### Simulation ###
+
+* **client** - instance of [SimClient](#simclient).
+* **errorCode** - zero if handshake was successful, 1 if it was not.
+* **errorMessage** - error message if simulation has failed.
+* **attempts** - always 1 with the current implementation.
+* **certChainId** - id of the certificate chain.
+* **protocolId** - negotiated protocol ID.
+* **suiteId** - negotiated suite ID.
+* **suiteName** - negotiated suite Name.
+* **kxType** - negotiated key exchange, for example "RSA".
+* **kxStrength** - negotiated key exchange strength, in RSA-equivalent bits.
+* **dhBits** - strength of DH params (e.g., 1024)
+* **dhP** - DH params, p component
+* **dhG** - DH params, g component
+* **dhYs** - DH params, Ys component
+* **namedGroupBits** - when ECDHE is negotiated, length of EC parameters.
+* **namedGroupId** - when ECDHE is negotiated, EC curve ID.
+* **namedGroupName** - when ECDHE is negotiated, EC curve nanme (e.g., "secp256r1").
+* **keyAlg** - connection certificate key algorithsm (e.g., "RSA").
+* **keySize** - connection certificate key size (e.g., 2048).
+* **sigAlg** - connection certificate signature algorithm (e.g, "SHA256withRSA").
+
+### SimClient ###
+
+* **id** - unique client ID.
+* **name** - name of the client (e.g., Chrome).
+* **platform** - name of the platform (e.g., XP SP3).
+* **version** - version of the software being simulated (e.g., 49)
+* **isReference** - true if the browser is considered representative of modern browsers, false otherwise. This flag does not correlate to client's capabilities, but is used by SSL Labs to determine if a particular configuration is effective. For example, to track Forward Secrecy support, we mark several representative browsers as "modern" and then test to see if they succeed in negotiating a FS suite. Just as an illustration, modern browsers are currently Chrome, Firefox (not ESR versions), IE/Win7, and Safari.
 
 ### HstsPolicy ###
 
@@ -453,6 +424,7 @@ This object is an array of [ProtocolSuites](#protocolsuites) objects.
 The HstsPreload object contains preload HSTS status of one source for the current hostname. Preload checks are done for the current hostname, not for a domain name. For example, a hostname "www.example.com" tested in SSL Labs would come back as "present" if there is an entry for "example.com" with includeSubDomains enabled or if there is an explicit entry for "www.example.com".
 
 * **source** - source name
+* **hostname** - name of the host
 * **status** - preload status:
    * error
    * unknown - either before the preload status is checked, or if the information is not available for some reason.
@@ -463,6 +435,7 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 
 ### HpkpPolicy ###
 
+* **header** - the contents of the HPKP response header, if present
 * **status** - HPKP status:
    * unknown - either before the server is checked or when its HTTP response headers are not available
    * absent - header not present
@@ -470,14 +443,13 @@ The HstsPreload object contains preload HSTS status of one source for the curren
    * disabled - header present and syntatically correct, but HPKP is disabled
    * incomplete - header present and syntatically correct, incorrectly used
    * valid - header present, syntatically correct, and correctly used
-* **header** - the contents of the HPKP response header, if present
 * **error** - error message, when the policy is invalid
 * **maxAge** - the max-age value from the policy
 * **includeSubDomains** - true if the includeSubDomains directive is set; null otherwise
 * **reportUri** - the report-uri value from the policy
 * **pins[]** - list of all pins used by the policy
-* **matchedPins[]** - list of pins that match the current configuration; each list entry contains an object with two fields, `hashFunction` and `value` (hex-encoded)
-* **directives[][]** - list of raw policy directives
+* **matchedPins[]** -  list of pins that match the current configuration; each list entry contains an object with two fields, `hashFunction` and `value` (hex-encoded)
+* **directives[][]** - list of raw policy directives (name-value pairs)
 
 ### HttpTransaction ###
 
@@ -490,16 +462,80 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 * **responseHeaders[]** - an array of response HTTP headers, each with name and value
 * **fragileServer** - true if the server crashes when inspected by SSL Labs (in which case the full test is refused)
 
-### NamedCurves ###
- 
-* **list** - an array of [NamedCurve](#NamedCurve) objects
-* **preference** - true if the server has preferred curves that it uses first
+### DrownHosts ###
 
-### NamedCurve ### 
+* **ip** - Ip address of server that shares same RSA-Key/hostname in its certificate
+* **export** - true if export cipher suites detected
+* **port** - port number of the server
+* **special** - true if vulnerable OpenSSL version detected
+* **sslv2** - true if SSL v2 is supported
+* **status** - drown host status:
+   * error - error occurred in test
+   * unknown - before the status is checked
+   * not_checked - not checked if already vulnerable server found
+   * not_checked_same_host - Not checked (same host)
+   * handshake_failure - when SSL v2 not supported by server
+   * sslv2 - SSL v2 supported but not same rsa key
+   * key_match - vulnerable (same key with SSL v2)
+   * hostname_match - vulnerable (same hostname with SSL v2)
+   
+   
+   
+### Cert ###
 
-* **curveId** - named curve ID
-* **curveName** - named curve name
-* **bits** - named curve strength in EC bits
+* **id** - certificate ID
+* **subject** - certificate subject
+* **commonNames[]** - common names extracted from the subject
+* **altNames[]** - alternative names
+* **notBefore** - timestamp before which the certificate is not valid (Unix Timestamp)
+* **notAfter** - timestamp after which the certificate is not valid (Unix Timestamp)
+* **issuerSubject** -  issuer subject
+* **sigAlg** - certificate signature algorithm
+* **revocationInfo** - a number that represents revocation information present in the certificate:
+   * bit 0 (1) - CRL information available
+   * bit 1 (2) - OCSP information available
+* **crlURIs[]** - CRL URIs extracted from the certificate
+* **ocspURIs[]** -  OCSP URIs extracted from the certificate
+* **revocationStatus** - a number that describes the revocation status of the certificate:
+   * 0 - not checked
+   * 1 - certificate revoked
+   * 2 - certificate not revoked
+   * 3 - revocation check error
+   * 4 - no revocation information
+   * 5 - internal error
+* **crlRevocationStatus** - same as revocationStatus, but only for the CRL information (if any).
+* **ocspRevocationStatus** - same as revocationStatus, but only for the OCSP information (if any).
+* **dnsCaa** -  true if DNSCAA is supported else false.
+* **caaRecord[]** -  list of Supported [CAARecord](#caarecord)
+* **mustStaple** - true if stapling is supported else false
+* **sgc** - Server Gated Cryptography support; integer:
+   * bit 1 (1) - Netscape SGC
+   * bit 2 (2) - Microsoft SGC
+* **validationType** - E for Extended Validation certificates; may be null if unable to determine
+* **issues** - list of certificate issues, one bit per issue:
+   * bit 0 (1) - no chain of trust
+   * bit 1 (2) - not before
+   * bit 2 (4) - not after
+   * bit 3 (8) - hostname mismatch
+   * bit 4 (16) - revoked
+   * bit 5 (32) - bad common name
+   * bit 6 (64) - self-signed
+   * bit 7 (128) - blacklisted
+   * bit 8 (256) - insecure signature
+* **sct** - true if the certificate contains an embedded SCT; false otherwise.
+* **sha1Hash** - sha1 hash of the certificate
+* **pinSha256** - sha256 hash of the public key
+* **keyAlg** - key algorithm.
+* **keySize** - key size, in bits appropriate for the key algorithm.
+* **keyStrength** - key strength, in equivalent RSA bits
+* **keyKnownDebianInsecure** - true if debian flaw is found, else false
+* **raw** - PEM-encoded certificate
+
+### CaaRecord ####
+
+* **tag** - a property of the CAA record
+* **value** - corresponding value of a CAA property
+* **flags** - corresponding flags of CAA property (8 bit)
 
 ### StatusCodes ###
 
