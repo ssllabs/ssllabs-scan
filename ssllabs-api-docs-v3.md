@@ -293,7 +293,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **hstsPolicy{}** - server's [HSTS policy](#hstspolicy). Experimental.
 * **hstsPreloads[]** - information about[preloaded HSTS policies](#hstspreload).
 * **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy).
-* **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy).
+* **hpkpRoPolicy{}** - server's [HPKP-RO policy](#hpkppolicy).
 * **httpTransactions[]** - an array of [HttpTransaction](#httptransaction) objects.
 * **drownHosts[]** - list of [DROWN hosts](#drownhosts).
 * **drownErrors** - true if error occurred in the DROWN test.
@@ -302,7 +302,7 @@ The remainder of the document explains the structure of the returned objects. Th
 ### CertificateChain ###
 
 * **id** - Certificate chain ID
-* **certIds[]** - list of IDs of each [certificate](#certificate), representing the chain certificates in the order in which they were retrieved from the server
+* **certIds[]** - list of IDs of each [certificate](#cert), representing the chain certificates in the order in which they were retrieved from the server
 * **trustPaths[]** - [trust path object](#trustpath)
 * **issues** - a number of flags that describe the chain and the problems it has:
    * bit 0 (1) - unused
@@ -462,7 +462,7 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 * **requestLine** - the entire request line as a single field
 * **requestHeaders[]** - an array of request HTTP headers, each with name and value
 * **responseLine** - the entire response line as a single field
-* **responseHeadersRaw** - all response headers as a single field (useful if the headers are malformed)
+* **responseHeadersRaw[]** - all response headers as a single field (useful if the headers are malformed)
 * **responseHeaders[]** - an array of response HTTP headers, each with name and value
 * **fragileServer** - true if the server crashes when inspected by SSL Labs (in which case the full test is refused)
 
