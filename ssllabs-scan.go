@@ -175,6 +175,7 @@ type LabsSimulation struct {
 	Attempts   int
 	ProtocolId int
 	SuiteId    int
+	KxInfo     string
 }
 
 type LabsSimDetails struct {
@@ -222,6 +223,11 @@ type LabsHpkpPin struct {
 	Value        string
 }
 
+type LabsHpkpDirective struct {
+	Name         string
+	Value        string
+}
+
 type LabsHpkpPolicy struct {
 	Header            string
 	Status            string
@@ -231,7 +237,16 @@ type LabsHpkpPolicy struct {
 	ReportUri         string
 	Pins              []LabsHpkpPin
 	MatchedPins       []LabsHpkpPin
-	Directives        map[string]string
+	Directives        []LabsHpkpDirective
+}
+
+type DrownHost struct {
+	Ip      string
+	Export  bool
+	Port    int
+	Special bool
+	Sslv2   bool
+	Status  string
 }
 
 type LabsEndpointDetails struct {
@@ -279,6 +294,9 @@ type LabsEndpointDetails struct {
 	HstsPreloads                   []LabsHstsPreload
 	HpkpPolicy                     LabsHpkpPolicy
 	HpkpRoPolicy                   LabsHpkpPolicy
+	DrownHosts                     []DrownHost
+	DrownErrors                    bool
+	DrownVulnerable                bool
 }
 
 type LabsEndpoint struct {
@@ -878,7 +896,10 @@ func readLines(path *string) ([]string, error) {
 	var lines []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		var line = strings.TrimSpace(scanner.Text())
+		if (!strings.HasPrefix(line, "#")) && (line != "") {
+			lines = append(lines, line)
+		}
 	}
 	return lines, scanner.Err()
 }
