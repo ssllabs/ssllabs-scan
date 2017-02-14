@@ -280,6 +280,7 @@ type LabsEndpointDetails struct {
 	Heartbleed                     bool
 	Heartbeat                      bool
 	OpenSslCcs                     int
+	OpenSSLLuckyMinus20            int
 	Poodle                         bool
 	PoodleTls                      int
 	FallbackScsv                   bool
