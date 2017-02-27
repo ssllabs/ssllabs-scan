@@ -224,8 +224,9 @@ The remainder of the document explains the structure of the returned objects. Th
 * **compressionMethods** - integer value that describes supported compression methods
    * bit 0 is set for DEFLATE
 * **supportsNpn** - true if the server supports NPN
-* **npnProtocols** - space separated list of supported protocols
+* **npnProtocols** - space separated list of supported NPN protocols
 * **supportsAlpn** - true if the server supports ALPN
+* **alpnProtocols** - space separated list of supported ALPN protocols
 * **sessionTickets** - indicates support for Session Tickets
    * bit 0 (1) - set if session tickets are supported
    * bit 1 (2) - set if the implementation is faulty [not implemented]
@@ -264,6 +265,11 @@ The remainder of the document explains the structure of the returned objects. Th
    * 2 - possibly vulnerable, but not exploitable
    * 3 - vulnerable and exploitable
 * **openSSLLuckyMinus20** - results of the CVE-2016-2107 test:
+   * -1 - test failed
+   * 0 - unknown
+   * 1 - not vulnerable
+   * 2 - vulnerable and insecure
+* **ticketbleed** - results of the ticketbleed CVE-2016-9244 test:
    * -1 - test failed
    * 0 - unknown
    * 1 - not vulnerable
@@ -509,8 +515,8 @@ The HstsPreload object contains preload HSTS status of one source for the curren
    * 5 - internal error
 * **crlRevocationStatus** - same as revocationStatus, but only for the CRL information (if any).
 * **ocspRevocationStatus** - same as revocationStatus, but only for the OCSP information (if any).
-* **dnsCaa** -  true if DNSCAA is supported else false.
-* **caaRecord[]** -  list of Supported [CAARecord](#caarecord)
+* **dnsCaa** -  true if CAA is supported else false.
+* **caaPolicy** -  [CAA Policy](#caapolicy), Null if CAA is not supported
 * **mustStaple** - true if stapling is supported else false
 * **sgc** - Server Gated Cryptography support; integer:
    * bit 1 (1) - Netscape SGC
@@ -534,6 +540,11 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 * **keyStrength** - key strength, in equivalent RSA bits
 * **keyKnownDebianInsecure** - true if debian flaw is found, else false
 * **raw** - PEM-encoded certificate
+
+### CaaPolicy ####
+
+* **policyHostname** - hostname where policy is located
+* **caaRecords[]** -  list of Supported [CAARecord](#caarecord)
 
 ### CaaRecord ####
 
