@@ -80,7 +80,10 @@ var globalMaxAge = 0
 
 var globalInsecure = false
 
+var globalPublish = false
+
 var httpClient *http.Client
+
 
 type LabsError struct {
 	Field   string
@@ -521,6 +524,10 @@ func invokeInfo() (*LabsInfo, error) {
 func invokeAnalyze(host string, startNew bool, fromCache bool) (*LabsReport, error) {
 	var command = "analyze?host=" + host + "&all=done"
 
+    if globalPublish {
+        command = command + "&publish=on"
+    }
+    
 	if fromCache {
 		command = command + "&fromCache=on"
 
@@ -940,9 +947,14 @@ func main() {
 	var conf_maxage = flag.Int("maxage", 0, "Maximum acceptable age of cached results, in hours. A zero value is ignored.")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
 	var conf_version = flag.Bool("version", false, "Print version and API location information and exit")
+    var conf_publish = flag.Bool("publish", false, "If assessment results should be published on the public results boards.")
 
 	flag.Parse()
 
+    if *conf_publish {
+        globalPublish = *conf_publish   
+    }
+    
 	if *conf_version {
 		fmt.Println(USER_AGENT)
 		fmt.Println("API location: " + apiLocation)
