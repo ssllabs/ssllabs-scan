@@ -301,6 +301,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **hstsPreloads[]** - information about [preloaded HSTS policies](#hstspreload).
 * **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy).
 * **hpkpRoPolicy{}** - server's [HPKP-RO policy](#hpkppolicy).
+* **staticPkpPolicy{}** - server's [SPKP policy](#staticPkpPolicy).
 * **httpTransactions[]** - an array of [HttpTransaction](#httptransaction) objects.
 * **drownHosts[]** - list of [DROWN hosts](#drownhosts).
 * **drownErrors** - true if error occurred in the DROWN test.
@@ -453,6 +454,7 @@ The HstsPreload object contains preload HSTS status of one source for the curren
    * invalid - header present, but couldn't be parsed
    * disabled - header present and syntatically correct, but HPKP is disabled
    * incomplete - header present and syntatically correct, incorrectly used
+   * partial - header present and synatatically correct, but not all paths pinned
    * valid - header present, syntatically correct, and correctly used
 * **error** - error message, when the policy is invalid
 * **maxAge** - the max-age value from the policy
@@ -461,6 +463,24 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 * **pins[]** - list of all pins used by the policy
 * **matchedPins[]** -  list of pins that match the current configuration; each list entry contains an object with two fields, `hashFunction` and `value` (hex-encoded)
 * **directives[][]** - list of raw policy directives (name-value pairs)
+
+### staticPkpPolicy ###
+
+* **status** - SPKP status:
+   * unknown - either before the server is checked or when its preload list not available
+   * absent - static pinning not present
+   * invalid - static pinning present, but couldn't be parsed
+   * incomplete - static pinning present but doesn't match configuration
+   * partial - static pinning present but not all trust paths pinned
+   * forbidden - static pinning present, forbidden pinns matched
+   * valid - static pinning present, syntatically correct, and correctly used
+* **error** - error message, when the policy is invalid
+* **includeSubDomains** - true if the includeSubDomains directive is set else false
+* **reportUri** - the report-uri value from the policy
+* **pins[]** - list of all pins used by the policy
+* **matchedPins[]** -  list of pins that match the current configuration; each list entry contains an object with two fields, `hashFunction` and `value` (hex-encoded)
+* **forbiddenPins[]** -  list of all forbidden pins used by policy;
+* **matchedForbiddenPins[]** -  list of forbidden pins that match the current configuration; each list entry contains an object with two fields, `hashFunction` and `value` (hex-encoded)
 
 ### HttpTransaction ###
 
@@ -495,6 +515,7 @@ The HstsPreload object contains preload HSTS status of one source for the curren
 
 * **id** - certificate ID
 * **subject** - certificate subject
+* **serialNumber** - certificate serial number (hex-encoded)
 * **commonNames[]** - common names extracted from the subject
 * **altNames[]** - alternative names
 * **notBefore** - timestamp before which the certificate is not valid (Unix Timestamp)
