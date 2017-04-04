@@ -1,2 +1,2 @@
 build:
-	go build ssllabs-scan.go
+	go build ssllabs-scan-v3.go
