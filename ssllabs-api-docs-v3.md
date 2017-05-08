@@ -555,6 +555,7 @@ The HstsPreload object contains preload HSTS status of one source for the curren
    * bit 8 (256) - insecure signature
 * **sct** - true if the certificate contains an embedded SCT; false otherwise.
 * **sha1Hash** - sha1 hash of the certificate
+* **sha256Hash** - sha256 hash of the certificate
 * **pinSha256** - sha256 hash of the public key
 * **keyAlg** - key algorithm.
 * **keySize** - key size, in bits appropriate for the key algorithm.
