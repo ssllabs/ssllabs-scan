@@ -475,6 +475,7 @@ The HstsPreload object contains preload HSTS status of one source for the curren
    * invalid - header present, but couldn't be parsed
    * disabled - header present and syntatically correct, but HPKP is disabled
    * incomplete - header present and syntatically correct, incorrectly used
+   * partial - header present and synatatically correct, but not all paths pinned
    * valid - header present, syntatically correct, and correctly used
 * **header** - the contents of the HPKP response header, if present
 * **error** - error message, when the policy is invalid
