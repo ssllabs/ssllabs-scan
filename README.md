@@ -53,3 +53,27 @@ Docker images for this project are available at:
 
 * [https://github.com/jumanjihouse/docker-ssllabs-scan]
   (https://github.com/jumanjihouse/docker-ssllabs-scan)
+
+##Third party libaries
+
+These libaries are not officially supported, however they may be useful for your own project.
+
+###Java
+
+* [https://github.com/bjoernr-de/java-ssllabs-api]
+  (https://github.com/bjoernr-de/java-ssllabs-api)
+
+###PHP
+
+* [https://github.com/bjoernr-de/php-ssllabs-api]
+  (https://github.com/bjoernr-de/php-ssllabs-api)
+
+###Python
+
+* [https://github.com/takeshixx/python-ssllabs]
+  (https://github.com/takeshixx/python-ssllabs)
+
+###Ruby
+
+* [https://github.com/Shopify/ssllabs.rb]
+  (https://github.com/Shopify/ssllabs.rb)
