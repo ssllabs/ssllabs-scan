@@ -1051,12 +1051,12 @@ func main() {
 		return
 	}
 
-	logLevel = parseLogLevel(strings.ToLower(*conf_verbosity))
-
 	globalIgnoreMismatch = *conf_ignore_mismatch
 
 	if *conf_quiet {
 		logLevel = LOG_NONE
+	} else {
+		logLevel = parseLogLevel(strings.ToLower(*conf_verbosity))
 	}
 
 	// We prefer cached results
