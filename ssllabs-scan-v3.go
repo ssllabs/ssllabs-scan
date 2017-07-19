@@ -1051,12 +1051,12 @@ func main() {
 		return
 	}
 
-	logLevel = parseLogLevel(strings.ToLower(*conf_verbosity))
-
 	globalIgnoreMismatch = *conf_ignore_mismatch
 
 	if *conf_quiet {
 		logLevel = LOG_NONE
+	} else {
+		logLevel = parseLogLevel(strings.ToLower(*conf_verbosity))
 	}
 
 	// We prefer cached results
@@ -1114,7 +1114,6 @@ func main() {
 	for {
 		_, running := <-manager.FrontendEventChannel
 		if running == false {
-			var results []byte
 			var err error
 
 			if hp.StartingLen == 0 {
@@ -1122,50 +1121,33 @@ func main() {
 			}
 
 			if *conf_grade {
-				// Just the grade(s). We use flatten and RAW
-				/*
-					"endpoints.0.grade": "A"
-					"host": "testing.spatialkey.com"
-				*/
 				for i := range manager.results.responses {
 					results := []byte(manager.results.responses[i])
 
-					name := ""
-					grade := ""
-					futureGrade := ""
-
-					flattened := flattenAndFormatJSON(results)
-
-					for _, fval := range *flattened {
-						if strings.HasPrefix(fval, "\"host\"") {
-							// hostname
-							parts := strings.Split(fval, ": ")
-							name = strings.TrimSuffix(parts[1], "\n")
-							if grade != "" {
-								break
-							}
-						} else if strings.HasPrefix(fval, "\"endpoints.0.grade\"") {
-							// grade
-							parts := strings.Split(fval, ": ")
-							grade = strings.TrimSuffix(parts[1], "\n")
-							if name != "" {
-								break
-							}
-						} else if strings.HasPrefix(fval, "\"endpoints.0.futureGrade\"") {
-							// futureGrade
-							parts := strings.Split(fval, ": ")
-							futureGrade = strings.TrimSuffix(parts[1], "\n")
-							if name != "" && grade != "" {
-								break
-							}
-						}
+					// Fill LabsReport with json response received i.e results
+					var labsReport LabsReport
+					err = json.Unmarshal(results, &labsReport)
+					// Check for error while unmarshalling. If yes then display error messsage and terminate the program
+					if err != nil {
+						log.Fatalf("[ERROR] JSON unmarshal error: %v", err)
 					}
-					if grade != "" && name != "" {
-						hostGrade := name + ": " + grade
-						if futureGrade != "" {
-							hostGrade = hostGrade + " -> " + futureGrade
+
+					// Printing the Hostname and IpAddress with grades
+					fmt.Println()
+					if !strings.EqualFold(labsReport.StatusMessage, "ERROR") {
+						fmt.Printf("HostName:\"%v\"\n", labsReport.Host)
+						for _, endpoints := range labsReport.Endpoints {
+							if endpoints.FutureGrade != "" {
+								fmt.Printf("\"%v\":\"%v\"->\"%v\"\n", endpoints.IpAddress, endpoints.Grade, endpoints.FutureGrade)
+							} else {
+								if endpoints.Grade != "" {
+									fmt.Printf("\"%v\":\"%v\"\n", endpoints.IpAddress, endpoints.Grade)
+								} else {
+									// When no grade is seen print Status Message
+									fmt.Printf("\"%v\":\"%v\"\n", endpoints.IpAddress, endpoints.StatusMessage)
+								}
+							}
 						}
-						fmt.Println(hostGrade)
 					}
 				}
 			} else if *conf_json_flat {
@@ -1198,8 +1180,6 @@ func main() {
 			if err != nil {
 				log.Fatalf("[ERROR] Output to JSON failed: %v", err)
 			}
-
-			fmt.Println(string(results))
 
 			if logLevel >= LOG_INFO {
 				log.Println("[INFO] All assessments complete; shutting down")
