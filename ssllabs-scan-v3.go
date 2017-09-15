@@ -376,7 +376,7 @@ type LabsEndpointDetails struct {
 	Heartbeat                      bool
 	OpenSslCcs                     int
 	OpenSSLLuckyMinus20            int
-	Ticketbleed                    int		
+	Ticketbleed                    int
 	Poodle                         bool
 	PoodleTLS                      int
 	FallbackScsv                   bool
@@ -1029,6 +1029,18 @@ func validateHostname(hostname string) bool {
 	}
 }
 
+func checkError(err error) {
+	if err != nil {
+		log.Fatalf("Error while Writing to File: %v", err)
+	}
+}
+
+func writeStringToFile(writter *bufio.Writer, value string) int {
+	bytesWritten, err := writter.WriteString(value)
+	checkError(err)
+	return bytesWritten
+}
+
 func main() {
 	var conf_api = flag.String("api", "BUILTIN", "API entry point, for example https://www.example.com/api/")
 	var conf_grade = flag.Bool("grade", false, "Output only the hostname: grade")
@@ -1042,6 +1054,7 @@ func main() {
 	var conf_maxage = flag.Int("maxage", 0, "Maximum acceptable age of cached results, in hours. A zero value is ignored.")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
 	var conf_version = flag.Bool("version", false, "Print version and API location information and exit")
+var conf_output_host = flag.Bool("output-host", false, "Files per hostname to be 'written' on the disk")
 
 	flag.Parse()
 
@@ -1172,11 +1185,42 @@ func main() {
 						fmt.Println(",")
 					}
 					fmt.Println(results)
-					
+
 				}
 				fmt.Println("]")
 			}
 
+			if *conf_output_host {
+				for i := range manager.results.responses {
+					results := []byte(manager.results.responses[i])
+
+					// Fill LabsReport with json response received i.e results
+					var labsReport LabsReport
+					err = json.Unmarshal(results, &labsReport)
+					// Check for error while unmarshalling. If yes then display error messsage and terminate the program
+					if err != nil {
+						log.Fatalf("[ERROR] JSON unmarshal error: %v", err)
+					}
+
+					//Create the file with hostname at the same location
+					f, err := os.Create(labsReport.Host + ".txt")
+
+					if err != nil {
+						log.Fatalf("Error Creating File: %v\n", err)
+					}
+
+					defer f.Close()
+
+					writter := bufio.NewWriter(f)
+					writeStringToFile(writter, string(results))
+
+					writeStringToFile(writter, "\n]")
+
+					if writter.Flush() != nil {
+						log.Fatalf("Error Flushing to the File: %v\n", err)
+					}
+				}
+			}
 			if err != nil {
 				log.Fatalf("[ERROR] Output to JSON failed: %v", err)
 			}
