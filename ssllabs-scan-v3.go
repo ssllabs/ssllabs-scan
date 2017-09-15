@@ -69,6 +69,8 @@ var requestCounter uint64 = 0
 
 var apiLocation = "https://api.dev.ssllabs.com/api/v3"
 
+var fileLocation = ""
+
 var globalNewAssessmentCoolOff int64 = 1100
 
 var globalIgnoreMismatch = false
@@ -376,7 +378,7 @@ type LabsEndpointDetails struct {
 	Heartbeat                      bool
 	OpenSslCcs                     int
 	OpenSSLLuckyMinus20            int
-	Ticketbleed                    int		
+	Ticketbleed                    int
 	Poodle                         bool
 	PoodleTLS                      int
 	FallbackScsv                   bool
@@ -1029,6 +1031,18 @@ func validateHostname(hostname string) bool {
 	}
 }
 
+func checkError(err error) {
+	if err != nil {
+		log.Fatalf("Error while Writing to File: %v", err)
+	}
+}
+
+func writeStringToFile(writter *bufio.Writer, value string) int {
+	bytesWritten, err := writter.WriteString(value)
+	checkError(err)
+	return bytesWritten
+}
+
 func main() {
 	var conf_api = flag.String("api", "BUILTIN", "API entry point, for example https://www.example.com/api/")
 	var conf_grade = flag.Bool("grade", false, "Output only the hostname: grade")
@@ -1042,6 +1056,7 @@ func main() {
 	var conf_maxage = flag.Int("maxage", 0, "Maximum acceptable age of cached results, in hours. A zero value is ignored.")
 	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
 	var conf_version = flag.Bool("version", false, "Print version and API location information and exit")
+	var conf_output = flag.String("output", "", "File to be 'written' on the disk")
 
 	flag.Parse()
 
@@ -1072,6 +1087,10 @@ func main() {
 	// Verify that the API entry point is a URL.
 	if *conf_api != "BUILTIN" {
 		apiLocation = *conf_api
+	}
+
+	if *conf_output != "" {
+		fileLocation = *conf_output
 	}
 
 	if validateURL(apiLocation) == false {
@@ -1172,9 +1191,40 @@ func main() {
 						fmt.Println(",")
 					}
 					fmt.Println(results)
-					
+
 				}
 				fmt.Println("]")
+			}
+
+			if fileLocation != "" {
+				f, err := os.Create(fileLocation)
+
+				if err != nil {
+					log.Fatalf("Error Creating File: %v\n", err)
+				}
+
+				defer f.Close()
+
+				writter := bufio.NewWriter(f)
+				bytesWritten := 0
+
+				bytesWritten += writeStringToFile(writter, "[\n")
+				for i := range manager.results.responses {
+					results := manager.results.responses[i]
+
+					if i > 0 {
+						bytesWritten += writeStringToFile(writter, ",\n")
+					}
+					bytesWritten += writeStringToFile(writter, results)
+
+				}
+				bytesWritten += writeStringToFile(writter, "\n]")
+
+				if writter.Flush() != nil {
+					log.Fatalf("Error Flushing to the File: %v\n", err)
+				}
+
+				fmt.Printf("Number of bytes written %v\n", bytesWritten)
 			}
 
 			if err != nil {
