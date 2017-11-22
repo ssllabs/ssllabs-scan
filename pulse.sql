@@ -164,7 +164,7 @@ CREATE TABLE domains (
     em_64_bits               BOOLEAN NOT NULL,           
     -- The above fields indicate if error messages are used to refuse to
     -- respond to HTTP requests over weak protocols or suites. The tests
-    -- currently only know how to detect the error messagees from
+    -- currently only know how to detect the error messages from
     -- NetScaler and Microsoft.
     
     serverSignature          VARCHAR(254),
