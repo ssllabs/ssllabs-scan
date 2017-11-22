@@ -6,7 +6,7 @@ CREATE TABLE domains (
     -- The domain name, with the "www" prefix (where such prefix exists).
     
     domainDepth              INTEGER NOT NULL CHECK (domainDepth > 0),
-    -- How far is the doimain name from its TLD? For example,
+    -- How far is the domain name from its TLD? For example,
     -- example.com would have a depth of 1; webmail.example.com a depth of 2.
     -- The "www" prefix is ignored, if it exists.
             
