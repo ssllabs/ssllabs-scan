@@ -6,7 +6,7 @@ CREATE TABLE domains (
     -- The domain name, with the "www" prefix (where such prefix exists).
     
     domainDepth              INTEGER NOT NULL CHECK (domainDepth > 0),
-    -- How far is the doimain name from its TLD? For example,
+    -- How far is the domain name from its TLD? For example,
     -- example.com would have a depth of 1; webmail.example.com a depth of 2.
     -- The "www" prefix is ignored, if it exists.
             
@@ -164,7 +164,7 @@ CREATE TABLE domains (
     em_64_bits               BOOLEAN NOT NULL,           
     -- The above fields indicate if error messages are used to refuse to
     -- respond to HTTP requests over weak protocols or suites. The tests
-    -- currently only know how to detect the error messagees from
+    -- currently only know how to detect the error messages from
     -- NetScaler and Microsoft.
     
     serverSignature          VARCHAR(254),

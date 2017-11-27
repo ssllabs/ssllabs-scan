@@ -6,7 +6,7 @@ This document explains the SSL Labs Assessment APIs, which can be used to test S
 
 ## Protocol Overview ##
 
-The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload. In essence, the client submits an assessment reque`sts` to the servers. If an acceptable report is already available, it's received straight away. Otherwise, the server will start a new assessment and the client should periodically check to see if the job is complete.
+The protocol is based on HTTP and JSON. All invocations of the API should use the GET method and specify the parameters in the query string, as documented below. The results will be returned in the response body as a JSON payload. In essence, the client submits an assessment request to the servers. If an acceptable report is already available, it's received straight away. Otherwise, the server will start a new assessment and the client should periodically check to see if the job is complete.
 
 ### Terms and Conditions ###
 
@@ -445,9 +445,9 @@ The remainder of the document explains the structure of the returned objects. Th
 * **status** - HSTS status:
    * unknown - either before the server is checked or when its HTTP response headers are not available
    * absent - header not present
-   * present - header present and syntatically correct
+   * present - header present and syntactically correct
    * invalid - header present, but couldn't be parsed
-   * disabled - header present and syntatically correct, but HSTS is disabled
+   * disabled - header present and syntactically correct, but HSTS is disabled
 * **error** - error message when error is encountered, null otherwise
 * **maxAge** - the max-age value specified in the policy; null if policy is missing or invalid or on parsing error; the maximum value currently supported is 9223372036854775807
 * **includeSubDomains** - true if the includeSubDomains directive is set; null otherwise
@@ -473,10 +473,10 @@ The HstsPreload object contains preload HSTS status of one source for the curren
    * unknown - either before the server is checked or when its HTTP response headers are not available
    * absent - header not present
    * invalid - header present, but couldn't be parsed
-   * disabled - header present and syntatically correct, but HPKP is disabled
-   * incomplete - header present and syntatically correct, incorrectly used
-   * partial - header present and synatatically correct, but not all paths pinned
-   * valid - header present, syntatically correct, and correctly used
+   * disabled - header present and syntactically correct, but HPKP is disabled
+   * incomplete - header present and syntactically correct, incorrectly used
+   * partial - header present and syntactically correct, but not all paths pinned
+   * valid - header present, syntactically correct, and correctly used
 * **header** - the contents of the HPKP response header, if present
 * **error** - error message, when the policy is invalid
 * **maxAge** - the max-age value from the policy

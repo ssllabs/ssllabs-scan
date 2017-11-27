@@ -865,7 +865,7 @@ func flattenAndFormatJSON(inputJSON []byte) *[]string {
 	mappedJSON := map[string]interface{}{}
 	err := json.Unmarshal(inputJSON, &mappedJSON)
 	if err != nil {
-		log.Fatalf("[ERROR] Reconsitution of JSON failed: %v", err)
+		log.Fatalf("[ERROR] Reconstitution of JSON failed: %v", err)
 	}
 
 	// Flatten the JSON structure, recursively
