@@ -1,4 +1,4 @@
-# SSL Labs API v3 Documentation v1.26.x (work in progress)#
+# SSL Labs API v3 Documentation v1.30.x (work in progress)#
 
 **Last update:** 13 January 2017<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
