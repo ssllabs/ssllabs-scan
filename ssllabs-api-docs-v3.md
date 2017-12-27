@@ -274,7 +274,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * 0 - unknown
    * 1 - not vulnerable
    * 2 - vulnerable and insecure
-* **bleichenbacher** - results of the Return Of Bleichenbacher's Oracle Threat test:
+* **bleichenbacher** - results of the Return Of Bleichenbacher's Oracle Threat (ROBOT) test:
    * -1 - test failed
    * 0 - unknown
    * 1 - not vulnerable
