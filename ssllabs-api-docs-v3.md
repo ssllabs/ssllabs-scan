@@ -301,7 +301,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **hstsPreloads[]** - information about [preloaded HSTS policies](#hstspreload).
 * **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy).
 * **hpkpRoPolicy{}** - server's [HPKP-RO policy](#hpkppolicy).
-* **staticPkpPolicy{}** - server's [SPKP policy](#staticPkpPolicy).
+* **staticPkpPolicy{}** - server's [SPKP policy](#staticpkppolicy).
 * **httpTransactions[]** - an array of [HttpTransaction](#httptransaction) objects.
 * **drownHosts[]** - list of [DROWN hosts](#drownhosts).
 * **drownErrors** - true if error occurred in the DROWN test.
@@ -355,7 +355,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **id** - suite RFC ID (e.g., 5)
 * **name** - suite name (e.g., TLS_RSA_WITH_RC4_128_SHA)
 * **cipherStrength** - suite strength (e.g., 128)
-* **kxType** -
+* **kxType** - key exchange type (e.g., ECDH)
 * **kxStrength** - key exchange strength, in RSA-equivalent bits
 * **dhP** - DH params, p component
 * **dhG** - DH params, g component
@@ -394,7 +394,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **protocolId** - negotiated protocol ID.
 * **suiteId** - negotiated suite ID.
 * **suiteName** - negotiated suite Name.
-* **kxType** - negotiated key exchange, for example "RSA".
+* **kxType** - negotiated key exchange, for example "ECDH".
 * **kxStrength** - negotiated key exchange strength, in RSA-equivalent bits.
 * **dhBits** - strength of DH params (e.g., 1024)
 * **dhP** - DH params, p component
@@ -553,6 +553,7 @@ The HstsPreload object contains preload HSTS status of one source for the curren
    * bit 6 (64) - self-signed
    * bit 7 (128) - blacklisted
    * bit 8 (256) - insecure signature
+   * bit 9 (512) - insecure key
 * **sct** - true if the certificate contains an embedded SCT; false otherwise.
 * **sha1Hash** - sha1 hash of the certificate
 * **sha256Hash** - sha256 hash of the certificate
