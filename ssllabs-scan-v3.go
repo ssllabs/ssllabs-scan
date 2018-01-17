@@ -67,7 +67,7 @@ var maxAssessments = -1
 
 var requestCounter uint64 = 0
 
-var apiLocation = "https://api.dev.ssllabs.com/api/v3"
+var apiLocation = "https://api.ssllabs.com/api/v3"
 
 var globalNewAssessmentCoolOff int64 = 1100
 
@@ -376,7 +376,8 @@ type LabsEndpointDetails struct {
 	Heartbeat                      bool
 	OpenSslCcs                     int
 	OpenSSLLuckyMinus20            int
-	Ticketbleed                    int		
+	Ticketbleed                    int
+	Bleichenbacher                 int
 	Poodle                         bool
 	PoodleTLS                      int
 	FallbackScsv                   bool
