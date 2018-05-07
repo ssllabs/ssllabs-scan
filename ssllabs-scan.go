@@ -17,12 +17,12 @@
  * limitations under the License.
  */
 
-package main
+package scan
 
 import "crypto/tls"
 import "errors"
 import "encoding/json"
-import "flag"
+
 import "fmt"
 import "io/ioutil"
 import "bufio"
@@ -225,8 +225,8 @@ type LabsHpkpPin struct {
 }
 
 type LabsHpkpDirective struct {
-	Name         string
-	Value        string
+	Name  string
+	Value string
 }
 
 type LabsHpkpPolicy struct {
@@ -335,8 +335,8 @@ type LabsReport struct {
 }
 
 type LabsResults struct {
-	reports   []LabsReport
-	responses []string
+	Reports   []LabsReport
+	Responses []string
 }
 
 type LabsInfo struct {
@@ -346,6 +346,32 @@ type LabsInfo struct {
 	CurrentAssessments   int
 	NewAssessmentCoolOff int64
 	Messages             []string
+}
+
+func IgnoreMismatch(ignore bool) {
+	globalIgnoreMismatch = ignore
+}
+
+func UseCache(useCache bool) {
+	if useCache {
+		globalFromCache = true
+		globalStartNew = false
+	} else {
+		globalFromCache = false
+		globalStartNew = true
+	}
+}
+
+func SetMaxAge(maxAge int) {
+	globalMaxAge = maxAge
+}
+
+func SetAPILocation(apiUrl string) {
+	apiLocation = apiUrl
+}
+
+func AllowInsecure(allowInsecure bool) {
+	globalInsecure = allowInsecure
 }
 
 func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
@@ -653,7 +679,7 @@ type Manager struct {
 	hostProvider         *HostProvider
 	FrontendEventChannel chan Event
 	BackendEventChannel  chan Event
-	results              *LabsResults
+	Results              *LabsResults
 }
 
 func NewManager(hostProvider *HostProvider) *Manager {
@@ -661,7 +687,7 @@ func NewManager(hostProvider *HostProvider) *Manager {
 		hostProvider:         hostProvider,
 		FrontendEventChannel: make(chan Event),
 		BackendEventChannel:  make(chan Event),
-		results:              &LabsResults{reports: make([]LabsReport, 0)},
+		Results:              &LabsResults{Reports: make([]LabsReport, 0)},
 	}
 
 	go manager.run()
@@ -763,8 +789,8 @@ func (manager *Manager) run() {
 
 				activeAssessments--
 
-				manager.results.reports = append(manager.results.reports, *e.report)
-				manager.results.responses = append(manager.results.responses, e.report.rawJSON)
+				manager.Results.Reports = append(manager.Results.Reports, *e.report)
+				manager.Results.Responses = append(manager.Results.Responses, e.report.rawJSON)
 
 				if logLevel >= LOG_DEBUG {
 					log.Printf("[DEBUG] Active assessments: %v (more: %v)", activeAssessments, moreAssessments)
@@ -808,7 +834,7 @@ func (manager *Manager) run() {
 	}
 }
 
-func parseLogLevel(level string) int {
+func ParseLogLevel(level string) int {
 	switch {
 	case level == "error":
 		return LOG_ERROR
@@ -924,173 +950,5 @@ func validateHostname(hostname string) bool {
 		return false
 	} else {
 		return true
-	}
-}
-
-func main() {
-	var conf_api = flag.String("api", "BUILTIN", "API entry point, for example https://www.example.com/api/")
-	var conf_grade = flag.Bool("grade", false, "Output only the hostname: grade")
-	var conf_hostcheck = flag.Bool("hostcheck", false, "If true, host resolution failure will result in a fatal error.")
-	var conf_hostfile = flag.String("hostfile", "", "File containing hosts to scan (one per line)")
-	var conf_ignore_mismatch = flag.Bool("ignore-mismatch", false, "If true, certificate hostname mismatch does not stop assessment.")
-	var conf_insecure = flag.Bool("insecure", false, "Skip certificate validation. For use in development only. Do not use.")
-	var conf_json_flat = flag.Bool("json-flat", false, "Output results in flattened JSON format")
-	var conf_quiet = flag.Bool("quiet", false, "Disable status messages (logging)")
-	var conf_usecache = flag.Bool("usecache", false, "If true, accept cached results (if available), else force live scan.")
-	var conf_maxage = flag.Int("maxage", 0, "Maximum acceptable age of cached results, in hours. A zero value is ignored.")
-	var conf_verbosity = flag.String("verbosity", "info", "Configure log verbosity: error, notice, info, debug, or trace.")
-	var conf_version = flag.Bool("version", false, "Print version and API location information and exit")
-
-	flag.Parse()
-
-	if *conf_version {
-		fmt.Println(USER_AGENT)
-		fmt.Println("API location: " + apiLocation)
-		return
-	}
-
-	logLevel = parseLogLevel(strings.ToLower(*conf_verbosity))
-
-	globalIgnoreMismatch = *conf_ignore_mismatch
-
-	if *conf_quiet {
-		logLevel = LOG_NONE
-	}
-
-	// We prefer cached results
-	if *conf_usecache {
-		globalFromCache = true
-		globalStartNew = false
-	}
-
-	if *conf_maxage != 0 {
-		globalMaxAge = *conf_maxage
-	}
-
-	// Verify that the API entry point is a URL.
-	if *conf_api != "BUILTIN" {
-		apiLocation = *conf_api
-	}
-
-	if validateURL(apiLocation) == false {
-		log.Fatalf("[ERROR] Invalid API URL: %v", apiLocation)
-	}
-
-	var hostnames []string
-
-	if *conf_hostfile != "" {
-		// Open file, and read it
-		var err error
-		hostnames, err = readLines(conf_hostfile)
-		if err != nil {
-			log.Fatalf("[ERROR] Reading from specified hostfile failed: %v", err)
-		}
-
-	} else {
-		// Read hostnames from the rest of the args
-		hostnames = flag.Args()
-	}
-
-	if *conf_hostcheck {
-		// Validate all hostnames before we attempt to test them. At least
-		// one hostname is required.
-		for _, host := range hostnames {
-			if validateHostname(host) == false {
-				log.Fatalf("[ERROR] Invalid hostname: %v", host)
-			}
-		}
-	}
-
-	if *conf_insecure {
-		globalInsecure = *conf_insecure
-	}
-
-	hp := NewHostProvider(hostnames)
-	manager := NewManager(hp)
-
-	// Respond to events until all the work is done.
-	for {
-		_, running := <-manager.FrontendEventChannel
-		if running == false {
-			var results []byte
-			var err error
-
-			if hp.StartingLen == 0 {
-				return
-			}
-
-			if *conf_grade {
-				// Just the grade(s). We use flatten and RAW
-				/*
-					"endpoints.0.grade": "A"
-					"host": "testing.spatialkey.com"
-				*/
-				for i := range manager.results.responses {
-					results := []byte(manager.results.responses[i])
-
-					name := ""
-					grade := ""
-
-					flattened := flattenAndFormatJSON(results)
-
-					for _, fval := range *flattened {
-						if strings.HasPrefix(fval, "\"host\"") {
-							// hostname
-							parts := strings.Split(fval, ": ")
-							name = strings.TrimSuffix(parts[1], "\n")
-							if grade != "" {
-								break
-							}
-						} else if strings.HasPrefix(fval, "\"endpoints.0.grade\"") {
-							// grade
-							parts := strings.Split(fval, ": ")
-							grade = strings.TrimSuffix(parts[1], "\n")
-							if name != "" {
-								break
-							}
-						}
-					}
-					if grade != "" && name != "" {
-						fmt.Println(name + ": " + grade)
-					}
-				}
-			} else if *conf_json_flat {
-				// Flat JSON and RAW
-
-				for i := range manager.results.responses {
-					results := []byte(manager.results.responses[i])
-
-					flattened := flattenAndFormatJSON(results)
-
-					// Print the flattened data
-					fmt.Println(*flattened)
-				}
-			} else {
-				// Raw (non-Go-mangled) JSON output
-
-				fmt.Println("[")
-				for i := range manager.results.responses {
-					results := manager.results.responses[i]
-
-					if i > 0 {
-						fmt.Println(",")
-					}
-					fmt.Println(results)
-				}
-				fmt.Println("]")
-			}
-
-			if err != nil {
-				log.Fatalf("[ERROR] Output to JSON failed: %v", err)
-			}
-
-			fmt.Println(string(results))
-
-			if logLevel >= LOG_INFO {
-				log.Println("[INFO] All assessments complete; shutting down")
-			}
-
-			return
-		}
 	}
 }
