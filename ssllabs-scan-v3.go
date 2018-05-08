@@ -121,7 +121,7 @@ type LabsCaaPolicy struct {
 }
 
 type LabsCert struct {
-	Id                     int
+	Id                     string
 	Subject                string
 	CommonNames            []string
 	AltNames               []string
@@ -430,7 +430,7 @@ type LabsReport struct {
 	CacheExpiryTime int64
 	CertHostnames   []string
 	Endpoints       []LabsEndpoint
-	Cert            []LabsCert
+	Certs           []LabsCert
 	rawJSON         string
 }
 
