@@ -8,11 +8,11 @@ If you'd like to contribute, please have a look at the TODO file. For larger wor
 please get in touch first. For smaller work (there are some TODO comments in the
 source code), feel free to submit pull requests.
 
-To report a problem, please create a new issue on GitHub: https://github.com/ssllabs/ssllabs-scan/issues
-Please don't send bug reports to the mailing list.
+To report a problem related to this tool, please create a new issue on GitHub: https://github.com/ssllabs/ssllabs-scan/issues
+Please don't send bug reports to the community.
 
-To discuss the API and the development of the reference client implementation, please
-join the ssllabs-devel mailing list: https://sourceforge.net/p/ssllabs/mailman/ssllabs-devel/
+To discuss the API and the development of the reference client implementation and other questions not related to this command line tool, please
+join the SSL Labs community: https://community.qualys.com/community/ssllabs
 
 Before you use this tool please review the terms and conditions, which can be found here:
 https://www.ssllabs.com/about/terms.html

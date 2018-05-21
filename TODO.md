@@ -35,5 +35,4 @@ Raw test results (JSON) should always be stored in full. However, it might also 
 
 # Other Requirements
 
-* The next version of ssllabs-scan should build on the next version of SSL Labs APIs, v3.
 * To minimise confusion related to mismatched version numbers, the major version of ssllabs-scan should always follow the major version of SSL Labs APIs. 
