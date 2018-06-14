@@ -2,7 +2,7 @@
 
 ## ssllabs-scan v3.0
 
-At present, ssllabs-scan is a barebones reference client application for SSL Labs APIs. While it correctly implements the basic logic of invoking the APIs and executing many assessments in parallel, it lacks many features that are needed for useful continuos testing of multiple TLS servers. In the next major version, we wish to elevate ssllabs-scan into a more useful full-featured tool.
+At present, ssllabs-scan is a barebones reference client application for SSL Labs APIs. While it correctly implements the basic logic of invoking the APIs and executing many assessments in parallel, it lacks many features that are needed for useful continuous testing of multiple TLS servers. In the next major version, we wish to elevate ssllabs-scan into a more useful full-featured tool.
 
 ## Better output for single-server testing
 
