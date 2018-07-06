@@ -51,5 +51,4 @@ A list of libraries and tools that rely on the SSL Labs APIs can be found on the
 
 Docker images for this project are available at:
 
-* [https://github.com/jumanjihouse/docker-ssllabs-scan]
-  (https://github.com/jumanjihouse/docker-ssllabs-scan)
+* [https://github.com/jumanjihouse/docker-ssllabs-scan](https://github.com/jumanjihouse/docker-ssllabs-scan)
