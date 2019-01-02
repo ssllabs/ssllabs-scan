@@ -78,13 +78,21 @@ Parameters:
 
 #### Retrieve root certificates ####
 
-This call returns the root certificates used for trust validation.
+This call returns the latest root certificates(Mozilla, Apple MacOS, Android, Java and Windows) used for trust validation.
 
 **API Call:** `getRootCertsRaw`
 
 Parameters:
 
-* None.
+* **trustStore** (1-Mozilla(default), 2-Apple MacOS, 3-Android, 4-Java, 5-Windows)
+
+Example:
+
+* `https://api.ssllabs.com/api/v3/getRootCertsRaw?trustStore=1` Or `https://api.ssllabs.com/api/v3/getRootCertsRaw`
+* `https://api.ssllabs.com/api/v3/getRootCertsRaw?trustStore=2`
+* `https://api.ssllabs.com/api/v3/getRootCertsRaw?trustStore=3`
+* `https://api.ssllabs.com/api/v3/getRootCertsRaw?trustStore=4`
+* `https://api.ssllabs.com/api/v3/getRootCertsRaw?trustStore=5`
 
 ### Protocol Usage ###
 
