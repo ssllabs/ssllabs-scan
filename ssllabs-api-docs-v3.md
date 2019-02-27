@@ -1,6 +1,6 @@
-# SSL Labs API v3 Documentation v1.30.x (work in progress)#
+# SSL Labs API v3 Documentation v1.32.x (work in progress)#
 
-**Last update:** 13 January 2017<br>
+**Last update:** 27 February 2019<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -252,6 +252,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 0 (1) - set if at least one browser from our simulations negotiated a Forward Secrecy suite.
    * bit 1 (2) - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
    * bit 2 (4) - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
+* **supportsAead** - true if the server supports at least one AEAD suite.
 * **protocolIntolerance** - indicates protocol version intolerance issues:
    * bit 0 (1) - TLS 1.0
    * bit 1 (2) - TLS 1.1
@@ -321,6 +322,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **drownHosts[]** - list of [DROWN hosts](#drownhosts).
 * **drownErrors** - true if error occurred in the DROWN test.
 * **drownVulnerable** - true if server vulnerable to the DROWN attack.
+* **implementsTLS13MandatoryCS** - true if server supports mandatory TLS 1.3 cipher suite (TLS_AES_128_GCM_SHA256), null if TLS 1.3 not supported.
 
 ### CertificateChain ###
 
