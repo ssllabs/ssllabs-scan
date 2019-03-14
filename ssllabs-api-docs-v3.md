@@ -1,6 +1,6 @@
-# SSL Labs API v3 Documentation v1.32.x (work in progress)#
+# SSL Labs API v3 Documentation v1.33.x (work in progress)#
 
-**Last update:** 27 February 2019<br>
+**Last update:** 14 March 2019<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -323,6 +323,11 @@ The remainder of the document explains the structure of the returned objects. Th
 * **drownErrors** - true if error occurred in the DROWN test.
 * **drownVulnerable** - true if server vulnerable to the DROWN attack.
 * **implementsTLS13MandatoryCS** - true if server supports mandatory TLS 1.3 cipher suite (TLS_AES_128_GCM_SHA256), null if TLS 1.3 not supported.
+* **zeroRTTEnabled** - results of the 0-RTT test. This test will only be performed if TLS 1.3 is enabled:
+   * -2 - test failed
+   * -1 - test not performed (default)
+   * 0 - 0-RTT is not enabled
+   * 1 - 0-RTT is enabled
 
 ### CertificateChain ###
 
