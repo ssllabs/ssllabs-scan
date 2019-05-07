@@ -1,6 +1,6 @@
-# SSL Labs API v3 Documentation v1.33.x (work in progress)#
+# SSL Labs API v3 Documentation v1.34.x (work in progress)#
 
-**Last update:** 14 March 2019<br>
+**Last update:** 07 May 2019<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -253,6 +253,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * bit 1 (2) - set based on Simulator results if FS is achieved with modern clients. For example, the server supports ECDHE suites, but not DHE.
    * bit 2 (4) - set if all simulated clients achieve FS. In other words, this requires an ECDHE + DHE combination to be supported.
 * **supportsAead** - true if the server supports at least one AEAD suite.
+* **supportsCBC** - true if the server supports at least one CBC suite.
 * **protocolIntolerance** - indicates protocol version intolerance issues:
    * bit 0 (1) - TLS 1.0
    * bit 1 (2) - TLS 1.1
@@ -290,6 +291,30 @@ The remainder of the document explains the structure of the returned objects. Th
    * 2 - vulnerable (weak oracle)
    * 3 - vulnerable (strong oracle)
    * 4 - inconsistent results
+* **zombiePoodle** - results of the Zombie POODLE test:
+   * -1 - test failed
+   * 0 - unknown
+   * 1 - not vulnerable
+   * 2 - vulnerable
+   * 3 - vulnerable and exploitable
+* **goldenDoodle** - results of the GOLDENDOODLE test:
+   * -1 - test failed
+   * 0 - unknown
+   * 1 - not vulnerable
+   * 4 - vulnerable
+   * 5 - vulnerable and exploitable
+* **zeroLengthPaddingOracle** - results of the 0-Length Padding Oracle (CVE-2019-1559) test:
+   * -1 - test failed
+   * 0 - unknown
+   * 1 - not vulnerable
+   * 6 - vulnerable
+   * 7 - vulnerable and exploitable
+* **sleepingPoodle** - results of the Sleeping POODLE test:
+   * -1 - test failed
+   * 0 - unknown
+   * 1 - not vulnerable
+   * 10 - vulnerable
+   * 11 - vulnerable and exploitable
 * **poodle** - true if the endpoint is vulnerable to POODLE; false otherwise
 * **poodleTls** - results of the POODLE TLS test:
    * -3 - timeout
