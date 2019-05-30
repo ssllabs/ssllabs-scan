@@ -1,6 +1,6 @@
-# SSL Labs API v3 Documentation v1.34.x (work in progress)#
+# SSL Labs API v3 Documentation v1.35.x (work in progress)#
 
-**Last update:** 07 May 2019<br>
+**Last update:** 30 May 2019<br>
 **Author:** Ivan Ristic <iristic@qualys.com>
 
 This document explains the SSL Labs Assessment APIs, which can be used to test SSL servers available on the public Internet.
@@ -410,7 +410,9 @@ The remainder of the document explains the structure of the returned objects. Th
 * **namedGroupBits** - EC bits
 * **namedGroupId** - EC curve ID
 * **namedGroupName** - EC curve name
-* **q** - 0 if the suite is insecure, null otherwise
+* **q** - flag for suite insecure or weak. Not present if suite is strong or good
+   * 0 - insecure
+   * 1 - weak
 
 
 ### NamedGroups ###
