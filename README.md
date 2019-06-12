@@ -43,7 +43,7 @@ sudo docker run ssllabs-scan example.com
 
 ### From Source
 
-If you prefer to build your own binary from the latest release of the source code, make sure you have a correctly configured **Go >= 1.10** environment. More information about how to achieve this can be found [on the golang website.](https://golang.org/doc/install) Then, take the following steps:
+If you prefer to build your own binary from the latest release of the source code, make sure you have a correctly configured **Go >= 1.3** environment. More information about how to achieve this can be found [on the golang website.](https://golang.org/doc/install) Then, take the following steps:
 
 1. Download ssllabs-scan:
 
