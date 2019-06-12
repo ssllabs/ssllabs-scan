@@ -4,7 +4,7 @@ COPY . .
 RUN apk update \
   && apk upgrade \
   && apk add --no-cache ca-certificates \
-  && update-ca-certificates 2>/dev/null || true
+  && update-ca-certificates 2>/dev/null || true  \
   && apk --no-cache add git \
   && go get -u github.com/ssllabs/ssllabs-scan/...
 
