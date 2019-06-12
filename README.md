@@ -23,11 +23,11 @@ https://www.ssllabs.com/about/terms.html
 
 ## Installation
 
-# Prebuilt Binaries
+### Prebuilt Binaries
 
 A [precompiled version is available](https://github.com/ssllabs/ssllabs-scan/releases) with each release.
 
-# Using Docker
+### Using Docker
 
 1. Build the [Docker](https://docs.docker.com/) image:
 
@@ -41,7 +41,7 @@ sudo docker build -t ssllabs-scan https://github.com/ssllabs/ssllabs-scan.git
 sudo docker run ssllabs-scan example.com
 ```
 
-# From Source
+### From Source
 
 If you prefer to build your own binary from the latest release of the source code, make sure you have a correctly configured **Go >= 1.10** environment. More information about how to achieve this can be found [on the golang website.](https://golang.org/doc/install) Then, take the following steps:
 
