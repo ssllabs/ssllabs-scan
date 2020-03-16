@@ -337,7 +337,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **dhYsReuse** - true if the DH ephemeral server value is reused. Not present if the server doesn't support the DH key exchange.
 * **ecdhParameterReuse** - true if the server reuses its ECDHE values
 * **logjam** - true if the server uses DH parameters weaker than 1024 bits.
-* **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites.
+* **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites. Will be deprecated in new version.
 * **hstsPolicy{}** - server's [HSTS policy](#hstspolicy). Experimental.
 * **hstsPreloads[]** - information about [preloaded HSTS policies](#hstspreload).
 * **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy).
@@ -396,6 +396,7 @@ The remainder of the document explains the structure of the returned objects. Th
 * **protocol** - protocol version.
 * **list[]** - list of [Suite objects](#suite)
 * **preference** - true if the server actively selects cipher suites; if null, we were not able to determine if the server has a preference
+* **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites. null, we were not able to determine if the server has a chacha preference.
 
 ### Suite ###
 
