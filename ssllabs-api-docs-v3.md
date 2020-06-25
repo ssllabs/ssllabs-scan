@@ -284,6 +284,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * 0 - unknown
    * 1 - not vulnerable
    * 2 - vulnerable and insecure
+   * 3 - not vulnerable but a similar bug detected [\(additional details\)](https://community.qualys.com/thread/17180-is-ticketbleed-cve-2016-9244-possible-in-a-non-f5-environment#comment-36958)
 * **bleichenbacher** - results of the Return Of Bleichenbacher's Oracle Threat (ROBOT) test:
    * -1 - test failed
    * 0 - unknown
