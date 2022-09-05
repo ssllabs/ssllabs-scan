@@ -230,7 +230,7 @@ The remainder of the document explains the structure of the returned objects. Th
    * 1 - endpoint returns session IDs, but sessions are not resumed
    * 2 - session resumption is enabled
 * **compressionMethods** - integer value that describes supported compression methods
-   * bit 0 is set for DEFLATE
+   * bit 0 (1) is set for DEFLATE
 * **supportsNpn** - true if the server supports NPN
 * **npnProtocols** - space separated list of supported NPN protocols
 * **supportsAlpn** - true if the server supports ALPN
