@@ -12,4 +12,4 @@ RUN apk update \
   && apk add --no-cache ca-certificates \
   && update-ca-certificates 2>/dev/null || true
 
-ENTRYPOINT ["ssllabs-scan-v3"]
+CMD ["ssllabs-scan-v3"]
