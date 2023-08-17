@@ -281,10 +281,10 @@ The remainder of the document explains the structure of the returned objects. Th
 * **dhYsReuse** - true if the DH ephemeral server value is reused. Not present if the server doesn't support the DH key exchange.
 * **logjam** - true if the server uses DH parameters weaker than 1024 bits.
 * **chaCha20Preference** - true if the server takes into account client preferences when deciding if to use ChaCha20 suites.
-* **hstsPolicy{}** - server's [HSTS policy](#hstspolicy). Experimental.
-* **hstsPreloads[]** - information about [preloaded HSTS policies](#hstspreload).
-* **hpkpPolicy{}** - server's [HPKP policy](#hpkppolicy). Experimental.
-* **hpkpRoPolicy{}** - server's [HPKP RO (Report Only) policy](#hpkppolicy). Experimental. 
+* **hstsPolicy** - server's HSTS policy. Experimental.
+* **hstsPreloads[]** - information about preloaded HSTS policies.
+* **hpkpPolicy** - server's HPKP policy. Experimental.
+* **hpkpRoPolicy** - server's HPKP RO (Report Only) policy. Experimental. 
 * **drownHosts[]** - list of [drown hosts](#drownhosts). Experimental.
 * **drownErrors** - true if error occurred in drown test.
 * **drownVulnerable** - true if server vulnerable to drown attack.
