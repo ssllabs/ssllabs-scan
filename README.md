@@ -21,15 +21,22 @@ https://www.ssllabs.com/about/terms.html
 
 * Go >= 1.3
 
-## Usage 
+## Installation
 
-SYNOPSIS
 ```
-    ssllabs-scan [options] hostname
-    ssllabs-scan [options] --hostfile file
+go get -u github.com/ssllabs/ssllabs-scan
 ```
 
-OPTIONS
+## Usage
+
+### Synopsis
+
+```
+ssllabs-scan [options] hostname
+ssllabs-scan [options] --hostfile file
+```
+
+### Options
 
 | Option      | Default value | Description |
 | ----------- | ------------- | ----------- |
