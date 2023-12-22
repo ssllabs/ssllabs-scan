@@ -1,3 +1,4 @@
+//go:build go1.3
 // +build go1.3
 
 /*
@@ -1173,7 +1174,7 @@ func main() {
 						fmt.Println(",")
 					}
 					fmt.Println(results)
-					
+
 				}
 				fmt.Println("]")
 			}

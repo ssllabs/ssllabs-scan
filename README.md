@@ -17,6 +17,8 @@ join the SSL Labs community: https://community.qualys.com/community/ssllabs
 Before you use this tool please review the terms and conditions, which can be found here:
 https://www.ssllabs.com/about/terms.html
 
+Deprecated clients are now available at [deprecated-clients](deprecated-clients)
+
 ## Requirements
 
 * Go >= 1.3
@@ -25,23 +27,35 @@ https://www.ssllabs.com/about/terms.html
 
 SYNOPSIS
 ```
-    ssllabs-scan [options] hostname
-    ssllabs-scan [options] --hostfile file
+    ssllabs-scan [options] --email johndoe@example.com hostname
+    ssllabs-scan [options] --email johndoe@example.com --hostfile file
 ```
 
 OPTIONS
+[ssllabs-scan-v4.go](ssllabs-scan-v4.go)
 
-| Option      | Default value | Description |
-| ----------- | ------------- | ----------- |
-| --api       | BUILTIN       | API entry point, for example https://www.example.com/api/ |
-| --verbosity | info          | Configure log verbosity: error, info, debug, or trace |
-| --quiet     | false         | Disable status messages (logging) |
-| --ignore-mismatch | false   | Proceed with assessments on certificate mismatch |
-| --json-flat | false         | Output results in flattened JSON format |
-| --hostfile  | none          | File containing hosts to scan (one per line) |
-| --usecache  | false         | If true, accept cached results (if available), else force live scan |
-| --grade     | false         | Output only the hostname: grade |
-| --hostcheck | false         | If true, host resolution failure will result in a fatal error |
+| Option            | Default value | Description                                                         |
+|-------------------|---------------|---------------------------------------------------------------------|
+| --api             | BUILTIN       | API entry point, for example https://www.example.com/api/           |
+| --verbosity       | info          | Configure log verbosity: error, info, debug, or trace               |
+| --quiet           | false         | Disable status messages (logging)                                   |
+| --ignore-mismatch | false         | Proceed with assessments on certificate mismatch                    |
+| --json-flat       | false         | Output results in flattened JSON format                             |
+| --hostfile        | none          | File containing hosts to scan (one per line)                        |
+| --usecache        | false         | If true, accept cached results (if available), else force live scan |
+| --grade           | false         | Output only the hostname: grade                                     |
+| --hostcheck       | false         | If true, host resolution failure will result in a fatal error       |
+| --email           | ""            | Registered organization email for API v4 **(required)**             |
+
+[ssllabs-scan-v4-register.go](ssllabs-scan-v4-register.go)
+
+| Option           | Default value | Description                                                                |
+|------------------|---------------|----------------------------------------------------------------------------|
+| --firstName      | ""            | First name of the user                                                     |
+| --lastName       | ""            | Last name of the user                                                      |
+| --organization   | ""            | Organization of the user                                                   |
+| --email          | ""            | Organization email of the user                                             |
+| --registerApiUrl | BUILTIN       | Register API entry point, for example https://www.example.com/api/register |
 
 ## Third-Party Tools and Libraries
 
