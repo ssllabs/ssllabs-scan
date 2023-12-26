@@ -26,9 +26,13 @@ Deprecated clients are now available at [deprecated-clients](deprecated-clients)
 ## Usage 
 
 SYNOPSIS
+
+If you're using API v4 for the first time then please use the [ssllabs-scan-v4-register](ssllabs-scan-v4-register.go)
+
 ```
-    ssllabs-scan [options] --email johndoe@example.com hostname
-    ssllabs-scan [options] --email johndoe@example.com --hostfile file
+    ssllabs-scan-v4-register --firstName John --lastName Doe --organization Example --email johndoe@example.com
+    ssllabs-scan-v4 [options] --email johndoe@example.com hostname
+    ssllabs-scan-v4 [options] --email johndoe@example.com --hostfile file
 ```
 
 OPTIONS
