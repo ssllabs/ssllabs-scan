@@ -23,6 +23,44 @@ Deprecated clients are now available at [deprecated-clients](deprecated-clients)
 
 * Go >= 1.3
 
+## Installation
+
+### Prebuilt Binaries
+
+A [precompiled version is available](https://github.com/ssllabs/ssllabs-scan/releases) with each release.
+
+### Using Docker
+
+1. Build the [Docker](https://docs.docker.com/) image:
+
+```bash
+sudo docker build -t ssllabs-scan https://github.com/ssllabs/ssllabs-scan.git
+```
+
+2. Run the Docker image:
+
+```bash
+sudo docker run ssllabs-scan example.com
+```
+
+### From Source
+
+If you prefer to build your own binary from the latest release of the source code, make sure you have a correctly configured **Go >= 1.3** environment. More information about how to achieve this can be found [on the golang website.](https://golang.org/doc/install) Then, take the following steps:
+
+1. Download ssllabs-scan:
+
+```bash
+go get -u github.com/ssllabs/ssllabs-scan/...
+```
+
+2. If you wish to rebuild the binaries from the source code:
+
+```bash
+cd $GOPATH/src/github.com/ssllabs/ssllabs-scan
+
+go install ./...
+```
+
 ## Usage 
 
 SYNOPSIS
@@ -64,9 +102,3 @@ OPTIONS
 ## Third-Party Tools and Libraries
 
 A list of libraries and tools that rely on the SSL Labs APIs can be found on the SSL Labs web site: https://www.ssllabs.com/projects/ssllabs-apis/
-
-## Docker
-
-Docker images for this project are available at:
-
-* [https://github.com/jumanjihouse/docker-ssllabs-scan](https://github.com/jumanjihouse/docker-ssllabs-scan)
