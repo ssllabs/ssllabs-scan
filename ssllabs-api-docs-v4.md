@@ -17,7 +17,7 @@ Commercial use is generally not allowed, except with an explicit permission from
 
 ### API Calls ###
 
-This section documents the available API calls. The main API entry point is "https://api.ssllabs.com/api/v4/". If you want to check the API availability from a browser, invoke "https://api.ssllabs.com/api/v4/info". There is also an additional API entry point that can be used to test features that have not yet been deployed to production: "https://api.dev.ssllabs.com/api/v4/". You should expect that this second entry point is not consistently available. Further it offers only reduced assessment limits in comparison with the production version.
+This section documents the available API calls. The main API entry point is "https://api.ssllabs.com/api/v4/". If you want to check the API availability from a browser, invoke "https://api.ssllabs.com/api/v4/info".
 
 #### Register for Scan API initiation and result fetching ####
 
