@@ -1,4 +1,4 @@
-# SSL Labs API v4 Documentation v2.2.x (work in progress)#
+# SSL Labs API v4 Documentation v2.x.x (work in progress)#
 
 **Last update:** 17 October 2023<br>
 **Author:** Nauman Shah <nshah@qualys.com>
