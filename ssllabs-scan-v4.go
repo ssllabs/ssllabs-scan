@@ -564,6 +564,10 @@ func invokeGetRepeatedly(url string) (*http.Response, []byte, error) {
 				if logLevel >= LOG_DEBUG {
 					log.Printf("[DEBUG] HTTP request failed with EOF (ref#2)")
 				}
+			} else if strings.Contains(err.Error(), "connection reset by peer") {
+				if logLevel >= LOG_DEBUG {
+					log.Printf("[DEBUG] HTTP request failed with connection reset by peer, retrying...")
+				}
 			} else {
 				log.Fatalf("[ERROR] HTTP request failed: %v (ref#2)", err.Error())
 			}
