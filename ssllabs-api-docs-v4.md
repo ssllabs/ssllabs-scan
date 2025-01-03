@@ -102,7 +102,7 @@ Header:
 
 Example:
 
-* `curl --location 'https://<SSLLABS_HOSTNAME>/api/v4/analyze?host=www.ssllabs.com&s=173.203.82.166' --header 'email: jdoe@someoraganizationemail.com'`
+* `curl --location 'https://<SSLLABS_HOSTNAME>/api/v4/getEndpointData?host=www.ssllabs.com&s=173.203.82.166' --header 'email: jdoe@someoraganizationemail.com'`
 
 #### Retrieve known status codes ####
 
